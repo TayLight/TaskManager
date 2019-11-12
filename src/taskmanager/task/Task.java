@@ -1,12 +1,12 @@
 package taskmanager.task;
 
 import java.io.Serializable;
-import java.sql.Time;
+import java.time.LocalTime;
 
 public class Task implements Serializable {
     private String name;
     private String description;
-    private Time time;
+    private LocalTime time;
 
     public String getName() {
         return name;
@@ -16,18 +16,24 @@ public class Task implements Serializable {
         this.name = name;
     }
 
-    public void setTime(Time time) {
+    public void setTime(LocalTime time) {
         this.time = time;
     }
 
-    public Time getTime ()
+    public LocalTime getTime ()
     {
         return time;
     }
 
-    public Task(String name, Time time) {
+    public Task(String name, LocalTime time) {
         this.name = name;
-        this.time=time;
+        this.time = time;
+    }
+
+    public Task(String name, String description, LocalTime time) {
+        this.name = name;
+        this.time = time;
+        this.description = description;
     }
 
     public String getDescription() {

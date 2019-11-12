@@ -3,9 +3,21 @@ package taskmanager.task;
 import java.io.Serializable;
 import java.sql.Time;
 
+/**
+ * Задача
+ */
 public class Task implements Serializable {
+    /**
+     * Имя задачи
+     */
     private String name;
+    /**
+     * Описание задачи
+     */
     private String description;
+    /**
+     * Время, во сколько выполнить задачу
+     */
     private Time time;
 
     public String getName() {

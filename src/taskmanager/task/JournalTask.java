@@ -1,12 +1,6 @@
-package taskmanager.task;
-import taskmanager.exceptions.TaskNotFoundException;
-import taskmanager.task.Task;
-
-import java.io.Serializable;
-import java.sql.Time;
 import java.util.LinkedList;
 
-public class JournalTask implements Serializable {
+public class JournalTask implements Serializable, Manager {
     private LinkedList<Task> tasks;
 
     public JournalTask() {
@@ -14,10 +8,6 @@ public class JournalTask implements Serializable {
     }
 
     public void addTask(Task newTask) {
-        tasks.add(newTask);
-    }
-
-    public void addTask(int index, Task newTask) {
         tasks.addLast(newTask);
     }
 
@@ -25,8 +15,8 @@ public class JournalTask implements Serializable {
         if (tasks.size()<index)throw new TaskNotFoundException("Неверное значение индекса");
         tasks.get(index).setTime(newTime);
     }
-    public void editTask(int index, String text)
-    {
+    public void editTask(int index, String text) throws TaskNotFoundException {
+        if (tasks.size()<index)throw new TaskNotFoundException("Неверное значение индекса");
         tasks.get(index).setName(text);
     }
     public void editTask(int index, String text, Time newTime) throws TaskNotFoundException {

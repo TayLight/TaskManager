@@ -8,6 +8,9 @@ import java.time.LocalTime;
 import java.util.LinkedList;
 
 public class JournalTask implements Manager, Serializable {
+    /**
+     * Список задач
+     */
     private LinkedList<Task> tasks;
 
     public LinkedList<Task> getList(){

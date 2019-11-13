@@ -47,11 +47,11 @@ public class Task implements Serializable {
     @Override
     public String toString() {
         StringBuffer task = new StringBuffer();
-        task.append("Задача: ");
         task.append(name);
         task.append("\n");
-        task.append("Описание:");
         task.append(description);
+        task.append("\n");
+        task.append(time);
         task.append("\n");
         return task.toString();
     }

@@ -10,8 +10,17 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class View {
+    /**
+     * Сканер ввода
+     */
     static Scanner input = new Scanner(System.in);
+    /**
+     * Журнал задач
+     */
     static JournalTask journalTask = new JournalTask();
+    /**
+     * Маркер выход
+     */
     static boolean exit = false;
 
     public static void start() {
@@ -150,6 +159,9 @@ public class View {
         }
     }
 
+    /**
+     *
+     */
     public static void showTaskList(){
         if (journalTask.getList().size() == 0) {
             System.out.println("Журнал задач пуст.\n");

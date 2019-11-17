@@ -1,48 +1,45 @@
 package taskmanager;
 
+import taskmanager.exceptions.NameTaskException;
 import taskmanager.exceptions.TaskNotFoundException;
 import taskmanager.task.Task;
 
 
 import java.time.LocalTime;
 
+/**Интерфейс для взаимодействия с журналом задач
+ */
 public interface Manager {
-    /**
+    /**Метод добавления задачи в Журнал задач
      * @param newTask Новая задача
-     *                Метод добавления задачи в Журнал задач
      */
-    public void addTask(Task newTask);
+    public void addTask(Task newTask) throws NameTaskException;
 
-    /**
+    /** Метод удаления задачи, под индексом index
      * @param index Индекс удаляемой задачи
-     * @throws TaskNotFoundException
-     * Метод удаления задачи, под индексом index
+     * @throws TaskNotFoundException Задача не найдена
      */
     public void deleteTask(int index) throws TaskNotFoundException;
 
-    /**
+    /**Метод редактирования времени у задачи
      * @param index Индекс редактируемой задачи
      * @param newTime Новое устанавливаемое время
-     * @throws TaskNotFoundException
-     * Метод редактирования времени у задачи
+     * @throws TaskNotFoundException Задача не найдена
      */
     public void editTask(int index, LocalTime newTime) throws TaskNotFoundException;
 
-    /**
+    /**Метод редактирования имени у задачи
      * @param index Индекс редактируемой задачи
      * @param text Новое имя у редактируемой задачи
-     * @throws TaskNotFoundException
-     * Метод редактирования имени у задачи
+     * @throws TaskNotFoundException Задача не найдена
      */
     public void editTask(int index, String text) throws TaskNotFoundException;
 
-    /**
+    /**Метод редактирования описания у задачи
      * @param index Индекс редактируемой задачи
-     * @param text  Новое имя у задачи
-     * @param newTime Новое время у задачи
-     * @throws TaskNotFoundException
-     * Метод редактирования имени и времени у задачи
+     * @param description Новое описание
+     * @throws TaskNotFoundException Задача не найдена
      */
-    public void editTask(int index, String text, LocalTime newTime) throws TaskNotFoundException;
+    public void editTaskDescription(int index, String description) throws TaskNotFoundException;
 
 }

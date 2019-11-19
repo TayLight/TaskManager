@@ -14,33 +14,34 @@ public interface Manager {
     /**Метод добавления задачи в Журнал задач
      * @param newTask Новая задача
      */
-    public void addTask(Task newTask) throws NameTaskException;
+    void addTask(Task newTask) throws NameTaskException;
 
     /** Метод удаления задачи, под индексом index
      * @param index Индекс удаляемой задачи
      * @throws TaskNotFoundException Задача не найдена
      */
-    public void deleteTask(int index) throws TaskNotFoundException, SubscriberNotFoundException;
+    void deleteTask(int index) throws TaskNotFoundException, SubscriberNotFoundException;
 
+    Task getTask(int index) throws TaskNotFoundException;
     /**Метод редактирования времени у задачи
      * @param index Индекс редактируемой задачи
      * @param newTime Новое устанавливаемое время
      * @throws TaskNotFoundException Задача не найдена
      */
-    public void editTask(int index, LocalTime newTime) throws TaskNotFoundException;
+    void editTask(int index, LocalTime newTime) throws TaskNotFoundException;
 
     /**Метод редактирования имени у задачи
      * @param index Индекс редактируемой задачи
      * @param text Новое имя у редактируемой задачи
      * @throws TaskNotFoundException Задача не найдена
      */
-    public void editTask(int index, String text) throws TaskNotFoundException;
+    void editTask(int index, String text) throws TaskNotFoundException;
 
     /**Метод редактирования описания у задачи
      * @param index Индекс редактируемой задачи
      * @param description Новое описание
      * @throws TaskNotFoundException Задача не найдена
      */
-    public void editTaskDescription(int index, String description) throws TaskNotFoundException;
+    void editTaskDescription(int index, String description) throws TaskNotFoundException;
 
 }

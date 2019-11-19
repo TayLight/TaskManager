@@ -9,7 +9,7 @@ import java.time.LocalTime;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
-public class View {
+public class View implements ControllerChangedSubscriber {
     /**
      * Сканер ввода
      */

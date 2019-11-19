@@ -1,5 +1,6 @@
 package taskmanager.task;
 
+import taskmanager.ControllerChangedSubscriber;
 import taskmanager.Manager;
 import taskmanager.TaskChangeSubscriber;
 import taskmanager.exceptions.NameTaskException;
@@ -16,7 +17,7 @@ public class JournalTask implements Manager, Serializable, TaskChangeSubscriber 
      */
     private LinkedList<Task> tasks;
 
-    private TaskChangeSubscriber subscriber;
+    private ControllerChangedSubscriber subscriber;
 
     public LinkedList<Task> getList(){
         return tasks;
@@ -29,7 +30,14 @@ public class JournalTask implements Manager, Serializable, TaskChangeSubscriber 
     public void addTask(Task newTask) throws NameTaskException {
         testTaskForName(newTask.getName());
         tasks.addLast(newTask);
-        tasks.getLast().subscribe(this);
+        newTask.subscribe(this);
+        subscriber.taskAdded(newTask);
+    }
+
+    public Task getTask(int index) throws TaskNotFoundException
+    {
+        if(index> tasks.size()) throw new TaskNotFoundException("Задача не найдена");
+        return tasks.get(index);
     }
 
     public void editTask(int index, LocalTime newTime) throws TaskNotFoundException {
@@ -47,7 +55,10 @@ public class JournalTask implements Manager, Serializable, TaskChangeSubscriber 
 
     public void deleteTask(int index) throws TaskNotFoundException, SubscriberNotFoundException {
         if (tasks.size()<index) throw new TaskNotFoundException("Неверное значение индекса");
+        Task tempTask = tasks.get(index);
+        tempTask.unSubscribe(this);
         tasks.remove(index);
+        subscriber.taskDeleted(tempTask);
     }
 
     private void testTaskForName(String name) throws NameTaskException {
@@ -57,17 +68,7 @@ public class JournalTask implements Manager, Serializable, TaskChangeSubscriber 
 
     private void notifySubscriberChange(Task task)
     {
-        subscriber.taskChanged(task);
-    }
-
-    private void notifySubscriberDeleted(Task task)
-    {
-        subscriber.taskDeleted(task);
-    }
-
-    @Override
-    public void taskDeleted(Task task) {
-        notifySubscriberDeleted(task);
+        subscriber.taskEdited(task);
     }
 
     @Override

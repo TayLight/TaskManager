@@ -53,6 +53,11 @@ public class JournalTask implements Manager, Serializable, TaskChangeSubscriber 
         tasks.get(index).setDescription(description);
     }
 
+    public void editTaskContacts(int index, String contacts) throws TaskNotFoundException {
+        if (tasks.size()<index) throw new TaskNotFoundException("Неверное значение индекса");
+        tasks.get(index).setContacts(contacts);
+    }
+
     public void deleteTask(int index) throws TaskNotFoundException, SubscriberNotFoundException {
         if (tasks.size()<index) throw new TaskNotFoundException("Неверное значение индекса");
         Task tempTask = tasks.get(index);

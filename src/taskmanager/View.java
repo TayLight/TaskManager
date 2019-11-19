@@ -1,5 +1,4 @@
 package taskmanager;
-
 import taskmanager.exceptions.TaskNotFoundException;
 import taskmanager.task.JournalTask;
 import taskmanager.task.Task;

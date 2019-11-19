@@ -1,17 +1,20 @@
 package taskmanager.task;
 
+import org.quartz.Job;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
 import taskmanager.TaskChangeSubscriber;
 import taskmanager.exceptions.SubscriberNotFoundException;
 
 import java.io.Serializable;
 import java.time.LocalTime;
-import java.util.Collection;
-import java.util.concurrent.CopyOnWriteArrayList;
 
-public class Task implements Serializable {
+
+public class Task implements Serializable, Job {
     private String name;
     private String description;
     private LocalTime time;
+    private String contacts;
     private TaskChangeSubscriber subscriber;
 
     public String getName() {
@@ -33,11 +36,6 @@ public class Task implements Serializable {
         return time;
     }
 
-    public Task(String name, LocalTime time) {
-        this.name = name;
-        this.time = time;
-    }
-
     public Task(String name, String description, LocalTime time) {
         this.name = name;
         this.time = time;
@@ -53,6 +51,14 @@ public class Task implements Serializable {
         taskEdited();
     }
 
+    public String getContacts() {
+        return contacts;
+    }
+
+    public void setContacts(String contacts) {
+        this.contacts = contacts;
+    }
+
     @Override
     public String toString() {
         StringBuffer task = new StringBuffer();
@@ -61,6 +67,8 @@ public class Task implements Serializable {
         task.append(time);
         task.append("\n");
         task.append(description);
+        task.append("\n");
+        task.append(contacts);
         return task.toString();
     }
 
@@ -79,5 +87,10 @@ public class Task implements Serializable {
         {
             subscriber.taskChanged(this);
         }
+    }
+
+    @Override
+    public void execute(JobExecutionContext context) throws JobExecutionException {
+        System.out.println(this.toString());
     }
 }

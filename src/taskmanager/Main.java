@@ -10,8 +10,7 @@ public class Main {
 
     public static void main(String[] args)
     {
-        Task newTask = new Task("Name", "dsa", LocalTime.of(2,4,4));
-        System.out.println(newTask.toString());
-        View.start();
+        View view = new View();
+        view.start();
     }
 }

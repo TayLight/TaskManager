@@ -48,11 +48,9 @@ public class Task implements Serializable {
     public String toString() {
         StringBuffer task = new StringBuffer();
         task.append(name);
+        task.append("  [" + time + "]");
         task.append("\n");
         task.append(description);
-        task.append("\n");
-        task.append(time);
-        task.append("\n");
         return task.toString();
     }
 }

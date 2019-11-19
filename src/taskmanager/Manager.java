@@ -1,7 +1,6 @@
 package taskmanager;
 
 import taskmanager.exceptions.NameTaskException;
-import taskmanager.exceptions.SubscriberNotFoundException;
 import taskmanager.exceptions.TaskNotFoundException;
 import taskmanager.task.Task;
 
@@ -20,7 +19,7 @@ public interface Manager {
      * @param index Индекс удаляемой задачи
      * @throws TaskNotFoundException Задача не найдена
      */
-    void deleteTask(int index) throws TaskNotFoundException, SubscriberNotFoundException;
+    void deleteTask(int index) throws TaskNotFoundException;
 
     Task getTask(int index) throws TaskNotFoundException;
     /**Метод редактирования времени у задачи

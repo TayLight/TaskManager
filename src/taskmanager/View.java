@@ -10,7 +10,7 @@ import java.time.LocalTime;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
-public class View {
+public class View implements ControllerChangedSubscriber {
     /**
      * Сканер ввода
      */
@@ -30,7 +30,7 @@ public class View {
      * Запуск пользовательского интерфейса
      */
     public void start() {
-
+        journalTask.subscribe(this);
         while (!exit) {
             consoleClear(); // "очистка" консоли
             System.out.println("[TASK MANAGER]\n");
@@ -57,6 +57,7 @@ public class View {
             }
         }
         System.out.println("Завершение работы программы...");
+        journalTask.unsubscribe();
     }
 
     /**
@@ -115,7 +116,7 @@ public class View {
                 }
                 Task task = new Task(name, description, time);
                 journalTask.addTask(task);
-                System.out.println("\nЗадача успешно добавлена в журнал.\nНажмите Enter, чтобы продолжить...");
+                System.out.println("\nНажмите Enter, чтобы продолжить...");
                 input.nextLine();
                 break;
             }
@@ -290,7 +291,7 @@ public class View {
                             catch(TaskNotFoundException ex){
                                 System.out.println(ex.getMessage() + " Повторите ввод.");
                             }
-                            System.out.println("Задача удалена. Нажмите Enter, чтобы продолжить...");
+                            System.out.println("Нажмите Enter, чтобы продолжить...");
                             break;
                         case 2:
                             System.out.println("Задача не удалена. Нажмите Enter, чтобы продолжить...");
@@ -362,4 +363,18 @@ public class View {
         for (int i = 0; i < 40; i++) System.out.println();
     }
 
+    @Override
+    public void taskDeleted(Task task) {
+        System.out.println("\nЗадача " + task.getName() +" успешно удалена.");
+    }
+
+    @Override
+    public void taskAdded(Task task) {
+        System.out.println("\nЗадача " + task.getName() +" успешно добавлена.");
+    }
+
+    @Override
+    public void taskEdited(Task task) {
+        System.out.println("\nЗадача " + task.getName() +" успешно изменена.");
+    }
 }

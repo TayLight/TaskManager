@@ -4,6 +4,9 @@ import java.time.DateTimeException;
 import java.time.LocalTime;
 import java.util.Scanner;
 
+/**
+ * Класс обработки строки в представление времени
+ */
 public class StringParser {
 
     Scanner input = new Scanner(System.in);

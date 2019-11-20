@@ -10,6 +10,9 @@ import java.time.LocalTime;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
+/** Пользовательский интерфейс, выводящий пользователю информацию о работе с журналом задач
+ *
+ */
 public class View implements ControllerChangedSubscriber {
     /**
      * Сканер ввода
@@ -325,7 +328,7 @@ public class View implements ControllerChangedSubscriber {
     }
 
     /**
-     * Вывод списка задач
+     * Вывод на экран списка задач
      */
     private void showTaskList(){
         if (journalTask.size() == 0) {
@@ -363,16 +366,25 @@ public class View implements ControllerChangedSubscriber {
         for (int i = 0; i < 40; i++) System.out.println();
     }
 
+    /**Метод оповещающий пользователя об удалении задачи
+     * @param task задача, удаленная из журнала задач
+     */
     @Override
     public void taskDeleted(Task task) {
         System.out.println("\nЗадача " + task.getName() +" успешно удалена.");
     }
 
+    /**Метод оповещающий пользователя о добавлении задачи
+     * @param task Добавленная задача
+     */
     @Override
     public void taskAdded(Task task) {
         System.out.println("\nЗадача " + task.getName() +" успешно добавлена.");
     }
 
+    /**Метод оповещающий пользователя об изменении задачи
+     * @param task Измененная задача
+     */
     @Override
     public void taskEdited(Task task) {
         System.out.println("\nЗадача " + task.getName() +" успешно изменена.");

@@ -2,6 +2,7 @@ package taskmanager.task;
 
 import taskmanager.ControllerChangedSubscriber;
 import taskmanager.Manager;
+import taskmanager.NotificationSystemThread;
 import taskmanager.TaskChangeSubscriber;
 import taskmanager.exceptions.NameTaskException;
 import taskmanager.exceptions.TaskNotFoundException;
@@ -33,6 +34,8 @@ public class JournalTask implements Manager, Serializable, TaskChangeSubscriber 
         tasks.addLast(newTask);
         newTask.subscribe(this);
         taskAdded(newTask);
+        NotificationSystemThread newNotify = new NotificationSystemThread(newTask);
+        newNotify.start();
     }
 
     public void editTask(int index, LocalTime newTime) throws TaskNotFoundException {

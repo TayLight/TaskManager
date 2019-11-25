@@ -11,7 +11,12 @@ public class Main {
 
     public static void main(String[] args)
     {
-        View view = new View();
+        JournalTask journalTask = new JournalTask(); //д.б. манагер
+        View view = new View(journalTask);
+        Runnable run = new NotificationSystemThread(journalTask);
+        Thread thread = new Thread(run);
+        thread.setDaemon(true);
+        thread.start();
         view.start();
     }
 }

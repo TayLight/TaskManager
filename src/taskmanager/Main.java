@@ -11,7 +11,7 @@ public class Main {
 
     public static void main(String[] args)
     {
-        JournalTask journalTask = new JournalTask(); //д.б. манагер
+        Manager journalTask = new JournalTask(); //д.б. манагер
         View view = new View(journalTask);
         Runnable run = new NotificationSystemThread(journalTask);
         Thread thread = new Thread(run);

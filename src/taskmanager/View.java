@@ -24,7 +24,7 @@ public class View implements TaskChangedSubscriber {
     /**
      * Журнал задач
      */
-    private JournalTask journalTask; //д.б. манагер
+    private Manager journalTask; //д.б. манагер
     /**
      * Маркер выхода из программы
      */
@@ -46,7 +46,7 @@ public class View implements TaskChangedSubscriber {
         ANOTHER_TASK
     }
 
-    public View(JournalTask journalTask){
+    public View(Manager journalTask){
         this.journalTask = journalTask;
     }
 

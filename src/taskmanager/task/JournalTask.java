@@ -58,7 +58,7 @@ public class JournalTask implements Manager, Serializable {
     /**Метод, возвращающий размер журнала задача
      * @return Возвращает размером журнала задач
      */
-    public int size (){
+    public int size(){
         return tasks.size();
     }
 

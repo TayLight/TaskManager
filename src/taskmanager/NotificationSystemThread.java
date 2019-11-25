@@ -15,7 +15,7 @@ public class NotificationSystemThread extends Thread implements Serializable, Ru
     /**
      * Журнал задач
      */
-    private JournalTask journalTask;
+    private Manager journalTask;
 
 //    /**
 //     * Флаг удаления задачи
@@ -25,7 +25,7 @@ public class NotificationSystemThread extends Thread implements Serializable, Ru
     /**Конструктор, принимающий задачу на выполнение
      * @param journalTask Задача, чье сообщение будет выводиться пользователю
      */
-    public NotificationSystemThread(JournalTask journalTask) {
+    public NotificationSystemThread(Manager journalTask) {
         this.journalTask = journalTask;
     }
 

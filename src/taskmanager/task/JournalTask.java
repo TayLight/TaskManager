@@ -1,34 +1,55 @@
 package taskmanager.task;
 
-import taskmanager.ControllerChangedSubscriber;
+import taskmanager.NotificationSystemThread;
+import taskmanager.TaskChangedSubscriber;
 import taskmanager.Manager;
-import taskmanager.TaskChangeSubscriber;
 import taskmanager.exceptions.NameTaskException;
 import taskmanager.exceptions.TaskNotFoundException;
 
-import java.io.Serializable;
+import java.io.*;
 import java.time.LocalTime;
 import java.util.LinkedList;
 
 /** Журнал задач
  * Здесь хранится список задач для оповещения пользователя
  */
-public class JournalTask implements Manager, Serializable, TaskChangeSubscriber {
+public class JournalTask implements Manager, Serializable {
+    String pathToJournalTask = "C:\\Users\\Dogore\\Documents\\NetCracker\\Pract\\TaskManager\\JournalTask.txt";
     /**Список задач
      */
     private LinkedList<Task> tasks;
     /**Подписчик на обновления
      */
-    private ControllerChangedSubscriber subscriber = null;
+    private TaskChangedSubscriber subscriber = null;
+
+    NotificationSystemThread notificationSystemThread =null;
 
     public JournalTask() {
-        tasks = new LinkedList<>();
+        File fileJournalTask = new File(pathToJournalTask);
+        if (fileJournalTask.exists())
+        {
+            try {
+                FileInputStream fileInputStream = new FileInputStream(pathToJournalTask);
+                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+                tasks = (LinkedList<Task>) objectInputStream.readObject();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+            tasks = new LinkedList<>();
+            try {
+                fileJournalTask.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
-    /** Метод получения задачи по индексу
-     * @param index индекс необходимой задачи
-     * @return возвращает модель под индексом index
-     */
     public Task getTask (int index){
         return tasks.get(index);
     }
@@ -40,57 +61,46 @@ public class JournalTask implements Manager, Serializable, TaskChangeSubscriber 
         return tasks.size();
     }
 
-    /** Метод добавления задачи в журнал задач
-     * @param newTask Новая задача
-     */
     public void addTask(Task newTask){
         tasks.addLast(newTask);
-        newTask.subscribe(this);
-        taskAdded(newTask);
+        subscriber.taskAdded(newTask);
     }
 
-    /**Метод редактирования у задачи времени
-     * @param index   Индекс редактируемой задачи
-     * @param newTime Новое устанавливаемое время
-     * @throws TaskNotFoundException задача не найдена
-     */
     public void editTask(int index, LocalTime newTime) throws TaskNotFoundException {
         testTaskForIndex(index);
         tasks.get(index).setTime(newTime);
-        taskChanged(tasks.get(index));
+        subscriber.taskEdited(tasks.get(index));
     }
-    /**Метод редактирования у задачи имени
-     * @param index   Индекс редактируемой задачи
-     * @param name Новое устанавливаемое имя задачи
-     * @throws TaskNotFoundException задача не найдена
-     */
+
     public void editTask(int index, String name) throws TaskNotFoundException {
         testTaskForIndex(index);
         tasks.get(index).setName(name);
-        taskChanged(tasks.get(index));
+        subscriber.taskEdited(tasks.get(index));
     }
-    /**Метод редактирования у задачи описания
-     * @param index   Индекс редактируемой задачи
-     * @param description Новое устанавливаемое описание
-     * @throws TaskNotFoundException задача не найдена
-     */
+
     public void editTaskDescription(int index, String description) throws TaskNotFoundException {
         testTaskForIndex(index);
         tasks.get(index).setDescription(description);
-        taskChanged(tasks.get(index));
+        subscriber.taskEdited(tasks.get(index));
     }
 
-    /** Метод удаления задачи
-     * @param index Индекс удаляемой задачи
-     * @throws TaskNotFoundException задача не найдена
-     */
     public void deleteTask(int index) throws TaskNotFoundException {
         testTaskForIndex(index);
-        tasks.get(index).unsubscribe();
         Task tempTask = tasks.get(index);
         tasks.remove(index);
         tempTask.getNotify().setTaskDeleted(true);
-        taskDeleted(tempTask);
+        subscriber.taskDeleted(tempTask);
+    }
+
+    public void savJournalTask()
+    {
+        try (ObjectOutputStream out2 = new ObjectOutputStream(new FileOutputStream(pathToJournalTask))) {
+            out2.writeObject(tasks);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /** Метод проверки на уникальность имени
@@ -111,32 +121,10 @@ public class JournalTask implements Manager, Serializable, TaskChangeSubscriber 
         if (tasks.size() < index) throw new TaskNotFoundException("Неверное значение индекса.");
     }
 
-    /** Метод оповещения подписчиков об изменении модели
-     * @param task  измененная модель
-     */
-    @Override
-    public void taskChanged(Task task) {
-        subscriber.taskEdited(task);
-    }
-    /** Метод оповещения подписчиков об добавлении модели
-     * @param task  добавленная модель
-     */
-    private void taskAdded(Task task)
-    {
-        subscriber.taskAdded(task);
-    }
-    /** Метод оповещения подписчиков об удалении модели
-     * @param task  удаленная модель
-     */
-    private void taskDeleted(Task task)
-    {
-        subscriber.taskDeleted(task);
-    }
-
     /** Метод подписки на обновления
      * @param subscriber Новый подписчик
      */
-    public void subscribe(ControllerChangedSubscriber subscriber)  {
+    public void subscribe(TaskChangedSubscriber subscriber)  {
         this.subscriber = subscriber;
     }
 

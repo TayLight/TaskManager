@@ -21,6 +21,12 @@ public interface Manager {
      */
     void deleteTask(int index) throws TaskNotFoundException;
 
+
+    /**Метод получения задачи по индексу
+     * @param index индекс задачи в журнале задач
+     * @return возвращает задачу с индексом index
+     * @throws TaskNotFoundException Ошибка, задача не найден
+     */
     Task getTask(int index) throws TaskNotFoundException;
     /**Метод редактирования времени у задачи
      * @param index Индекс редактируемой задачи

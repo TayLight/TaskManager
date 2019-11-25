@@ -13,7 +13,7 @@ import java.util.Scanner;
 /** Пользовательский интерфейс, выводящий пользователю информацию о работе с журналом задач
  *
  */
-public class View implements ControllerChangedSubscriber {
+public class View implements TaskChangedSubscriber {
     /**
      * Сканер ввода
      */
@@ -323,6 +323,7 @@ public class View implements ControllerChangedSubscriber {
             }
             case 0: //выход
                 exit = true;
+                journalTask.savJournalTask();
                 break;
         }
     }
@@ -388,5 +389,11 @@ public class View implements ControllerChangedSubscriber {
     @Override
     public void taskEdited(Task task) {
         System.out.println("\nЗадача " + task.getName() +" успешно изменена.");
+    }
+
+    @Override
+    public void taskNotify(Task task) {
+        System.out.println("Оповещение:");
+        System.out.println(task.toString());
     }
 }

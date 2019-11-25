@@ -5,7 +5,7 @@ import taskmanager.task.Task;
 /**Интерфейс подписчика на изменения контроллера
  *
  */
-public interface ControllerChangedSubscriber {
+public interface TaskChangedSubscriber {
 
     /**Метод, оповещающий подписчиков об удалении задачи из журнала задач
      * @param task задача, удаленная из журнала задач
@@ -21,4 +21,6 @@ public interface ControllerChangedSubscriber {
      * @param task Измененная задача
      */
     void taskEdited(Task task);
+
+    void taskNotify(Task task);
 }

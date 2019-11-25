@@ -1,7 +1,6 @@
 package taskmanager.task;
 
 import taskmanager.NotificationSystemThread;
-import taskmanager.TaskChangeSubscriber;
 
 import java.io.Serializable;
 import java.time.LocalTime;
@@ -23,10 +22,6 @@ public class Task implements Serializable {
      */
     private LocalTime time;
     /**
-     * Подписчик на обновление задачи
-     */
-    private TaskChangeSubscriber subscriber = null;
-    /**
      * Система оповещения пользователя
      */
     private NotificationSystemThread notify = new NotificationSystemThread(this);
@@ -43,7 +38,6 @@ public class Task implements Serializable {
      */
     public void setName(String name) {
         this.name = name;
-        taskEdited();
     }
 
     /** Метод изменения времени задачи
@@ -51,7 +45,6 @@ public class Task implements Serializable {
      */
     public void setTime(LocalTime time) {
         this.time = time;
-        taskEdited();
     }
 
     /**Метод получения времени задачи
@@ -93,7 +86,6 @@ public class Task implements Serializable {
      */
     void setDescription(String description) {
         this.description = description;
-        taskEdited();
     }
 
     /**Метод возвращающий строковое представление задачи
@@ -107,29 +99,5 @@ public class Task implements Serializable {
         task.append("\n");
         task.append(description);
         return task.toString();
-    }
-
-    /**Метод оповещающий подписчиков об изменении задачи
-     *
-     */
-    public void taskEdited()
-    {
-        subscriber.taskChanged(this);
-    }
-
-    /**Метод для подписки на обновления модели
-     * @param subscriber Новый подписчик
-     */
-    void subscribe(TaskChangeSubscriber subscriber)
-    {
-        this.subscriber = subscriber;
-    }
-
-    /**Метод отписки от обновлений модели
-     *
-     */
-    void unsubscribe()
-    {
-        this.subscriber=null;
     }
 }

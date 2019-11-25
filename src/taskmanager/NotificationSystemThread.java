@@ -1,12 +1,14 @@
 package taskmanager;
 
 import taskmanager.task.Task;
+
+import java.io.Serializable;
 import java.time.LocalTime;
 
 /**Система оповещения пользователя
  * В указаное время система выводит пользователю сообщение, заранее заданное пользователем
  */
-public class NotificationSystemThread extends Thread {
+public class NotificationSystemThread extends Thread implements Serializable {
     /**
      * Выводимая пользователю задача
      */

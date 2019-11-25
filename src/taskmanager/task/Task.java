@@ -24,7 +24,12 @@ public class Task implements Serializable {
     /**
      * Система оповещения пользователя
      */
-    private NotificationSystemThread notify = new NotificationSystemThread(this);
+    //private NotificationSystemThread notify = new NotificationSystemThread(this);
+
+    /**
+     * Флаг актуальности задачи. Задача актуальна, пока она не выполнилась
+     */
+    private boolean relevance;
 
     /** Метод получения имени задачи
      * @return возвращает имя задачи
@@ -64,15 +69,15 @@ public class Task implements Serializable {
         this.name = name;
         this.time = time;
         this.description = description;
-        notify.start();
+        relevance = true;
     }
 
     /** Метод получения системы оповещения
      * @return Возвращает систему оповещения задачи
      */
-    public NotificationSystemThread getNotify() {
-        return notify;
-    }
+//    public NotificationSystemThread getNotify() {
+//        return notify;
+//    }
 
     /**Метод получения описания задачи
      * @return Возвращает описание задачи
@@ -99,5 +104,19 @@ public class Task implements Serializable {
         task.append("\n");
         task.append(description);
         return task.toString();
+    }
+
+    /** Установка актуальности задачи
+     * @param status Статус актуальности задачи
+     */
+    public void setRelevance(boolean status){
+        this.relevance = status;
+    }
+
+    /** Получение значения актуальности
+     * @return Значение актуальности задачи
+     */
+    public boolean getRelevance(){
+        return relevance;
     }
 }

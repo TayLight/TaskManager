@@ -14,7 +14,7 @@ import java.util.LinkedList;
  * Здесь хранится список задач для оповещения пользователя
  */
 public class JournalTask implements Manager, Serializable {
-    String pathToJournalTask = "C:\\Users\\Dogore\\Documents\\NetCracker\\Pract\\TaskManager\\JournalTask.txt";
+    String pathToJournalTask = "C:\\NC\\JournalTask.txt";
     /**Список задач
      */
     private LinkedList<Task> tasks;
@@ -22,7 +22,7 @@ public class JournalTask implements Manager, Serializable {
      */
     private TaskChangedSubscriber subscriber = null;
 
-    NotificationSystemThread notificationSystemThread =null;
+    NotificationSystemThread notificationSystemThread = null;
 
     public JournalTask() {
         File fileJournalTask = new File(pathToJournalTask);
@@ -50,7 +50,8 @@ public class JournalTask implements Manager, Serializable {
         }
     }
 
-    public Task getTask (int index){
+    public Task getTask (int index) throws TaskNotFoundException{
+        checkIndexOnBound(index);
         return tasks.get(index);
     }
 
@@ -61,34 +62,34 @@ public class JournalTask implements Manager, Serializable {
         return tasks.size();
     }
 
-    public void addTask(Task newTask){
+    public void addTask(Task newTask) throws NameTaskException{
         tasks.addLast(newTask);
         subscriber.taskAdded(newTask);
     }
 
     public void editTask(int index, LocalTime newTime) throws TaskNotFoundException {
-        testTaskForIndex(index);
+        checkIndexOnBound(index);
         tasks.get(index).setTime(newTime);
         subscriber.taskEdited(tasks.get(index));
     }
 
     public void editTask(int index, String name) throws TaskNotFoundException {
-        testTaskForIndex(index);
+        checkIndexOnBound(index);
         tasks.get(index).setName(name);
         subscriber.taskEdited(tasks.get(index));
     }
 
     public void editTaskDescription(int index, String description) throws TaskNotFoundException {
-        testTaskForIndex(index);
+        checkIndexOnBound(index);
         tasks.get(index).setDescription(description);
         subscriber.taskEdited(tasks.get(index));
     }
 
     public void deleteTask(int index) throws TaskNotFoundException {
-        testTaskForIndex(index);
+        checkIndexOnBound(index);
         Task tempTask = tasks.get(index);
         tasks.remove(index);
-        tempTask.getNotify().setTaskDeleted(true);
+        //tempTask.getNotify().setTaskDeleted(true);
         subscriber.taskDeleted(tempTask);
     }
 
@@ -107,18 +108,18 @@ public class JournalTask implements Manager, Serializable {
      * @param name Имя задачи для проверки
      * @throws NameTaskException Задача с таким именем уже есть
      */
-    public void testTaskForName(String name) throws NameTaskException {
+    public void checkUniqueName(String name) throws NameTaskException {
         for (Task task : tasks) {
             if (task.getName().equals(name)) throw new NameTaskException("Задача с таким именем уже существует.");
         }
     }
 
     /** Метод проверки значения индекса
-     * @param index
-     * @throws TaskNotFoundException
+     * @param index Индекс проверяемой задачи
+     * @throws TaskNotFoundException Задачи с таким индексом не существует
      */
-    public void testTaskForIndex(int index) throws TaskNotFoundException{
-        if (tasks.size() < index) throw new TaskNotFoundException("Неверное значение индекса.");
+    public void checkIndexOnBound(int index) throws TaskNotFoundException{
+        if (index < 0 || index > tasks.size() - 1) throw new TaskNotFoundException("Неверное значение индекса.");
     }
 
     /** Метод подписки на обновления

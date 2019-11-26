@@ -50,11 +50,13 @@ public class NotificationSystemThread extends Thread implements Serializable, Ru
                 try{
                     if ((task.getTime().isBefore(timeNow)) && task.getRelevance()){
                         Message(task.getName(), task.getDescription() + "\n" + task.getTime().toString());
+                        journalTask.deleteTaskByNotify(i);
                         task.setRelevance(false);
                         break;
                     }
                     else if ((task.getTime().equals(timeNow)) && task.getRelevance()){
                         Message(task.getName(), task.getDescription());
+                        journalTask.deleteTaskByNotify(i);
                         task.setRelevance(false);
                         break;
                     }

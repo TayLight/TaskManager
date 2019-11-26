@@ -56,6 +56,8 @@ public interface Manager {
      */
     int size();
 
+    public void deleteTaskByNotify(int index);
+
     /** Метод сохранения журнала в файл
      *
      */

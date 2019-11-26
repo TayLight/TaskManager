@@ -14,7 +14,7 @@ import java.util.LinkedList;
  * Здесь хранится список задач для оповещения пользователя
  */
 public class JournalTask implements Manager, Serializable {
-    String pathToJournalTask = "C:\\NC\\JournalTask.txt";
+    String pathToJournalTask = "C:\\Users\\Dogore\\Documents\\NetCracker\\Pract\\TaskManager\\JournalTask.txt";
     /**Список задач
      */
     private LinkedList<Task> tasks;
@@ -91,6 +91,11 @@ public class JournalTask implements Manager, Serializable {
         tasks.remove(index);
         //tempTask.getNotify().setTaskDeleted(true);
         subscriber.taskDeleted(tempTask);
+    }
+
+    public void deleteTaskByNotify(int index)
+    {
+        tasks.remove(index);
     }
 
     public void savJournalTask()

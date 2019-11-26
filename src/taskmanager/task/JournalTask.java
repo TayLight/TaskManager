@@ -28,17 +28,16 @@ public class JournalTask implements Manager, Serializable {
         File fileJournalTask = new File(pathToJournalTask);
         if (fileJournalTask.exists())
         {
-            try {
-                FileInputStream fileInputStream = new FileInputStream(pathToJournalTask);
-                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-                tasks = (LinkedList<Task>) objectInputStream.readObject();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
+            if(fileJournalTask.length()!=0) {
+                try {
+                    FileInputStream fileInputStream = new FileInputStream(pathToJournalTask);
+                    ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+                    tasks = (LinkedList<Task>) objectInputStream.readObject();
+
+                } catch (ClassNotFoundException | IOException e) {
+                    e.printStackTrace();
+                }
+            }else tasks = new LinkedList<>();
         }
         else {
             tasks = new LinkedList<>();
@@ -98,14 +97,24 @@ public class JournalTask implements Manager, Serializable {
         tasks.remove(index);
     }
 
-    public void savJournalTask()
+    public void saveJournalTask()
     {
-        try (ObjectOutputStream out2 = new ObjectOutputStream(new FileOutputStream(pathToJournalTask))) {
-            out2.writeObject(tasks);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(tasks.size()!=0) {
+            try (ObjectOutputStream out2 = new ObjectOutputStream(new FileOutputStream(pathToJournalTask))) {
+                out2.writeObject(tasks);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+            try {
+                FileWriter fstream1 = new FileWriter(pathToJournalTask);
+                BufferedWriter out1 = new BufferedWriter(fstream1);
+                out1.write("");
+                out1.close();
+            } catch (Exception e)
+            {System.err.println("Error in file cleaning: " + e.getMessage());}
+
         }
     }
 

@@ -358,7 +358,7 @@ public class View implements TaskChangedSubscriber {
 
             case EXIT: //выход
                 exit = true;
-                journalTask.savJournalTask();
+                journalTask.saveJournalTask();
                 break;
         }
     }

@@ -61,7 +61,7 @@ public interface Manager {
     /** Метод сохранения журнала в файл
      *
      */
-    void savJournalTask();
+    void saveJournalTask();
 
     /** Метод проверки на уникальность имени
      * @param name Имя задачи для проверки

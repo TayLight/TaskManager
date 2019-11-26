@@ -76,7 +76,7 @@ public class NotificationSystemThread extends Thread implements Serializable, Ru
     private void Message(String name, String description){
         if (SystemTray.isSupported()){
             SystemTray systemTray = SystemTray.getSystemTray();
-            java.awt.Image image = Toolkit.getDefaultToolkit().getImage("Image/tray.gif");
+            java.awt.Image image = Toolkit.getDefaultToolkit().getImage("./src/taskmanager/images/tray.png");
             TrayIcon trayIcon = new TrayIcon(image);
             try {
                 systemTray.add(trayIcon);

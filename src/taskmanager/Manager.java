@@ -56,6 +56,9 @@ public interface Manager {
      */
     int size();
 
+    /** Метод, удаляющий задачу после оповещения
+     * @param index Индекс удаляемой задачи
+     */
     public void deleteTaskByNotify(int index);
 
     /** Метод сохранения журнала в файл
@@ -83,6 +86,4 @@ public interface Manager {
     /**Метод отписки от обновлений
      */
     void unsubscribe();
-
-
 }

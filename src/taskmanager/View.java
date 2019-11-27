@@ -2,9 +2,7 @@ package taskmanager;
 
 import taskmanager.exceptions.NameTaskException;
 import taskmanager.exceptions.TaskNotFoundException;
-import taskmanager.task.JournalTask;
 import taskmanager.task.Task;
-
 import java.time.DateTimeException;
 import java.time.LocalTime;
 import java.util.InputMismatchException;

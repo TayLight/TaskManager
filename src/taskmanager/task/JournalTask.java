@@ -1,11 +1,9 @@
 package taskmanager.task;
 
-import taskmanager.NotificationSystemThread;
 import taskmanager.TaskChangedSubscriber;
 import taskmanager.Manager;
 import taskmanager.exceptions.NameTaskException;
 import taskmanager.exceptions.TaskNotFoundException;
-
 import java.io.*;
 import java.time.LocalTime;
 import java.util.LinkedList;
@@ -65,7 +63,7 @@ public class JournalTask implements Manager, Serializable {
         return tasks.size();
     }
 
-    public void addTask(Task newTask) throws NameTaskException{
+    public void addTask(Task newTask){
         tasks.addLast(newTask);
         subscriber.taskAdded(newTask);
     }
@@ -95,9 +93,6 @@ public class JournalTask implements Manager, Serializable {
         subscriber.taskDeleted(tempTask);
     }
 
-    /**Метод удаления задачи, после оповещения этой задачей
-     * @param index индекс отработавшей и подлежащей удалению задачи
-     */
     public void deleteTaskByNotify(int index)
     {
         tasks.remove(index);

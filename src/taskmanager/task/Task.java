@@ -1,7 +1,5 @@
 package taskmanager.task;
 
-import taskmanager.NotificationSystemThread;
-
 import java.io.Serializable;
 import java.time.LocalTime;
 
@@ -21,10 +19,6 @@ public class Task implements Serializable {
      * Время, во сколько задача оповестит пользователя
      */
     private LocalTime time;
-    /**
-     * Система оповещения пользователя
-     */
-    //private NotificationSystemThread notify = new NotificationSystemThread(this);
 
     /**
      * Флаг актуальности задачи. Задача актуальна, пока она не выполнилась
@@ -71,13 +65,6 @@ public class Task implements Serializable {
         this.description = description;
         relevance = true;
     }
-
-    /** Метод получения системы оповещения
-     * @return Возвращает систему оповещения задачи
-     */
-//    public NotificationSystemThread getNotify() {
-//        return notify;
-//    }
 
     /**Метод получения описания задачи
      * @return Возвращает описание задачи

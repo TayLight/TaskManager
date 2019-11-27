@@ -14,6 +14,9 @@ import java.util.LinkedList;
  * Здесь хранится список задач для оповещения пользователя
  */
 public class JournalTask implements Manager, Serializable {
+    /**Адрес журнала задач на компьютере пользователя
+     *
+     */
     String pathToJournalTask = "C:\\Users\\Dogore\\Documents\\NetCracker\\Pract\\TaskManager\\JournalTask.txt";
     /**Список задач
      */
@@ -22,8 +25,9 @@ public class JournalTask implements Manager, Serializable {
      */
     private TaskChangedSubscriber subscriber = null;
 
-    NotificationSystemThread notificationSystemThread = null;
-
+    /**Конструктор, создающий журнал задач
+     *
+     */
     public JournalTask() {
         File fileJournalTask = new File(pathToJournalTask);
         if (fileJournalTask.exists())
@@ -88,15 +92,20 @@ public class JournalTask implements Manager, Serializable {
         checkIndexOnBound(index);
         Task tempTask = tasks.get(index);
         tasks.remove(index);
-        //tempTask.getNotify().setTaskDeleted(true);
         subscriber.taskDeleted(tempTask);
     }
 
+    /**Метод удаления задачи, после оповещения этой задачей
+     * @param index индекс отработавшей и подлежащей удалению задачи
+     */
     public void deleteTaskByNotify(int index)
     {
         tasks.remove(index);
     }
 
+    /**Метод, сериализации и сохранения журнала задач в файл
+     *
+     */
     public void saveJournalTask()
     {
         if(tasks.size()!=0) {
@@ -113,7 +122,7 @@ public class JournalTask implements Manager, Serializable {
                 out1.write("");
                 out1.close();
             } catch (Exception e)
-            {System.err.println("Error in file cleaning: " + e.getMessage());}
+            {e.printStackTrace();}
 
         }
     }

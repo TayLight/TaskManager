@@ -17,22 +17,15 @@ public class NotificationSystemThread extends Thread implements Serializable, Ru
      */
     private Manager journalTask;
 
-//    /**
-//     * Флаг удаления задачи
-//     */
-//    private boolean taskDeleted=false;
-
-    /**Конструктор, принимающий задачу на выполнение
-     * @param journalTask Задача, чье сообщение будет выводиться пользователю
+    /**Конструктор, принимающий журнал задач на выполнение
+     * @param journalTask Журнал задач, чьи сообщение будет выводиться пользователю
      */
     public NotificationSystemThread(Manager journalTask) {
         this.journalTask = journalTask;
     }
 
-    /**Метод для запуска метода оповещения
-     * Поток, создаваемый методом, сравнивает время задачи с текущим временем системы и
-     * выводит сообщение в трей либо если время задачи уже прошло, но она еще не выполнена,
-     * либо если время задачи совпадает с текущим временем системы.
+    /**Метод для запуска системы оповещения
+     *
      */
     @Override
     public void run() {
@@ -48,16 +41,18 @@ public class NotificationSystemThread extends Thread implements Serializable, Ru
                     System.out.println(ex.getMessage());
                 }
                 try{
+                    /*
                     if ((task.getTime().isBefore(timeNow)) && task.getRelevance()){
                         Message(task.getName(), task.getDescription() + "\n" + task.getTime().toString());
-                        journalTask.deleteTaskByNotify(i);
                         task.setRelevance(false);
+                        journalTask.deleteTaskByNotify(i);
                         break;
                     }
-                    else if ((task.getTime().equals(timeNow)) && task.getRelevance()){
+                    else*/
+                        if ((task.getTime().equals(timeNow)) && task.getRelevance()){
                         Message(task.getName(), task.getDescription());
-                        journalTask.deleteTaskByNotify(i);
                         task.setRelevance(false);
+                        journalTask.deleteTaskByNotify(i);
                         break;
                     }
                 }
@@ -75,6 +70,10 @@ public class NotificationSystemThread extends Thread implements Serializable, Ru
         }
     }
 
+    /**Метод, для оповещения пользователя в необходимое время
+     * @param name Имя задачи
+     * @param description Описание задачи
+     */
     private void Message(String name, String description){
         if (SystemTray.isSupported()){
             SystemTray systemTray = SystemTray.getSystemTray();
@@ -89,11 +88,4 @@ public class NotificationSystemThread extends Thread implements Serializable, Ru
             System.out.println("msg: " + name + "\n" + description);
         }
     }
-
-//    /** Метод изменяющий флаг удаления на true
-//     * @param taskDeleted True- если задача удалена
-//     */
-//    public void setTaskDeleted(boolean taskDeleted) {
-//        this.taskDeleted = taskDeleted;
-//    }
 }

@@ -279,7 +279,6 @@ public class View implements TaskChangedSubscriber {
                 }
                 break;
             }
-
             case DELETE_TASK: {//удалить задачу
                 if (journalTask.size() == 0) {
                     showMessage("emptyList");
@@ -341,7 +340,6 @@ public class View implements TaskChangedSubscriber {
                 }
                 break;
             }
-
             case VIEW_JOURNAL: {//вывести список задач
                 if (journalTask.size() == 0) {
                     showMessage("emptyList");
@@ -355,7 +353,6 @@ public class View implements TaskChangedSubscriber {
                 }
                 break;
             }
-
             case EXIT: //выход
                 exit = true;
                 journalTask.saveJournalTask();
@@ -436,11 +433,5 @@ public class View implements TaskChangedSubscriber {
     @Override
     public void taskEdited(Task task) {
         System.out.println("\nЗадача " + task.getName() +" успешно изменена.");
-    }
-
-    @Override
-    public void taskNotify(Task task) {
-        System.out.println("Оповещение:");
-        System.out.println(task.toString());
     }
 }

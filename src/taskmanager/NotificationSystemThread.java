@@ -11,7 +11,7 @@ import java.time.LocalTime;
 /**Система оповещения пользователя
  * В указаное время система выводит пользователю сообщение, заранее заданное пользователем
  */
-public class NotificationSystemThread extends Thread implements Serializable, Runnable {
+public class NotificationSystemThread implements Runnable {
     /**
      * Журнал задач
      */
@@ -58,7 +58,6 @@ public class NotificationSystemThread extends Thread implements Serializable, Ru
                 catch(NullPointerException ex){
                     System.out.println(ex.getMessage());
                 }
-
             }
            try{
                Thread.sleep(10000);
@@ -84,7 +83,7 @@ public class NotificationSystemThread extends Thread implements Serializable, Ru
                 e.printStackTrace();
             }
             trayIcon.displayMessage(name, description, TrayIcon.MessageType.INFO);
-            System.out.println("msg: " + name + "\n" + description);
+//            System.out.println("msg: " + name + "\n" + description);
         }
     }
 }

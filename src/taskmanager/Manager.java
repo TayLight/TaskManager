@@ -6,6 +6,7 @@ import taskmanager.task.Task;
 
 
 import java.time.LocalTime;
+import java.util.LinkedList;
 
 /**Интерфейс для взаимодействия с журналом задач
  */
@@ -66,6 +67,8 @@ public interface Manager {
      */
     void saveJournalTask();
 
+    LinkedList<Task> loadJournalTask();
+
     /** Метод проверки на уникальность имени
      * @param name Имя задачи для проверки
      * @throws NameTaskException Задача с таким именем уже есть
@@ -77,13 +80,4 @@ public interface Manager {
      * @throws TaskNotFoundException Задачи с таким индексом не существует
      */
     void checkIndexOnBound(int index) throws TaskNotFoundException;
-
-    /** Метод подписки на обновления
-     * @param subscriber Новый подписчик
-     */
-    void subscribe(TaskChangedSubscriber subscriber);
-
-    /**Метод отписки от обновлений
-     */
-    void unsubscribe();
 }

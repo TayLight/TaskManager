@@ -52,8 +52,6 @@ public class View implements TaskChangedSubscriber {
      * Запуск пользовательского интерфейса
      */
     public void start() {
-
-        journalTask.subscribe(this);
         while (!exit) {
             consoleClear(); // "очистка" консоли
             System.out.println("[TASK MANAGER]\n");
@@ -78,7 +76,6 @@ public class View implements TaskChangedSubscriber {
             }
         }
         System.out.println("Завершение работы программы...");
-        journalTask.unsubscribe();
     }
 
     /**

@@ -118,8 +118,12 @@ public class JournalTask implements Manager, Serializable {
                 out1.close();
             } catch (Exception e)
             {e.printStackTrace();}
-
         }
+    }
+
+    @Override
+    public LinkedList<Task> loadJournalTask() {
+        return null;
     }
 
     /** Метод проверки на уникальность имени
@@ -139,6 +143,7 @@ public class JournalTask implements Manager, Serializable {
     public void checkIndexOnBound(int index) throws TaskNotFoundException{
         if (index < 0 || index > tasks.size() - 1) throw new TaskNotFoundException("Неверное значение индекса.");
     }
+
 
     /** Метод подписки на обновления
      * @param subscriber Новый подписчик

@@ -1,21 +1,10 @@
 package taskmanager;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.util.JSONPObject;
-import netscape.javascript.JSObject;
-import taskmanager.Manager;
-import taskmanager.TaskChangedSubscriber;
 import taskmanager.exceptions.NameTaskException;
 import taskmanager.exceptions.TaskNotFoundException;
 import taskmanager.task.Task;
-import com.fasterxml.jackson.databind.json.*;
-import com.fasterxml.jackson.core.json.*;
-import com.fasterxml.jackson.core.*;
-
-import javax.xml.crypto.Data;
 import java.io.*;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.time.LocalTime;
 import java.util.LinkedList;
 
@@ -23,9 +12,9 @@ public class ClientManager implements Manager {
     private Socket socket;
     private DataOutput outputStream;
     private DataInput inputStream;
-    private LinkedList<Task> journalTask;
 
     public ClientManager() {
+        /*
         try {
             socket = new Socket("localhost", 1024);
             inputStream = new DataInputStream(socket.getInputStream());
@@ -34,6 +23,8 @@ public class ClientManager implements Manager {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        */
+
     }
 
     @Override
@@ -78,17 +69,11 @@ public class ClientManager implements Manager {
 
     @Override
     public void saveJournalTask() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        Request request = new Request("SaveJournalTask",journalTask);
-        try {
-            objectMapper.writeValue(outputStream, request);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
     }
 
     @Override
-    public LinkedList<Task> loadJournalTask() {
+    public LinkedList<Task> loadJournalTask() {/*
         ObjectMapper objectMapper = new ObjectMapper();
         Request request = new Request("LoadTaskJournal");
         try {
@@ -100,6 +85,8 @@ public class ClientManager implements Manager {
             e.printStackTrace();
             return null;
         }
+        */
+        return null;
     }
 
     @Override

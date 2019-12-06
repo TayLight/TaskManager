@@ -28,9 +28,9 @@ public class GUI extends JFrame {
         this.pack();
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(sizeScreen.width / 2, sizeScreen.height / 2);
-        //manager.loadJournalTask();
         setLocationRelativeTo(null);
         setContentPane(panel1);
+        updateList(manager.loadTaskJournal());
         setVisible(true);
         addTaskButton.addActionListener(new ActionListener() {
             @Override
@@ -95,9 +95,9 @@ public class GUI extends JFrame {
     private void updateList(LinkedList<Task> journalTask) {
         String tempName;
         int temp = 0;
-        for (int i = 0; i < journalTask.size(); i++) {
+        for (Task task : journalTask) {
             temp++;
-            tempName = (temp) + "." + journalTask.get(i).getName();
+            tempName = (temp) + "." + task.getName();
             model.addElement(tempName);
         }
         listTask.setModel(model);

@@ -9,9 +9,8 @@ import java.time.LocalTime;
 
 public class Main {
 
-    public static void main(String[] args)
-    {
-        Manager journalTask = new JournalTask(); //д.б. манагер
+    public static void main(String[] args) {
+        Manager journalTask = new JournalTask();
         View view = new View(journalTask);
         Runnable run = new NotificationSystemThread(journalTask);
         Thread thread = new Thread(run);

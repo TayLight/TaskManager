@@ -4,19 +4,16 @@ import taskmanager.exceptions.NameTaskException;
 import taskmanager.task.Task;
 
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
 import javax.swing.border.EtchedBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.time.LocalTime;
 import java.util.LinkedList;
 
 public class GUI extends JFrame {
-    private  static Dimension sizeScreen = Toolkit.getDefaultToolkit().getScreenSize();
+    private static Dimension sizeScreen = Toolkit.getDefaultToolkit().getScreenSize();
     private DefaultListModel model = new DefaultListModel();
     private JList listTask;
     private JPanel panel1;
@@ -30,17 +27,17 @@ public class GUI extends JFrame {
         super("TASK MANAGER");
         this.pack();
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(sizeScreen.width/2,sizeScreen.height/2);
-        manager.loadJournalTask();
+        setSize(sizeScreen.width / 2, sizeScreen.height / 2);
+        //manager.loadJournalTask();
         setLocationRelativeTo(null);
         setContentPane(panel1);
         setVisible(true);
         addTaskButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String name=null;
-                boolean nameInput= false;
-                boolean timeInput= false;
+                String name = null;
+                boolean nameInput = false;
+                boolean timeInput = false;
                 String description = null;
                 LocalTime time = null;
                 while (!nameInput) {
@@ -55,13 +52,13 @@ public class GUI extends JFrame {
                     }
                 }
                 description = JOptionPane
-                            .showInputDialog(GUI.this, "Введите описание задачи");
+                        .showInputDialog(GUI.this, "Введите описание задачи");
                 while (!timeInput) {
                     try {
                         StringParser stringParser = new StringParser();
                         time = stringParser.timeParse(JOptionPane
                                 .showInputDialog(GUI.this, "Введите время (HH:MM)"));
-                        timeInput =true;
+                        timeInput = true;
                     } catch (Exception error) {
                         JOptionPane.showMessageDialog(GUI.this, "Ошибка ввода времени");
 
@@ -85,6 +82,7 @@ public class GUI extends JFrame {
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                manager.closeSession();
                 GUI.this.dispose();
             }
         });
@@ -94,13 +92,12 @@ public class GUI extends JFrame {
         GUI gui = new GUI();
     }
 
-    private void updateList(LinkedList<Task> journalTask)
-    {
+    private void updateList(LinkedList<Task> journalTask) {
         String tempName;
-        int temp =0;
-        for(int i=0; i<journalTask.size(); i++){
+        int temp = 0;
+        for (int i = 0; i < journalTask.size(); i++) {
             temp++;
-            tempName = (temp)+"."+journalTask.get(i).getName();
+            tempName = (temp) + "." + journalTask.get(i).getName();
             model.addElement(tempName);
         }
         listTask.setModel(model);

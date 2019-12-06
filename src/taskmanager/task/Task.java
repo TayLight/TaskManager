@@ -1,18 +1,20 @@
 package taskmanager.task;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+
 import java.io.Serializable;
 import java.time.LocalTime;
 
-/** Задача
- *
+/**
+ * Задача
  */
 public class Task implements Serializable {
-    /** Имя задачи
-     *
+    /**
+     * Имя задачи
      */
     private String name;
-    /**Описание задачи
-     *
+    /**
+     * Описание задачи
      */
     private String description;
     /**
@@ -25,39 +27,48 @@ public class Task implements Serializable {
      */
     private boolean relevance;
 
-    /** Метод получения имени задачи
+    /**
+     * Метод получения имени задачи
+     *
      * @return возвращает имя задачи
      */
     public String getName() {
         return name;
     }
 
-    /** Метод изменения имени задачи
+    /**
+     * Метод изменения имени задачи
+     *
      * @param name Новое имя задачи
      */
     public void setName(String name) {
         this.name = name;
     }
 
-    /** Метод изменения времени задачи
+    /**
+     * Метод изменения времени задачи
+     *
      * @param time Новое значение времени
      */
     public void setTime(LocalTime time) {
         this.time = time;
     }
 
-    /**Метод получения времени задачи
+    /**
+     * Метод получения времени задачи
+     *
      * @return Возвращает время выполнения задачи
      */
-    public LocalTime getTime ()
-    {
+    public LocalTime getTime() {
         return time;
     }
 
-    /** Конструктор, создающий новый объект задачи
-     * @param name Имя задачи
+    /**
+     * Конструктор, создающий новый объект задачи
+     *
+     * @param name        Имя задачи
      * @param description Описание задачи
-     * @param time Имя задачи
+     * @param time        Имя задачи
      */
     public Task(String name, String description, LocalTime time) {
         this.name = name;
@@ -66,21 +77,30 @@ public class Task implements Serializable {
         relevance = true;
     }
 
-    /**Метод получения описания задачи
+    public Task() {
+    }
+
+    /**
+     * Метод получения описания задачи
+     *
      * @return Возвращает описание задачи
      */
     public String getDescription() {
         return description;
     }
 
-    /**Метод изменяющий описание задачи
+    /**
+     * Метод изменяющий описание задачи
+     *
      * @param description новое описание задачи
      */
     void setDescription(String description) {
         this.description = description;
     }
 
-    /**Метод возвращающий строковое представление задачи
+    /**
+     * Метод возвращающий строковое представление задачи
+     *
      * @return Возвращает строковое представление задачи
      */
     @Override
@@ -88,22 +108,29 @@ public class Task implements Serializable {
         StringBuffer task = new StringBuffer();
         task.append(name);
         task.append("  [").append(time).append("]");
+        if (!relevance) {
+            task.append("  [✔] ");
+        }
         task.append("\n");
         task.append(description);
         return task.toString();
     }
 
-    /** Установка актуальности задачи
-     * @param status Статус актуальности задачи
+    /**
+     * Установка актуальности задачи
+     *
+     * @param relevance Статус актуальности задачи
      */
-    public void setRelevance(boolean status){
-        this.relevance = status;
+    public void setRelevance(boolean relevance) {
+        this.relevance = relevance;
     }
 
-    /** Получение значения актуальности
+    /**
+     * Получение значения актуальности
+     *
      * @return Значение актуальности задачи
      */
-    public boolean getRelevance(){
+    public boolean getRelevance() {
         return relevance;
     }
 }

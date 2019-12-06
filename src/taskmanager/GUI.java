@@ -8,30 +8,104 @@ import javax.swing.border.EtchedBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.IOException;
 import java.time.LocalTime;
 import java.util.LinkedList;
 
 public class GUI extends JFrame {
+    /**Стандартное разрешение экрана
+     *
+     */
     private static Dimension sizeScreen = Toolkit.getDefaultToolkit().getScreenSize();
+    /**Список моделей, для работы с выводом на экран
+     *
+     */
     private DefaultListModel model = new DefaultListModel();
+    /**Вывод списка на экран
+     *
+     */
     private JList listTask;
+    /**Панель, содержащая элементы управления
+     *
+     */
     private JPanel panel1;
+    /**Кнопка редактирования задачи
+     *
+     */
     private JButton editTaskButton;
+    /**Кнопка выхода
+     *
+     */
     private JButton exitButton;
+    /** Кнопка удаления задачи
+     *
+     */
     private JButton deleteTaskButton;
+    /**Кнопка добавления задачи
+     *
+     */
     private JButton addTaskButton;
-    Manager manager = new ClientManager();
+    /** Менеджер , для работы с сервером
+     *
+     */
+    Manager manager;
 
-    public GUI() throws IOException, ClassNotFoundException {
+    /** Конструктор графического интерфейса
+     * @param manager менеджер для работы с сервером
+     */
+    public GUI(Manager manager) {
         super("TASK MANAGER");
         this.pack();
+        this.manager = manager;
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(sizeScreen.width / 2, sizeScreen.height / 2);
+        setSize((sizeScreen.width / 2)-100, sizeScreen.height / 2);
         setLocationRelativeTo(null);
         setContentPane(panel1);
         updateList(manager.loadTaskJournal());
         setVisible(true);
+        this.addWindowListener(new WindowListener() {
+
+            public void windowActivated(WindowEvent event) {
+
+            }
+
+            public void windowClosed(WindowEvent event) {
+
+            }
+
+            public void windowClosing(WindowEvent event) {
+                Object[] options = { "Да", "Нет!" };
+                int n = JOptionPane
+                        .showOptionDialog(event.getWindow(), "Закрыть окно?",
+                                "Подтверждение", JOptionPane.YES_NO_OPTION,
+                                JOptionPane.QUESTION_MESSAGE, null, options,
+                                options[0]);
+                if (n == 0) {
+                    event.getWindow().setVisible(false);
+                    manager.closeSession();
+                    System.exit(0);
+                }
+            }
+
+            public void windowDeactivated(WindowEvent event) {
+
+            }
+
+            public void windowDeiconified(WindowEvent event) {
+
+            }
+
+            public void windowIconified(WindowEvent event) {
+
+            }
+
+            public void windowOpened(WindowEvent event) {
+
+            }
+
+        });
         addTaskButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -82,27 +156,43 @@ public class GUI extends JFrame {
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                manager.closeSession();
-                GUI.this.dispose();
+                Object[] options = { "Да", "Нет!" };
+                int n = JOptionPane
+                        .showOptionDialog(GUI.this, "Закрыть окно?",
+                                "Подтверждение", JOptionPane.YES_NO_OPTION,
+                                JOptionPane.QUESTION_MESSAGE, null, options,
+                                options[0]);
+                if (n == 0) {
+                    GUI.this.setVisible(false);
+                    manager.closeSession();
+                    System.exit(0);
+                }
             }
         });
     }
 
     public static void main(String[] argv) throws IOException, ClassNotFoundException {
-        GUI gui = new GUI();
+        Manager manager = new ClientManager();
+        GUI gui = new GUI(manager);
     }
 
+    /**Метод обновления графического вывода журнала задач
+     * @param journalTask
+     */
     private void updateList(LinkedList<Task> journalTask) {
         String tempName;
         int temp = 0;
         for (Task task : journalTask) {
             temp++;
-            tempName = (temp) + "." + task.getName();
+            tempName = (temp) + "." + task.getName() + "[" + task.getTime() + "]";
             model.addElement(tempName);
         }
         listTask.setModel(model);
     }
 
+    /**Метод инициализации журнала задач на экране
+     *
+     */
     private void createUIComponents() {
         listTask = new JList();
         listTask.setBorder(BorderFactory.createCompoundBorder(

@@ -11,9 +11,22 @@ import java.net.Socket;
 import java.util.LinkedList;
 
 public class ServerThread implements Runnable {
-    private Socket clientSocket; //сокет для общения
-    private DataInput inputStream; // поток чтения из сокета
-    private DataOutput outputStream; // поток записи в сокет
+    /**сокет для общения
+     *
+     */
+    private Socket clientSocket;
+    /**поток чтения из сокета
+     *
+     */
+    private DataInput inputStream;
+    /**поток записи в сокет
+     *
+     */
+    private DataOutput outputStream;
+
+    /**управление журналом задач
+     *
+     */
     private Manager journalTask;
 
     public ServerThread(Socket clientSocket) throws IOException {

@@ -22,7 +22,6 @@ public class ClientManager implements Manager {
             socket = new Socket("localhost", 1024);
             inputStream = new DataInputStream(socket.getInputStream());
             outputStream = new DataOutputStream(socket.getOutputStream());
-            journalTask = loadTaskJournal();
         } catch (IOException e) {
             e.printStackTrace();
         }

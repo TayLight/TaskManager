@@ -73,12 +73,18 @@ public interface Manager {
     int size();
 
     /**
-     * Метод сохранения журнала в файл
+     * Метод сохранения журнала
      */
     void saveJournalTask();
 
+    /** Метод загрузки журнала задач
+     * @return возвращает полученный журнал задач
+     */
     LinkedList<Task> loadTaskJournal();
 
+    /**Метод закрытия соединения с сервером
+     *
+     */
     void closeSession();
 
     /**

@@ -6,6 +6,9 @@ import java.net.Socket;
 
 
 public class Server {
+    /**Серверный порт
+     *
+     */
     private static int PORT = 1024;
 
     public static void main(String[] args){

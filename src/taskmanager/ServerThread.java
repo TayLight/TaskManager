@@ -29,6 +29,10 @@ public class ServerThread implements Runnable {
      */
     private Manager journalTask;
 
+    /** Конструктор, создающий поток
+     * @param clientSocket клиентский сокет
+     * @throws IOException ошибка потоков
+     */
     public ServerThread(Socket clientSocket) throws IOException {
         this.clientSocket = clientSocket;
         inputStream = new DataInputStream(clientSocket.getInputStream());
@@ -71,6 +75,10 @@ public class ServerThread implements Runnable {
 
     }
 
+    /** Получение журнала задач
+     * @param journalTask менеджер работы с журналом задач
+     * @return возвращает журнал задач
+     */
     public LinkedList<Task> getList(Manager journalTask) {
         LinkedList<Task> listTask = new LinkedList<Task>();
         for (int i = 0; i < journalTask.size(); i++) {
@@ -83,6 +91,9 @@ public class ServerThread implements Runnable {
         return listTask;
     }
 
+    /** Отправка журнала задач клиенту
+     * @param request запрос, отправляемый клиенту
+     */
     public void sendJournalTask(Request request) {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());

@@ -8,7 +8,8 @@ import java.awt.*;
 import java.io.Serializable;
 import java.time.LocalTime;
 
-/**Система оповещения пользователя
+/**
+ * Система оповещения пользователя
  * В указаное время система выводит пользователю сообщение, заранее заданное пользователем
  */
 public class NotificationSystemThread implements Runnable {
@@ -17,63 +18,59 @@ public class NotificationSystemThread implements Runnable {
      */
     private Manager journalTask;
 
-    /**Конструктор, принимающий журнал задач на выполнение
+    /**
+     * Конструктор, принимающий журнал задач на выполнение
+     *
      * @param journalTask Журнал задач, чьи сообщение будет выводиться пользователю
      */
     public NotificationSystemThread(Manager journalTask) {
         this.journalTask = journalTask;
     }
 
-    /**Метод для запуска системы оповещения
-     *
+    /**
+     * Метод для запуска системы оповещения
      */
     @Override
     public void run() {
-        boolean exit = false;
-        while (!exit){
+        while (true) {
             LocalTime timeNow = LocalTime.of(LocalTime.now().getHour(), LocalTime.now().getMinute(), 0);
-            for (int i = 0; i < journalTask.size(); i++){
+            for (int i = 0; i < journalTask.size(); i++) {
                 Task task = null;
-                try{
+                try {
                     task = journalTask.getTask(i);
-                }
-                catch(TaskNotFoundException ex){
+                } catch (TaskNotFoundException ex) {
                     System.out.println(ex.getMessage());
                 }
-                try{
-                    if ((task.getTime().isBefore(timeNow)) && task.getRelevance()){
-                        Message(task.getName(), task.getDescription() + "\n" + task.getTime().toString());
+                try {
+                    if ((task.getTime().isBefore(timeNow)) && task.getRelevance()) {
+                        message(task.getName(), task.getDescription() + "\n" + task.getTime().toString());
                         task.setRelevance(false);
-                        journalTask.deleteTaskByNotify(i);
+                        break;
+                    } else if ((task.getTime().equals(timeNow)) && task.getRelevance()) {
+                        message(task.getName(), task.getDescription());
+                        task.setRelevance(false);
                         break;
                     }
-                    else
-                        if ((task.getTime().equals(timeNow)) && task.getRelevance()){
-                        Message(task.getName(), task.getDescription());
-                        task.setRelevance(false);
-                        journalTask.deleteTaskByNotify(i);
-                        break;
-                    }
-                }
-                catch(NullPointerException ex){
+                } catch (NullPointerException ex) {
                     System.out.println(ex.getMessage());
                 }
             }
-           try{
-               Thread.sleep(10000);
-           }
-           catch (InterruptedException ex){
-               Thread.currentThread().interrupt();
-           }
+            try {
+                Thread.sleep(60000);
+            } catch (InterruptedException ex) {
+                Thread.currentThread().interrupt();
+            }
         }
     }
 
-    /**Метод, для оповещения пользователя в необходимое время
-     * @param name Имя задачи
+    /**
+     * Метод, для оповещения пользователя в необходимое время
+     *
+     * @param name        Имя задачи
      * @param description Описание задачи
      */
-    private void Message(String name, String description){
-        if (SystemTray.isSupported()){
+    private void message(String name, String description) {
+        if (SystemTray.isSupported()) {
             SystemTray systemTray = SystemTray.getSystemTray();
             java.awt.Image image = Toolkit.getDefaultToolkit().getImage("./src/taskmanager/images/tray.png");
             TrayIcon trayIcon = new TrayIcon(image);
@@ -83,7 +80,7 @@ public class NotificationSystemThread implements Runnable {
                 e.printStackTrace();
             }
             trayIcon.displayMessage(name, description, TrayIcon.MessageType.INFO);
-//            System.out.println("msg: " + name + "\n" + description);
+            systemTray.remove(trayIcon); //причина незавершающейся программы
         }
     }
 }

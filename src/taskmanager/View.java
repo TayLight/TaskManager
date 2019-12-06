@@ -3,16 +3,15 @@ package taskmanager;
 import taskmanager.exceptions.NameTaskException;
 import taskmanager.exceptions.TaskNotFoundException;
 import taskmanager.task.Task;
+
 import java.time.DateTimeException;
 import java.time.LocalTime;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
 
-
-
-/** Пользовательский интерфейс, выводящий пользователю информацию о работе с журналом задач
- *
+/**
+ * Пользовательский интерфейс, выводящий пользователю информацию о работе с журналом задач
  */
 public class View implements TaskChangedSubscriber {
     /**
@@ -36,7 +35,7 @@ public class View implements TaskChangedSubscriber {
         VIEW_JOURNAL
     }
 
-    enum EditMenuItem{
+    enum EditMenuItem {
         EXIT,
         EDIT_NAME,
         EDIT_DESCRIPTION,
@@ -44,7 +43,7 @@ public class View implements TaskChangedSubscriber {
         ANOTHER_TASK
     }
 
-    public View(Manager journalTask){
+    public View(Manager journalTask) {
         this.journalTask = journalTask;
     }
 
@@ -55,23 +54,21 @@ public class View implements TaskChangedSubscriber {
         while (!exit) {
             consoleClear(); // "очистка" консоли
             System.out.println("[TASK MANAGER]\n");
-                menu();
-                System.out.println("\nВыберите пункт меню:");
-                boolean key = false;
-                try{
-                    int menuChoice = input.nextInt();
-                    if (menuChoice >= 0 && menuChoice <= 4){
-                        for (MenuItem item : MenuItem.values()){
-                            if (menuChoice == item.ordinal()){
-                                action(item);
-                            }
+            menu();
+            System.out.println("\nВыберите пункт меню:");
+            boolean key = false;
+            try {
+                int menuChoice = input.nextInt();
+                if (menuChoice >= 0 && menuChoice <= 4) {
+                    for (MenuItem item : MenuItem.values()) {
+                        if (menuChoice == item.ordinal()) {
+                            action(item);
                         }
                     }
-                else{
+                } else {
                     showMessage("incorrectInput");
                 }
-            }
-            catch(InputMismatchException ex){
+            } catch (InputMismatchException ex) {
                 showMessage("incorrectInput");
             }
         }
@@ -81,7 +78,7 @@ public class View implements TaskChangedSubscriber {
     /**
      * Вывод главного меню
      */
-    private void menu(){
+    private void menu() {
         System.out.println("Меню:" +
                 "\n[1] Добавить задачу" +
                 "\n[2] Редактировать задачу" +
@@ -90,12 +87,14 @@ public class View implements TaskChangedSubscriber {
                 "\n[0] Выход");
     }
 
-    /** Обработка действия пользователя
+    /**
+     * Обработка действия пользователя
+     *
      * @param item Пользовательский выбор пункта меню
      */
     private void action(MenuItem item) {
         boolean key = false;
-        switch (item){
+        switch (item) {
             case ADD_TASK: { //добавить задачу
                 consoleClear();
                 System.out.println("[Добавление задачи]");
@@ -133,10 +132,9 @@ public class View implements TaskChangedSubscriber {
                     }
                 }
                 Task task = new Task(name, description, time);
-                try{
+                try {
                     journalTask.addTask(task);
-                }
-                catch(NameTaskException ex){
+                } catch (NameTaskException ex) {
                     System.out.println(ex.getMessage() + ". Повторите ввод.");
                 }
                 System.out.println("\nНажмите Enter, чтобы продолжить...");
@@ -149,7 +147,7 @@ public class View implements TaskChangedSubscriber {
                     showMessage("emptyList");
                 } else {
                     boolean isEditCorrect = false;
-                    while (!isEditCorrect){
+                    while (!isEditCorrect) {
                         consoleClear();
                         System.out.println("[Редактирование задачи]\n");
                         showTaskList();
@@ -162,7 +160,6 @@ public class View implements TaskChangedSubscriber {
                                 index = input.nextInt();
                                 index--;
                                 task = journalTask.getTask(index);
-                                journalTask.checkIndexOnBound(index);
                                 key = true;
                             } catch (InputMismatchException | TaskNotFoundException ex) {
                                 System.out.println("Неверное значение индекса. Повторите ввод.");
@@ -170,7 +167,7 @@ public class View implements TaskChangedSubscriber {
                         }
                         key = false;
                         boolean isMenuClose = false;
-                        while (!isMenuClose){
+                        while (!isMenuClose) {
                             consoleClear();
                             System.out.println("\nРедактируемая задача:");
                             System.out.println(task.toString());
@@ -182,25 +179,24 @@ public class View implements TaskChangedSubscriber {
                                     "\n[0] Выйти в главное меню" +
                                     "\n\nВыберите пункт меню: ");
                             int editChoice = 0;
-                            while (!key){
-                                try{
+                            while (!key) {
+                                try {
                                     editChoice = input.nextInt();
                                     if (editChoice >= 0 && editChoice <= 4) key = true;
                                     else System.out.println("Некорректное значение. Повторите ввод");
-                                }
-                                catch(InputMismatchException ex){
+                                } catch (InputMismatchException ex) {
                                     System.out.println("Некорректное значение. Повторите ввод");
                                     input.nextLine();
                                 }
                             }
                             key = false;
                             EditMenuItem editItem = null;
-                            for (EditMenuItem editmenuItem : EditMenuItem.values()){
-                                if (editChoice == editmenuItem.ordinal()){
+                            for (EditMenuItem editmenuItem : EditMenuItem.values()) {
+                                if (editChoice == editmenuItem.ordinal()) {
                                     editItem = editmenuItem;
                                 }
                             }
-                            switch(editItem){
+                            switch (editItem) {
                                 case EDIT_NAME:
                                     String name = null;
                                     int nameInputCount = 0; //счетчик запусков ввода названия
@@ -221,10 +217,9 @@ public class View implements TaskChangedSubscriber {
                                         }
                                     }
                                     key = false;
-                                    try{
+                                    try {
                                         journalTask.editTask(index, name);
-                                    }
-                                    catch(TaskNotFoundException ex){
+                                    } catch (TaskNotFoundException ex) {
                                         System.out.println(ex.getMessage() + ". Повторите ввод.");
                                     }
                                     break;
@@ -232,10 +227,9 @@ public class View implements TaskChangedSubscriber {
                                     System.out.print("\nНовое описание: ");
                                     input.nextLine();
                                     String description = input.nextLine();
-                                    try{
+                                    try {
                                         journalTask.editTaskDescription(index, description);
-                                    }
-                                    catch(TaskNotFoundException ex){
+                                    } catch (TaskNotFoundException ex) {
                                         System.out.println(ex.getMessage() + ". Повторите ввод.");
                                     }
                                     break;
@@ -254,10 +248,9 @@ public class View implements TaskChangedSubscriber {
                                         }
                                     }
                                     key = false;
-                                    try{
+                                    try {
                                         journalTask.editTask(index, time);
-                                    }
-                                    catch(TaskNotFoundException ex){
+                                    } catch (TaskNotFoundException ex) {
                                         System.out.println(ex.getMessage() + ". Повторите ввод.");
                                     }
                                     break;
@@ -267,6 +260,7 @@ public class View implements TaskChangedSubscriber {
                                 case EXIT:
                                     isMenuClose = true;
                                     isEditCorrect = true;
+
                                     break;
                             }
                         }
@@ -289,7 +283,6 @@ public class View implements TaskChangedSubscriber {
                             index = input.nextInt();
                             index--;
                             task = journalTask.getTask(index);
-                            journalTask.checkIndexOnBound(index);
                             key = true;
                         } catch (InputMismatchException | TaskNotFoundException ex) {
                             System.out.println("Неверное значение индекса. Повторите ввод.");
@@ -299,26 +292,24 @@ public class View implements TaskChangedSubscriber {
                     System.out.println("\nБудет удалена следующая задача:");
                     System.out.println(task.toString());
                     int deleteChoice = 0;
-                    while(!key){
+                    while (!key) {
                         System.out.println("\nВы уверены, что хотите удалить задачу?");
                         System.out.println("[1] Да          [2] Нет");
                         try {
                             deleteChoice = input.nextInt();
                             if (deleteChoice == 1 || deleteChoice == 2) key = true;
                             else System.out.println("Некорректное значение. Повторите ввод");
-                        }
-                        catch(InputMismatchException ex){
+                        } catch (InputMismatchException ex) {
                             System.out.println("Некорректное значение. Повторите ввод");
                             input.nextLine();
                         }
                     }
                     key = false;
-                    switch(deleteChoice){
+                    switch (deleteChoice) {
                         case 1:
-                            try{
-                               journalTask.deleteTask(index);
-                            }
-                            catch(TaskNotFoundException ex){
+                            try {
+                                journalTask.deleteTask(index);
+                            } catch (TaskNotFoundException ex) {
                                 System.out.println(ex.getMessage() + " Повторите ввод.");
                             }
                             System.out.println("Нажмите Enter, чтобы продолжить...");
@@ -358,33 +349,33 @@ public class View implements TaskChangedSubscriber {
     /**
      * Вывод на экран списка задач
      */
-    private void showTaskList(){
+    private void showTaskList() {
         if (journalTask.size() == 0) {
             System.out.println("Журнал задач пуст.\n");
             return;
         }
-        try{
-            for(int i = 0; i < journalTask.size(); i++){
-                if (i < 9){
+        try {
+            for (int i = 0; i < journalTask.size(); i++) {
+                if (i < 9) {
                     System.out.println(i + 1 + ".  " + journalTask.getTask(i).toString());
-                }
-                else{
+                } else {
                     System.out.println(i + 1 + ". " + journalTask.getTask(i).toString());
                 }
                 System.out.println("----------------------------------------------------------------------");
             }
-        }
-        catch(TaskNotFoundException ex){
+        } catch (TaskNotFoundException ex) {
             System.out.println("Некорректное значение. Повторите ввод");
         }
     }
 
 
-    /** Вывод сообщения для пользователя
+    /**
+     * Вывод сообщения для пользователя
+     *
      * @param message Выводимое сообщение
      */
-    private void showMessage(String message){
-        switch(message) {
+    private void showMessage(String message) {
+        switch (message) {
             case "emptyList":
                 System.out.println("Журнал задач пуст. Повторите попытку позже.");
                 System.out.println("\nНажмите Enter, чтобы продолжить... ");
@@ -402,31 +393,37 @@ public class View implements TaskChangedSubscriber {
     /**
      * "Очистка" консоли
      */
-    private void consoleClear(){
+    private void consoleClear() {
         for (int i = 0; i < 40; i++) System.out.println();
     }
 
-    /**Метод оповещающий пользователя об удалении задачи
+    /**
+     * Метод оповещающий пользователя об удалении задачи
+     *
      * @param task задача, удаленная из журнала задач
      */
     @Override
     public void taskDeleted(Task task) {
-        System.out.println("\nЗадача " + task.getName() +" успешно удалена.");
+        System.out.println("\nЗадача " + task.getName() + " успешно удалена.");
     }
 
-    /**Метод оповещающий пользователя о добавлении задачи
+    /**
+     * Метод оповещающий пользователя о добавлении задачи
+     *
      * @param task Добавленная задача
      */
     @Override
     public void taskAdded(Task task) {
-        System.out.println("\nЗадача " + task.getName() +" успешно добавлена.");
+        System.out.println("\nЗадача " + task.getName() + " успешно добавлена.");
     }
 
-    /**Метод оповещающий пользователя об изменении задачи
+    /**
+     * Метод оповещающий пользователя об изменении задачи
+     *
      * @param task Измененная задача
      */
     @Override
     public void taskEdited(Task task) {
-        System.out.println("\nЗадача " + task.getName() +" успешно изменена.");
+        System.out.println("\nЗадача " + task.getName() + " успешно изменена.");
     }
 }

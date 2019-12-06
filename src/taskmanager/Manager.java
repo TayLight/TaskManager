@@ -8,22 +8,29 @@ import taskmanager.task.Task;
 import java.time.LocalTime;
 import java.util.LinkedList;
 
-/**Интерфейс для взаимодействия с журналом задач
+/**
+ * Интерфейс для взаимодействия с журналом задач
  */
 public interface Manager {
-    /**Метод добавления задачи в Журнал задач
+    /**
+     * Метод добавления задачи в Журнал задач
+     *
      * @param newTask Новая задача
      */
     void addTask(Task newTask) throws NameTaskException;
 
-    /** Метод удаления задачи, под индексом index
+    /**
+     * Метод удаления задачи, под индексом index
+     *
      * @param index Индекс удаляемой задачи
      * @throws TaskNotFoundException Задача не найдена
      */
     void deleteTask(int index) throws TaskNotFoundException;
 
 
-    /**Метод получения задачи по индексу
+    /**
+     * Метод получения задачи по индексу
+     *
      * @param index индекс задачи в журнале задач
      * @return возвращает задачу с индексом index
      * @throws TaskNotFoundException Ошибка, задача не найден
@@ -31,51 +38,60 @@ public interface Manager {
     Task getTask(int index) throws TaskNotFoundException;
 
 
-    /**Метод редактирования времени у задачи
-     * @param index Индекс редактируемой задачи
+    /**
+     * Метод редактирования времени у задачи
+     *
+     * @param index   Индекс редактируемой задачи
      * @param newTime Новое устанавливаемое время
      * @throws TaskNotFoundException Задача не найдена
      */
     void editTask(int index, LocalTime newTime) throws TaskNotFoundException;
 
-    /**Метод редактирования имени у задачи
+    /**
+     * Метод редактирования имени у задачи
+     *
      * @param index Индекс редактируемой задачи
-     * @param text Новое имя у редактируемой задачи
+     * @param text  Новое имя у редактируемой задачи
      * @throws TaskNotFoundException Задача не найдена
      */
     void editTask(int index, String text) throws TaskNotFoundException;
 
-    /**Метод редактирования описания у задачи
-     * @param index Индекс редактируемой задачи
+    /**
+     * Метод редактирования описания у задачи
+     *
+     * @param index       Индекс редактируемой задачи
      * @param description Новое описание
      * @throws TaskNotFoundException Задача не найдена
      */
     void editTaskDescription(int index, String description) throws TaskNotFoundException;
 
-    /**Метод, возвращающий размер журнала задача
+    /**
+     * Метод, возвращающий размер журнала задача
+     *
      * @return Возвращает размером журнала задач
      */
     int size();
 
-    /** Метод, удаляющий задачу после оповещения
-     * @param index Индекс удаляемой задачи
-     */
-    public void deleteTaskByNotify(int index);
-
-    /** Метод сохранения журнала в файл
-     *
+    /**
+     * Метод сохранения журнала в файл
      */
     void saveJournalTask();
 
-    LinkedList<Task> loadJournalTask();
+    LinkedList<Task> loadTaskJournal();
 
-    /** Метод проверки на уникальность имени
+    void closeSession();
+
+    /**
+     * Метод проверки на уникальность имени
+     *
      * @param name Имя задачи для проверки
      * @throws NameTaskException Задача с таким именем уже есть
      */
     void checkUniqueName(String name) throws NameTaskException;
 
-    /** Метод проверки значения индекса
+    /**
+     * Метод проверки значения индекса
+     *
      * @param index Индекс проверяемой задачи
      * @throws TaskNotFoundException Задачи с таким индексом не существует
      */

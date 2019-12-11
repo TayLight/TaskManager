@@ -1,41 +1,41 @@
 package taskmanager;
 
 import taskmanager.exceptions.NameTaskException;
-import taskmanager.exceptions.TaskNotFoundException;
+import taskmanager.exceptions.ItemNotFoundException;
 import taskmanager.task.Task;
 
 
+import java.io.IOException;
 import java.time.LocalTime;
-import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Интерфейс для взаимодействия с журналом задач
  */
-public interface Manager {
+public interface Manager<T> {
     /**
      * Метод добавления задачи в Журнал задач
      *
-     * @param newTask Новая задача
+     * @param newItem Новая задача
      */
-    void addTask(Task newTask) throws NameTaskException;
+    <T> void addItem(T newItem) throws NameTaskException;
 
     /**
      * Метод удаления задачи, под индексом index
      *
      * @param index Индекс удаляемой задачи
-     * @throws TaskNotFoundException Задача не найдена
+     * @throws ItemNotFoundException Задача не найдена
      */
-    void deleteTask(int index) throws TaskNotFoundException;
+    void deleteItem(int index) throws ItemNotFoundException;
 
 
     /**
      * Метод получения задачи по индексу
-     *
      * @param index индекс задачи в журнале задач
      * @return возвращает задачу с индексом index
-     * @throws TaskNotFoundException Ошибка, задача не найден
+     * @throws ItemNotFoundException Ошибка, задача не найден
      */
-    Task getTask(int index) throws TaskNotFoundException;
+    Task getItem(int index) throws ItemNotFoundException;
 
 
     /**
@@ -43,50 +43,44 @@ public interface Manager {
      *
      * @param index   Индекс редактируемой задачи
      * @param newTime Новое устанавливаемое время
-     * @throws TaskNotFoundException Задача не найдена
+     * @throws ItemNotFoundException Задача не найдена
      */
-    void editTask(int index, LocalTime newTime) throws TaskNotFoundException;
+    void editTask(int index, LocalTime newTime) throws ItemNotFoundException;
 
     /**
      * Метод редактирования имени у задачи
      *
      * @param index Индекс редактируемой задачи
      * @param text  Новое имя у редактируемой задачи
-     * @throws TaskNotFoundException Задача не найдена
+     * @throws ItemNotFoundException Задача не найдена
      */
-    void editTask(int index, String text) throws TaskNotFoundException;
+    void editTask(int index, String text) throws ItemNotFoundException;
 
     /**
      * Метод редактирования описания у задачи
-     *
      * @param index       Индекс редактируемой задачи
      * @param description Новое описание
-     * @throws TaskNotFoundException Задача не найдена
+     * @throws ItemNotFoundException Задача не найдена
      */
-    void editTaskDescription(int index, String description) throws TaskNotFoundException;
+    void editTaskDescription(int index, String description) throws ItemNotFoundException;
 
     /**
      * Метод, возвращающий размер журнала задача
-     *
      * @return Возвращает размером журнала задач
      */
     int size();
 
+    void startWork() throws IOException;
+
     /**
-     * Метод сохранения журнала
+     * Метод завершения работы менеджера
      */
-    void saveJournalTask();
+    void finalWork();
 
     /** Метод загрузки журнала задач
      * @return возвращает полученный журнал задач
      */
-    LinkedList<Task> loadTaskJournal();
-
-    /**Метод закрытия соединения с сервером
-     *
-     */
-    void closeSession();
-
+    List<Task> getTasks();
     /**
      * Метод проверки на уникальность имени
      *
@@ -95,11 +89,5 @@ public interface Manager {
      */
     void checkUniqueName(String name) throws NameTaskException;
 
-    /**
-     * Метод проверки значения индекса
-     *
-     * @param index Индекс проверяемой задачи
-     * @throws TaskNotFoundException Задачи с таким индексом не существует
-     */
-    void checkIndexOnBound(int index) throws TaskNotFoundException;
+
 }

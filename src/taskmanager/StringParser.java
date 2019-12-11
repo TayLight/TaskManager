@@ -22,7 +22,7 @@ public class StringParser {
      * @throws NumberFormatException Ошибка парсинга String в Integer
      * @throws DateTimeException     Ошибка создания объекта LocalTime
      */
-    public LocalTime timeParse(String strTime) throws NumberFormatException, DateTimeException {
+    public static LocalTime timeParse(String strTime) throws NumberFormatException, DateTimeException {
         int hour = 0, minute = 0;
         String[] splitTime = strTime.split(":");
         hour = Integer.parseInt(splitTime[0]);

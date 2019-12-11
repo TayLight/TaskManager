@@ -1,5 +1,5 @@
 <component name="ArtifactManager">
-  <artifact type="jar" build-on-make="true" name="TaskManager:jar">
+  <artifact type="jar" name="TaskManager:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/TaskManager_jar</output-path>
     <root id="archive" name="TaskManager.jar">
       <element id="module-output" name="TaskManager" />

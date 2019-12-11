@@ -2,7 +2,7 @@ package taskmanager;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import taskmanager.exceptions.TaskNotFoundException;
+import taskmanager.exceptions.ItemNotFoundException;
 import taskmanager.task.JournalTask;
 import taskmanager.task.Task;
 
@@ -45,19 +45,19 @@ public class ServerThread implements Runnable {
         boolean isLoaded = false, isClosed = false;
         while (!isClosed) {
             ObjectMapper objectMapper = new ObjectMapper();
-            Request inputRequest = null;
+            LoadJournalRequest inputLoadJournalRequest = null;
             try {
-                inputRequest = objectMapper.readValue(inputStream, Request.class);
+                inputLoadJournalRequest = objectMapper.readValue(inputStream, LoadJournalRequest.class);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
-            switch (inputRequest.getRequest()) {
+            switch (inputLoadJournalRequest.getMessage()) {
                 case "LoadTaskJournal":
                     if (!isLoaded) {
                         journalTask = new JournalTask();
                         LinkedList<Task> listTask = getList(journalTask);
-                        Request request = new Request("LoadJournalTask", listTask);
-                        sendJournalTask(request);
+                        LoadJournalRequest loadJournalRequest = new LoadJournalRequest("LoadJournalTask", listTask);
+                        sendJournalTask(loadJournalRequest);
                         isLoaded = true;
                     }
                     break;
@@ -83,8 +83,8 @@ public class ServerThread implements Runnable {
         LinkedList<Task> listTask = new LinkedList<Task>();
         for (int i = 0; i < journalTask.size(); i++) {
             try {
-                listTask.addLast(journalTask.getTask(i));
-            } catch (TaskNotFoundException ex) {
+                listTask.addLast(journalTask.getItem(i));
+            } catch (ItemNotFoundException ex) {
                 ex.printStackTrace();
             }
         }
@@ -92,13 +92,13 @@ public class ServerThread implements Runnable {
     }
 
     /** Отправка журнала задач клиенту
-     * @param request запрос, отправляемый клиенту
+     * @param loadJournalRequest запрос, отправляемый клиенту
      */
-    public void sendJournalTask(Request request) {
+    public void sendJournalTask(LoadJournalRequest loadJournalRequest) {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         try {
-            objectMapper.writeValue(outputStream, request);
+            objectMapper.writeValue(outputStream, loadJournalRequest);
         } catch (IOException ex) {
             ex.printStackTrace();
         }

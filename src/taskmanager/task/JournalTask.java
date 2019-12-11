@@ -3,11 +3,12 @@ package taskmanager.task;
 import taskmanager.Manager;
 import taskmanager.TaskChangedSubscriber;
 import taskmanager.exceptions.NameTaskException;
-import taskmanager.exceptions.TaskNotFoundException;
+import taskmanager.exceptions.ItemNotFoundException;
 
 import java.io.*;
 import java.time.LocalTime;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Журнал задач
@@ -53,7 +54,7 @@ public class JournalTask implements Manager, Serializable {
         }
     }
 
-    public Task getTask(int index) throws TaskNotFoundException {
+    public Task getItem(int index) throws ItemNotFoundException {
         checkIndexOnBound(index);
         return tasks.get(index);
     }
@@ -67,30 +68,45 @@ public class JournalTask implements Manager, Serializable {
         return tasks.size();
     }
 
+    @Override
+    public void startWork() throws IOException {
+
+    }
+
+    @Override
+    public void finalWork() {
+
+    }
+
     public void addTask(Task newTask) {
         tasks.addLast(newTask);
 //        subscriber.taskAdded(newTask);
     }
 
-    public void editTask(int index, LocalTime newTime) throws TaskNotFoundException {
+    public void editTask(int index, LocalTime newTime) throws ItemNotFoundException {
         checkIndexOnBound(index);
         tasks.get(index).setTime(newTime);
         subscriber.taskEdited(tasks.get(index));
     }
 
-    public void editTask(int index, String name) throws TaskNotFoundException {
+    public void editTask(int index, String name) throws ItemNotFoundException {
         checkIndexOnBound(index);
         tasks.get(index).setName(name);
         subscriber.taskEdited(tasks.get(index));
     }
 
-    public void editTaskDescription(int index, String description) throws TaskNotFoundException {
+    public void editTaskDescription(int index, String description) throws ItemNotFoundException {
         checkIndexOnBound(index);
         tasks.get(index).setDescription(description);
         subscriber.taskEdited(tasks.get(index));
     }
 
-    public void deleteTask(int index) throws TaskNotFoundException {
+    @Override
+    public void addItem(Object newItem) throws NameTaskException {
+
+    }
+
+    public void deleteItem(int index) throws ItemNotFoundException {
         checkIndexOnBound(index);
         Task tempTask = tasks.get(index);
         tasks.remove(index);
@@ -120,13 +136,10 @@ public class JournalTask implements Manager, Serializable {
     }
 
     @Override
-    public LinkedList<Task> loadTaskJournal() {
+    public List<Task> getTasks() {
         return null;
     }
 
-    @Override
-    public void closeSession() {
-    }
 
     /**
      * Метод проверки на уникальность имени
@@ -144,10 +157,10 @@ public class JournalTask implements Manager, Serializable {
      * Метод проверки значения индекса
      *
      * @param index Индекс проверяемой задачи
-     * @throws TaskNotFoundException Задачи с таким индексом не существует
+     * @throws ItemNotFoundException Задачи с таким индексом не существует
      */
-    public void checkIndexOnBound(int index) throws TaskNotFoundException {
-        if (index < 0 || index > tasks.size() - 1) throw new TaskNotFoundException("Неверное значение индекса.");
+    public void checkIndexOnBound(int index) throws ItemNotFoundException {
+        if (index < 0 || index > tasks.size() - 1) throw new ItemNotFoundException("Неверное значение индекса.");
     }
 
 

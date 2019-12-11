@@ -1,5 +1,6 @@
 package taskmanager;
 
+import taskmanager.exceptions.ItemNotFoundException;
 import taskmanager.exceptions.NameTaskException;
 import taskmanager.task.Task;
 
@@ -14,7 +15,10 @@ import java.io.IOException;
 import java.time.LocalTime;
 import java.util.LinkedList;
 
+import static javax.swing.JOptionPane.showInputDialog;
+
 public class GUI extends JFrame {
+    boolean isConnection = false;
     /**Стандартное разрешение экрана
      *
      */
@@ -47,6 +51,7 @@ public class GUI extends JFrame {
      *
      */
     private JButton addTaskButton;
+    private JButton connectionButton;
     /** Менеджер , для работы с сервером
      *
      */
@@ -63,8 +68,16 @@ public class GUI extends JFrame {
         setSize((sizeScreen.width / 2)-100, sizeScreen.height / 2);
         setLocationRelativeTo(null);
         setContentPane(panel1);
-        updateList(manager.loadTaskJournal());
         setVisible(true);
+        try
+        {
+            manager.startWork();
+            isConnection = true;
+            updateList();
+        } catch (IOException e)
+        {
+            connectionLost();
+        }
         this.addWindowListener(new WindowListener() {
 
             public void windowActivated(WindowEvent event) {
@@ -84,7 +97,7 @@ public class GUI extends JFrame {
                                 options[0]);
                 if (n == 0) {
                     event.getWindow().setVisible(false);
-                    manager.closeSession();
+                    if (isConnection) manager.finalWork();
                     System.exit(0);
                 }
             }
@@ -109,48 +122,41 @@ public class GUI extends JFrame {
         addTaskButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String name = null;
-                boolean nameInput = false;
-                boolean timeInput = false;
-                String description = null;
-                LocalTime time = null;
-                while (!nameInput) {
-                    try {
-                        name = JOptionPane.showInputDialog(GUI.this, "Введите имя задачи");
-                        System.out.println("+" + name);
-                        if (name.isEmpty()) throw new NameTaskException("Не введено имя");
-                        else nameInput = true;
-                    } catch (NameTaskException error) {
-                        JOptionPane.showMessageDialog(GUI.this, "Ошибка ввода имени");
-
-                    }
-                }
-                description = JOptionPane
-                        .showInputDialog(GUI.this, "Введите описание задачи");
-                while (!timeInput) {
-                    try {
-                        StringParser stringParser = new StringParser();
-                        time = stringParser.timeParse(JOptionPane
-                                .showInputDialog(GUI.this, "Введите время (HH:MM)"));
-                        timeInput = true;
-                    } catch (Exception error) {
-                        JOptionPane.showMessageDialog(GUI.this, "Ошибка ввода времени");
-
-                    }
-                    Task task = new Task(name, description, time);
-                }
+                InputTask inputTask = new InputTask(manager);
             }
         });
         deleteTaskButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(GUI.this, "Функционал в разработке");
+                int index =  Integer.parseInt(JOptionPane.
+                        showInputDialog(GUI.this, "Введите индекс удаляемой задачи"));
+                try {
+                    manager.deleteItem(index--);
+                } catch (ItemNotFoundException ex) {
+                    JOptionPane.showMessageDialog(GUI.this, "Неверный ввод");
+                }
             }
         });
         editTaskButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JOptionPane.showMessageDialog(GUI.this, "Функционал в разработке");
+            }
+        });
+        connectionButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(!isConnection) {
+                    try {
+                        manager.startWork();
+                        isConnection = true;
+                        updateList();
+                    } catch (IOException ex) {
+                        connectionLost();
+                    }
+                }
+                else JOptionPane.
+                        showMessageDialog(GUI.this, "Соединение уже установлено!");
             }
         });
         exitButton.addActionListener(new ActionListener() {
@@ -164,24 +170,25 @@ public class GUI extends JFrame {
                                 options[0]);
                 if (n == 0) {
                     GUI.this.setVisible(false);
-                    manager.closeSession();
+                    if(isConnection) manager.finalWork();
                     System.exit(0);
                 }
             }
         });
     }
 
-    public static void main(String[] argv) throws IOException, ClassNotFoundException {
+    public static void main(String[] argv)  {
         Manager manager = new ClientManager();
         GUI gui = new GUI(manager);
     }
 
     /**Метод обновления графического вывода журнала задач
-     * @param journalTask
      */
-    private void updateList(LinkedList<Task> journalTask) {
+    private void updateList() {
+        LinkedList<Task> journalTask = (LinkedList<Task>) manager.getTasks();
         String tempName;
         int temp = 0;
+        model.clear();
         for (Task task : journalTask) {
             temp++;
             tempName = (temp) + "." + task.getName() + "[" + task.getTime() + "]";
@@ -200,5 +207,14 @@ public class GUI extends JFrame {
                         BorderFactory.createEtchedBorder(EtchedBorder.LOWERED),
                         "Список задач"),
                 BorderFactory.createEmptyBorder(30, 30, 30, 30)));
+    }
+
+    private void connectionLost()
+    {
+        JOptionPane.
+                showMessageDialog(GUI.this, "Соединение невозможно! \n Возможно сервер в неактивном состоянии");
+        model.addElement("Нет соединения с сервером.");
+        listTask.setModel(model);
+        isConnection = false;
     }
 }

@@ -3,61 +3,66 @@ package taskmanager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import taskmanager.exceptions.NameTaskException;
-import taskmanager.exceptions.TaskNotFoundException;
+import taskmanager.exceptions.ItemNotFoundException;
 import taskmanager.task.Task;
 
 import java.io.*;
 import java.net.Socket;
 import java.time.LocalTime;
 import java.util.LinkedList;
+import java.util.List;
 
-public class ClientManager implements Manager {
+public class ClientManager implements Manager<Task> {
     private Socket socket;
     private DataOutput outputStream;
     private DataInput inputStream;
     private LinkedList<Task> journalTask;
+    ObjectMapper objectMapper;
 
     public ClientManager() {
+        objectMapper = new ObjectMapper();
+    }
+
+
+    @Override
+    public void addItem(Object newItem) throws NameTaskException {
+        objectMapper.registerModule(new JavaTimeModule());
+        Task newTask = (Task) newItem;
+        NewTaskRequest request = new NewTaskRequest("AddTask", newTask);
         try {
-            socket = new Socket("localhost", 1024);
-            inputStream = new DataInputStream(socket.getInputStream());
-            outputStream = new DataOutputStream(socket.getOutputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
+            objectMapper.writeValue(outputStream, request);
+        } catch (IOException ex) {
+
         }
     }
 
-    public LinkedList<Task> getJournalTask() {
-        return journalTask;
+    @Override
+    public void deleteItem(int index) throws ItemNotFoundException {
+        DeleteTaskRequest deleteTaskRequest = new DeleteTaskRequest(index, "DeleteTask");
+        try {
+            objectMapper.writeValue(outputStream, deleteTaskRequest);
+        } catch (IOException ex) {
+
+        }
     }
 
     @Override
-    public void addTask(Task newTask) throws NameTaskException {
-
-    }
-
-    @Override
-    public void deleteTask(int index) throws TaskNotFoundException {
-
-    }
-
-    @Override
-    public Task getTask(int index) throws TaskNotFoundException {
+    public Task getItem(int index) throws ItemNotFoundException {
         return null;
     }
 
     @Override
-    public void editTask(int index, LocalTime newTime) throws TaskNotFoundException {
+    public void editTask(int index, LocalTime newTime) throws ItemNotFoundException {
 
     }
 
     @Override
-    public void editTask(int index, String text) throws TaskNotFoundException {
+    public void editTask(int index, String text) throws ItemNotFoundException {
 
     }
 
     @Override
-    public void editTaskDescription(int index, String description) throws TaskNotFoundException {
+    public void editTaskDescription(int index, String description) throws ItemNotFoundException {
 
     }
 
@@ -66,32 +71,18 @@ public class ClientManager implements Manager {
         return 0;
     }
 
-
     @Override
-    public void saveJournalTask() {
-
+    public void startWork() throws IOException {
+        socket = new Socket("localhost", 1024);
+        inputStream = new DataInputStream(socket.getInputStream());
+        outputStream = new DataOutputStream(socket.getOutputStream());
     }
 
     @Override
-    public LinkedList<Task> loadTaskJournal() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        Request request = new Request("LoadTaskJournal");
+    public void finalWork() {
+        LoadJournalRequest loadJournalRequest = new LoadJournalRequest("CloseSession");
         try {
-            objectMapper.writeValue(outputStream, request);
-            Request inputRequest = objectMapper.readValue(inputStream, Request.class);
-            return inputRequest.getJournal();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    public void closeSession() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        Request request = new Request("CloseSession");
-        try {
-            objectMapper.writeValue(outputStream, request);
+            objectMapper.writeValue(outputStream, loadJournalRequest);
             socket.close();
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -99,13 +90,21 @@ public class ClientManager implements Manager {
     }
 
     @Override
-    public void checkUniqueName(String name) throws NameTaskException {
-
+    public List<Task> getTasks() {
+        objectMapper.registerModule(new JavaTimeModule());
+        LoadJournalRequest loadJournalRequest = new LoadJournalRequest("LoadTaskJournal");
+        try {
+            objectMapper.writeValue(outputStream, loadJournalRequest);
+            LoadJournalRequest inputLoadJournalRequest = objectMapper.readValue(inputStream, LoadJournalRequest.class);
+            return inputLoadJournalRequest.getData();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override
-    public void checkIndexOnBound(int index) throws TaskNotFoundException {
+    public void checkUniqueName(String name) throws NameTaskException {
 
     }
-
 }

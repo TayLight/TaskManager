@@ -1,11 +1,9 @@
 package taskmanager;
 
-import taskmanager.exceptions.TaskNotFoundException;
-import taskmanager.task.JournalTask;
+import taskmanager.exceptions.ItemNotFoundException;
 import taskmanager.task.Task;
 
 import java.awt.*;
-import java.io.Serializable;
 import java.time.LocalTime;
 
 /**
@@ -37,8 +35,8 @@ public class NotificationSystemThread implements Runnable {
             for (int i = 0; i < journalTask.size(); i++) {
                 Task task = null;
                 try {
-                    task = journalTask.getTask(i);
-                } catch (TaskNotFoundException ex) {
+                    task = journalTask.getItem(i);
+                } catch (ItemNotFoundException ex) {
                     System.out.println(ex.getMessage());
                 }
                 try {

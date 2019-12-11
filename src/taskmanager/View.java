@@ -1,7 +1,7 @@
 package taskmanager;
 
 import taskmanager.exceptions.NameTaskException;
-import taskmanager.exceptions.TaskNotFoundException;
+import taskmanager.exceptions.ItemNotFoundException;
 import taskmanager.task.Task;
 
 import java.time.DateTimeException;
@@ -133,7 +133,7 @@ public class View implements TaskChangedSubscriber {
                 }
                 Task task = new Task(name, description, time);
                 try {
-                    journalTask.addTask(task);
+                    journalTask.addItem(task);
                 } catch (NameTaskException ex) {
                     System.out.println(ex.getMessage() + ". Повторите ввод.");
                 }
@@ -159,9 +159,9 @@ public class View implements TaskChangedSubscriber {
                             try {
                                 index = input.nextInt();
                                 index--;
-                                task = journalTask.getTask(index);
+                                task = journalTask.getItem(index);
                                 key = true;
-                            } catch (InputMismatchException | TaskNotFoundException ex) {
+                            } catch (InputMismatchException | ItemNotFoundException ex) {
                                 System.out.println("Неверное значение индекса. Повторите ввод.");
                             }
                         }
@@ -219,7 +219,7 @@ public class View implements TaskChangedSubscriber {
                                     key = false;
                                     try {
                                         journalTask.editTask(index, name);
-                                    } catch (TaskNotFoundException ex) {
+                                    } catch (ItemNotFoundException ex) {
                                         System.out.println(ex.getMessage() + ". Повторите ввод.");
                                     }
                                     break;
@@ -229,7 +229,7 @@ public class View implements TaskChangedSubscriber {
                                     String description = input.nextLine();
                                     try {
                                         journalTask.editTaskDescription(index, description);
-                                    } catch (TaskNotFoundException ex) {
+                                    } catch (ItemNotFoundException ex) {
                                         System.out.println(ex.getMessage() + ". Повторите ввод.");
                                     }
                                     break;
@@ -250,7 +250,7 @@ public class View implements TaskChangedSubscriber {
                                     key = false;
                                     try {
                                         journalTask.editTask(index, time);
-                                    } catch (TaskNotFoundException ex) {
+                                    } catch (ItemNotFoundException ex) {
                                         System.out.println(ex.getMessage() + ". Повторите ввод.");
                                     }
                                     break;
@@ -282,9 +282,9 @@ public class View implements TaskChangedSubscriber {
                         try {
                             index = input.nextInt();
                             index--;
-                            task = journalTask.getTask(index);
+                            task = journalTask.getItem(index);
                             key = true;
-                        } catch (InputMismatchException | TaskNotFoundException ex) {
+                        } catch (InputMismatchException | ItemNotFoundException ex) {
                             System.out.println("Неверное значение индекса. Повторите ввод.");
                         }
                     }
@@ -308,8 +308,8 @@ public class View implements TaskChangedSubscriber {
                     switch (deleteChoice) {
                         case 1:
                             try {
-                                journalTask.deleteTask(index);
-                            } catch (TaskNotFoundException ex) {
+                                journalTask.deleteItem(index);
+                            } catch (ItemNotFoundException ex) {
                                 System.out.println(ex.getMessage() + " Повторите ввод.");
                             }
                             System.out.println("Нажмите Enter, чтобы продолжить...");
@@ -341,7 +341,7 @@ public class View implements TaskChangedSubscriber {
             }
             case EXIT: //выход
                 exit = true;
-                journalTask.saveJournalTask();
+                journalTask.finalWork();
                 break;
         }
     }
@@ -357,13 +357,13 @@ public class View implements TaskChangedSubscriber {
         try {
             for (int i = 0; i < journalTask.size(); i++) {
                 if (i < 9) {
-                    System.out.println(i + 1 + ".  " + journalTask.getTask(i).toString());
+                    System.out.println(i + 1 + ".  " + journalTask.getItem(i).toString());
                 } else {
-                    System.out.println(i + 1 + ". " + journalTask.getTask(i).toString());
+                    System.out.println(i + 1 + ". " + journalTask.getItem(i).toString());
                 }
                 System.out.println("----------------------------------------------------------------------");
             }
-        } catch (TaskNotFoundException ex) {
+        } catch (ItemNotFoundException ex) {
             System.out.println("Некорректное значение. Повторите ввод");
         }
     }

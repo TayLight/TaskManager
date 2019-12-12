@@ -6,13 +6,14 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import taskmanager.task.Task;
 
 import java.util.LinkedList;
+import java.util.List;
 
 @JsonAutoDetect
 public class Request {
     //@JsonProperty("task")
     private String request;
-    @JsonDeserialize(as = LinkedList.class)
-    private LinkedList<Task> journal;
+    @JsonDeserialize(as = List.class)
+    private List<Task> journal;
 
     public Request() {
     }
@@ -25,7 +26,7 @@ public class Request {
         this.journal = journal;
     }
 
-    public LinkedList<Task> getJournal() {
+    public List<Task> getJournal() {
         return journal;
     }
 

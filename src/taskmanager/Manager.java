@@ -18,7 +18,7 @@ public interface Manager<T> {
      *
      * @param newItem Новая задача
      */
-    <T> void addItem(T newItem) throws NameTaskException;
+     void addItem(T newItem) throws NameTaskException;
 
     /**
      * Метод удаления задачи, под индексом index
@@ -26,7 +26,7 @@ public interface Manager<T> {
      * @param index Индекс удаляемой задачи
      * @throws ItemNotFoundException Задача не найдена
      */
-    void deleteItem(int index) throws ItemNotFoundException;
+    void deleteItem(int index) throws ItemNotFoundException, IOException;
 
 
     /**
@@ -35,7 +35,7 @@ public interface Manager<T> {
      * @return возвращает задачу с индексом index
      * @throws ItemNotFoundException Ошибка, задача не найден
      */
-    Task getItem(int index) throws ItemNotFoundException;
+    T getItem(int index) throws ItemNotFoundException;
 
 
     /**
@@ -64,6 +64,8 @@ public interface Manager<T> {
      */
     void editTaskDescription(int index, String description) throws ItemNotFoundException;
 
+    T updateItem(int index) throws ItemNotFoundException;
+
     /**
      * Метод, возвращающий размер журнала задача
      * @return Возвращает размером журнала задач
@@ -80,14 +82,14 @@ public interface Manager<T> {
     /** Метод загрузки журнала задач
      * @return возвращает полученный журнал задач
      */
-    List<Task> getTasks();
+    List<T> getItems() throws IOException;
     /**
      * Метод проверки на уникальность имени
      *
      * @param name Имя задачи для проверки
      * @throws NameTaskException Задача с таким именем уже есть
      */
-    void checkUniqueName(String name) throws NameTaskException;
+    void checkUniqueName(String name) throws NameTaskException, IOException;
 
 
 }

@@ -14,7 +14,7 @@ import java.util.List;
  * Журнал задач
  * Здесь хранится список задач для оповещения пользователя
  */
-public class JournalTask implements Manager, Serializable {
+public class JournalTask<T> implements Manager<Task>, Serializable {
     /**
      * Адрес журнала задач на компьютере пользователя
      */
@@ -32,6 +32,29 @@ public class JournalTask implements Manager, Serializable {
      * Конструктор, создающий журнал задач
      */
     public JournalTask() {
+        try {
+            startWork();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Task getItem(int index) throws ItemNotFoundException {
+        checkIndexOnBound(index);
+        return(Task) tasks.get(index);
+    }
+
+    /**
+     * Метод, возвращающий размер журнала задача
+     *
+     * @return Возвращает размером журнала задач
+     */
+    public int size() {
+        return tasks.size();
+    }
+
+    @Override
+    public void startWork() throws IOException {
         File fileJournalTask = new File(pathToJournalTask);
         if (fileJournalTask.exists()) {
             if (fileJournalTask.length() != 0) {
@@ -52,25 +75,6 @@ public class JournalTask implements Manager, Serializable {
                 e.printStackTrace();
             }
         }
-    }
-
-    public Task getItem(int index) throws ItemNotFoundException {
-        checkIndexOnBound(index);
-        return tasks.get(index);
-    }
-
-    /**
-     * Метод, возвращающий размер журнала задача
-     *
-     * @return Возвращает размером журнала задач
-     */
-    public int size() {
-        return tasks.size();
-    }
-
-    @Override
-    public void startWork() throws IOException {
-
     }
 
     @Override
@@ -112,8 +116,15 @@ public class JournalTask implements Manager, Serializable {
     }
 
     @Override
-    public void addItem(Object newItem) throws NameTaskException {
-        tasks.addLast((Task) newItem);
+    public Task updateItem(int index) throws ItemNotFoundException {
+        checkIndexOnBound(index);
+        return tasks.get(index);
+    }
+
+
+    @Override
+    public void addItem(Task newItem) throws NameTaskException {
+        tasks.addLast(newItem);
     }
 
     public void deleteItem(int index) throws ItemNotFoundException {
@@ -123,14 +134,13 @@ public class JournalTask implements Manager, Serializable {
     }
 
     @Override
-    public List<Task> getTasks() {
-        return null;
+    public List<Task> getItems() {
+        return tasks;
     }
 
 
     /**
      * Метод проверки на уникальность имени
-     *
      * @param name Имя задачи для проверки
      * @throws NameTaskException Задача с таким именем уже есть
      */
@@ -142,28 +152,10 @@ public class JournalTask implements Manager, Serializable {
 
     /**
      * Метод проверки значения индекса
-     *
      * @param index Индекс проверяемой задачи
      * @throws ItemNotFoundException Задачи с таким индексом не существует
      */
     public void checkIndexOnBound(int index) throws ItemNotFoundException {
         if (index < 0 || index > tasks.size() - 1) throw new ItemNotFoundException("Неверное значение индекса.");
-    }
-
-
-    /**
-     * Метод подписки на обновления
-     *
-     * @param subscriber Новый подписчик
-     */
-    public void subscribe(TaskChangedSubscriber subscriber) {
-        this.subscriber = subscriber;
-    }
-
-    /**
-     * Метод отписки от обновлений
-     */
-    public void unsubscribe() {
-        this.subscriber = null;
     }
 }

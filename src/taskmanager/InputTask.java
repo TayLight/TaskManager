@@ -7,6 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.time.DateTimeException;
 import java.time.LocalTime;
 
@@ -37,13 +38,20 @@ public class InputTask extends JFrame {
                 try {
                     String name = nameField.getText();
                     if(name.isEmpty()) throw new NameTaskException("Пустое поле");
+                    manager.checkUniqueName(name);
                     String description = descriptionField.getText();
                     LocalTime time = StringParser.timeParse(timeField.getText());
                     manager.checkUniqueName(name);
                     manager.addItem(new Task(name, description, time));
                     setVisible(false);
-                } catch (NumberFormatException | DateTimeException | NameTaskException ex) {
-                    JOptionPane.showMessageDialog(InputTask.this, "Неверный ввод!");
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(InputTask.this, "Неправильно введено имя!");
+                } catch (DateTimeException ex) {
+                    JOptionPane.showMessageDialog(InputTask.this, "Неправильно введено имя!");
+                } catch (NameTaskException ex) {
+                    JOptionPane.showMessageDialog(InputTask.this, "Такое имя уже существует!");
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(InputTask.this, "Сервер недоступен!");
                 }
             }
         });

@@ -35,7 +35,7 @@ public class NotificationSystemThread implements Runnable {
             for (int i = 0; i < journalTask.size(); i++) {
                 Task task = null;
                 try {
-                    task = journalTask.getItem(i);
+                    task = (Task) journalTask.getItem(i);
                 } catch (ItemNotFoundException ex) {
                     System.out.println(ex.getMessage());
                 }

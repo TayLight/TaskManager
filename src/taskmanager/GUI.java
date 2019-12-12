@@ -24,7 +24,7 @@ public class GUI extends JFrame {
     /**Список моделей, для работы с выводом на экран
      *
      */
-    private DefaultListModel model = new DefaultListModel();
+    private ListItems<String> model = new ListItems<>();
     /**Вывод списка на экран
      *
      */
@@ -128,14 +128,17 @@ public class GUI extends JFrame {
         deleteTaskButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (!isConnection) JOptionPane.showMessageDialog(GUI.this, "Нет соединения с сервером!");
+                if (!isConnection) JOptionPane.showMessageDialog(GUI.this, "Соединение с сервером еще не установлено!");
                 else {
                     int index = Integer.parseInt(JOptionPane.
                             showInputDialog(GUI.this, "Введите индекс удаляемой задачи"));
                     try {
-                        manager.deleteItem(index--);
+                        index--;
+                        manager.deleteItem(index);
                     } catch (ItemNotFoundException ex) {
                         JOptionPane.showMessageDialog(GUI.this, "Неверный ввод");
+                    } catch (IOException ex) {
+                        JOptionPane.showMessageDialog(GUI.this, "Нет соединения с сервером");
                     }
                 }
             }
@@ -175,6 +178,7 @@ public class GUI extends JFrame {
                 if (n == 0) {
                     GUI.this.setVisible(false);
                     if(isConnection) manager.finalWork();
+                    manager.finalWork();
                     System.exit(0);
                 }
             }
@@ -188,8 +192,8 @@ public class GUI extends JFrame {
 
     /**Метод обновления графического вывода журнала задач
      */
-    private void updateList() {
-        LinkedList<Task> journalTask = (LinkedList<Task>) manager.getTasks();
+    private void updateList() throws IOException {
+        LinkedList<Task> journalTask = (LinkedList<Task>) manager.getItems();
         String tempName;
         int temp = 0;
         model.clear();
@@ -213,7 +217,7 @@ public class GUI extends JFrame {
                 BorderFactory.createEmptyBorder(30, 30, 30, 30)));
     }
 
-    private void connectionLost()
+    public void connectionLost()
     {
         JOptionPane.
                 showMessageDialog(GUI.this, "Соединение невозможно! \n Возможно сервер в неактивном состоянии");

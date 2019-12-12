@@ -59,7 +59,7 @@ public class ServerThread implements Runnable {
                 case "LoadTaskJournal":
                     if (!isLoaded) {
                         System.out.println("Принял запрос на отправку");
-                        journalTask = new JournalTask();
+                        journalTask = new JournalTask<Task>();
                         LinkedList<Task> listTask = getList(journalTask);
                         Request loadJournalRequest = new Request("LoadJournalTask", listTask);
                         sendJournalTask(loadJournalRequest);
@@ -88,7 +88,7 @@ public class ServerThread implements Runnable {
         LinkedList<Task> listTask = new LinkedList<Task>();
         for (int i = 0; i < journalTask.size(); i++) {
             try {
-                listTask.addLast(journalTask.getItem(i));
+                listTask.addLast((Task) journalTask.getItem(i));
             } catch (ItemNotFoundException ex) {
                 ex.printStackTrace();
             }

@@ -1,9 +1,13 @@
-package taskmanager;
+package taskmanager.conrollers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import taskmanager.exceptions.NameTaskException;
 import taskmanager.exceptions.ItemNotFoundException;
+import taskmanager.requests.DeleteTaskRequest;
+import taskmanager.requests.LoadJournalRequest;
+import taskmanager.requests.NewTaskRequest;
+import taskmanager.requests.Request;
 import taskmanager.task.Task;
 
 import java.io.*;
@@ -17,15 +21,16 @@ public class ClientManager implements Manager<Task> {
     private DataOutput outputStream;
     private DataInput inputStream;
     private LinkedList<Task> journalTask;
-    ObjectMapper objectMapper;
+    ObjectMapper objectMapper= new ObjectMapper();
 
     public ClientManager() {
-        objectMapper = new ObjectMapper();
+
     }
 
 
     @Override
     public void addItem(Object newItem) throws NameTaskException {
+        ObjectMapper objectMapper= new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         Task newTask = (Task) newItem;
         NewTaskRequest request = new NewTaskRequest("AddTask", newTask);
@@ -37,7 +42,8 @@ public class ClientManager implements Manager<Task> {
     }
 
     @Override
-    public void deleteItem(int index) throws ItemNotFoundException {
+    public void deleteItem(int index)  {
+        ObjectMapper objectMapper= new ObjectMapper();
         DeleteTaskRequest deleteTaskRequest = new DeleteTaskRequest(index, "DeleteTask");
         try {
             objectMapper.writeValue(outputStream, deleteTaskRequest);
@@ -80,7 +86,8 @@ public class ClientManager implements Manager<Task> {
 
     @Override
     public void finalWork() {
-        LoadJournalRequest loadJournalRequest = new LoadJournalRequest("CloseSession");
+        ObjectMapper objectMapper= new ObjectMapper();
+        Request loadJournalRequest = new Request("CloseSession");
         try {
             objectMapper.writeValue(outputStream, loadJournalRequest);
             socket.close();
@@ -90,13 +97,17 @@ public class ClientManager implements Manager<Task> {
     }
 
     @Override
-    public List<Task> getTasks() {
+    public LinkedList<Task> getTasks() {
+        ObjectMapper objectMapper= new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
-        LoadJournalRequest loadJournalRequest = new LoadJournalRequest("LoadTaskJournal");
+        Request loadJournalRequest = new Request("LoadTaskJournal");
         try {
+            System.out.println("Отправил пакет");
             objectMapper.writeValue(outputStream, loadJournalRequest);
-            LoadJournalRequest inputLoadJournalRequest = objectMapper.readValue(inputStream, LoadJournalRequest.class);
-            return inputLoadJournalRequest.getData();
+            Request inputLoadJournalRequest = objectMapper.readValue(inputStream, Request.class);
+            System.out.println("принял пакет");
+            System.out.println(inputLoadJournalRequest.getJournal().get(0).getName());
+            return inputLoadJournalRequest.getJournal();
         } catch (IOException e) {
             e.printStackTrace();
             return null;

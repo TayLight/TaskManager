@@ -1,4 +1,6 @@
-package taskmanager;
+package taskmanager.server;
+
+import taskmanager.server.ServerThread;
 
 import java.io.*;
 import java.net.ServerSocket;

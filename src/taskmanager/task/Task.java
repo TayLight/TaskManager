@@ -94,7 +94,7 @@ public class Task implements Serializable {
      *
      * @param description новое описание задачи
      */
-    void setDescription(String description) {
+    public void setDescription(String description) {
         this.description = description;
     }
 

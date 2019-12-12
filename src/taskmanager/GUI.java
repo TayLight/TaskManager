@@ -1,7 +1,8 @@
 package taskmanager;
 
+import taskmanager.conrollers.ClientManager;
+import taskmanager.conrollers.Manager;
 import taskmanager.exceptions.ItemNotFoundException;
-import taskmanager.exceptions.NameTaskException;
 import taskmanager.task.Task;
 
 import javax.swing.*;
@@ -12,7 +13,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.IOException;
-import java.time.LocalTime;
 import java.util.LinkedList;
 
 import static javax.swing.JOptionPane.showInputDialog;
@@ -73,6 +73,7 @@ public class GUI extends JFrame {
         {
             manager.startWork();
             isConnection = true;
+            System.out.println("Загружено");
             updateList();
         } catch (IOException e)
         {
@@ -122,25 +123,30 @@ public class GUI extends JFrame {
         addTaskButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                InputTask inputTask = new InputTask(manager);
+                if (!isConnection) JOptionPane.showMessageDialog(GUI.this, "Нет соединения с сервером!");
+                else {InputTask inputTask = new InputTask(manager);}
             }
         });
         deleteTaskButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int index =  Integer.parseInt(JOptionPane.
-                        showInputDialog(GUI.this, "Введите индекс удаляемой задачи"));
-                try {
-                    manager.deleteItem(index--);
-                } catch (ItemNotFoundException ex) {
-                    JOptionPane.showMessageDialog(GUI.this, "Неверный ввод");
+                if (!isConnection) JOptionPane.showMessageDialog(GUI.this, "Нет соединения с сервером!");
+                else {
+                    int index = Integer.parseInt(JOptionPane.
+                            showInputDialog(GUI.this, "Введите индекс удаляемой задачи"));
+                    try {
+                        manager.deleteItem(index--);
+                    } catch (ItemNotFoundException ex) {
+                        JOptionPane.showMessageDialog(GUI.this, "Неверный ввод");
+                    }
                 }
             }
         });
         editTaskButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(GUI.this, "Функционал в разработке");
+                if (!isConnection) JOptionPane.showMessageDialog(GUI.this, "Нет соединения с сервером!");
+                else {JOptionPane.showMessageDialog(GUI.this, "Функционал в разработке");}
             }
         });
         connectionButton.addActionListener(new ActionListener() {
@@ -213,6 +219,7 @@ public class GUI extends JFrame {
     {
         JOptionPane.
                 showMessageDialog(GUI.this, "Соединение невозможно! \n Возможно сервер в неактивном состоянии");
+        model.clear();
         model.addElement("Нет соединения с сервером.");
         listTask.setModel(model);
         isConnection = false;

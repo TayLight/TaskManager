@@ -1,8 +1,11 @@
-package taskmanager;
+package taskmanager.server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import taskmanager.conrollers.Manager;
 import taskmanager.exceptions.ItemNotFoundException;
+import taskmanager.requests.LoadJournalRequest;
+import taskmanager.requests.Request;
 import taskmanager.task.JournalTask;
 import taskmanager.task.Task;
 
@@ -45,18 +48,21 @@ public class ServerThread implements Runnable {
         boolean isLoaded = false, isClosed = false;
         while (!isClosed) {
             ObjectMapper objectMapper = new ObjectMapper();
-            LoadJournalRequest inputLoadJournalRequest = null;
+            Request inputLoadJournalRequest = null;
             try {
-                inputLoadJournalRequest = objectMapper.readValue(inputStream, LoadJournalRequest.class);
+                System.out.println("Пытаюсь получить команду");
+                inputLoadJournalRequest = objectMapper.readValue(inputStream, Request.class);
+                System.out.println(inputLoadJournalRequest.getRequest());
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
-            switch (inputLoadJournalRequest.getMessage()) {
+            switch (inputLoadJournalRequest.getRequest()) {
                 case "LoadTaskJournal":
                     if (!isLoaded) {
+                        System.out.println("Принял запрос на отправку");
                         journalTask = new JournalTask();
                         LinkedList<Task> listTask = getList(journalTask);
-                        LoadJournalRequest loadJournalRequest = new LoadJournalRequest("LoadJournalTask", listTask);
+                        Request loadJournalRequest = new Request("LoadJournalTask", listTask);
                         sendJournalTask(loadJournalRequest);
                         isLoaded = true;
                     }
@@ -94,7 +100,7 @@ public class ServerThread implements Runnable {
     /** Отправка журнала задач клиенту
      * @param loadJournalRequest запрос, отправляемый клиенту
      */
-    public void sendJournalTask(LoadJournalRequest loadJournalRequest) {
+    public void sendJournalTask(Request loadJournalRequest) {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         try {

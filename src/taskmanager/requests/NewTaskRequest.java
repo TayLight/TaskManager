@@ -1,10 +1,10 @@
-package taskmanager;
+package taskmanager.requests;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import taskmanager.task.Task;
 @JsonAutoDetect
-public class NewTaskRequest implements Request<Task> {
+public class NewTaskRequest implements RequestInterface<Task> {
     //@JsonProperty("task")
     /**
      * Команда на выполнение

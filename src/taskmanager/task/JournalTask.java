@@ -1,6 +1,6 @@
 package taskmanager.task;
 
-import taskmanager.Manager;
+import taskmanager.conrollers.Manager;
 import taskmanager.TaskChangedSubscriber;
 import taskmanager.exceptions.NameTaskException;
 import taskmanager.exceptions.ItemNotFoundException;

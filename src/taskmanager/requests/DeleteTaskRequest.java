@@ -1,11 +1,10 @@
-package taskmanager;
+package taskmanager.requests;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import java.util.LinkedList;
 @JsonAutoDetect
-public class DeleteTaskRequest implements Request<Integer> {
+public class DeleteTaskRequest implements RequestInterface<Integer> {
     @JsonDeserialize(as = Integer.class)
     Integer index;
 

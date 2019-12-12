@@ -1,6 +1,5 @@
 package taskmanager;
 
-import taskmanager.conrollers.Manager;
 import taskmanager.exceptions.NameTaskException;
 import taskmanager.task.Task;
 

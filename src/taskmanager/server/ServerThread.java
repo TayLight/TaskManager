@@ -2,9 +2,8 @@ package taskmanager.server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import taskmanager.conrollers.Manager;
+import taskmanager.Manager;
 import taskmanager.exceptions.ItemNotFoundException;
-import taskmanager.requests.LoadJournalRequest;
 import taskmanager.requests.Request;
 import taskmanager.task.JournalTask;
 import taskmanager.task.Task;
@@ -101,6 +100,7 @@ public class ServerThread implements Runnable {
      * @param loadJournalRequest запрос, отправляемый клиенту
      */
     public void sendJournalTask(Request loadJournalRequest) {
+        System.out.println(loadJournalRequest.getJournal().get(0));
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         try {

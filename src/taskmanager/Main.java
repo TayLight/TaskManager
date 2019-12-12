@@ -1,6 +1,5 @@
 package taskmanager;
 
-import taskmanager.conrollers.Manager;
 import taskmanager.task.JournalTask;
 
 public class Main {

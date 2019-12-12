@@ -1,7 +1,5 @@
 package taskmanager;
 
-import taskmanager.conrollers.ClientManager;
-import taskmanager.conrollers.Manager;
 import taskmanager.exceptions.ItemNotFoundException;
 import taskmanager.task.Task;
 

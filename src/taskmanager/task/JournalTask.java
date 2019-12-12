@@ -1,6 +1,6 @@
 package taskmanager.task;
 
-import taskmanager.conrollers.Manager;
+import taskmanager.Manager;
 import taskmanager.TaskChangedSubscriber;
 import taskmanager.exceptions.NameTaskException;
 import taskmanager.exceptions.ItemNotFoundException;
@@ -75,12 +75,22 @@ public class JournalTask implements Manager, Serializable {
 
     @Override
     public void finalWork() {
-
-    }
-
-    public void addTask(Task newTask) {
-        tasks.addLast(newTask);
-//        subscriber.taskAdded(newTask);
+        if (tasks.size() != 0) {
+            try (ObjectOutputStream out2 = new ObjectOutputStream(new FileOutputStream(pathToJournalTask))) {
+                out2.writeObject(tasks);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                FileWriter fstream1 = new FileWriter(pathToJournalTask);
+                BufferedWriter out1 = new BufferedWriter(fstream1);
+                out1.write("");
+                out1.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void editTask(int index, LocalTime newTime) throws ItemNotFoundException {
@@ -103,36 +113,13 @@ public class JournalTask implements Manager, Serializable {
 
     @Override
     public void addItem(Object newItem) throws NameTaskException {
-
+        tasks.addLast((Task) newItem);
     }
 
     public void deleteItem(int index) throws ItemNotFoundException {
-        checkIndexOnBound(index);
         Task tempTask = tasks.get(index);
         tasks.remove(index);
         subscriber.taskDeleted(tempTask);
-    }
-
-    /**
-     * Метод, сериализации и сохранения журнала задач в файл
-     */
-    public void saveJournalTask() {
-        if (tasks.size() != 0) {
-            try (ObjectOutputStream out2 = new ObjectOutputStream(new FileOutputStream(pathToJournalTask))) {
-                out2.writeObject(tasks);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            try {
-                FileWriter fstream1 = new FileWriter(pathToJournalTask);
-                BufferedWriter out1 = new BufferedWriter(fstream1);
-                out1.write("");
-                out1.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     @Override

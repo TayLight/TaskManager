@@ -1,11 +1,10 @@
-package taskmanager.conrollers;
+package taskmanager;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import taskmanager.exceptions.NameTaskException;
 import taskmanager.exceptions.ItemNotFoundException;
 import taskmanager.requests.DeleteTaskRequest;
-import taskmanager.requests.LoadJournalRequest;
 import taskmanager.requests.NewTaskRequest;
 import taskmanager.requests.Request;
 import taskmanager.task.Task;
@@ -14,7 +13,6 @@ import java.io.*;
 import java.net.Socket;
 import java.time.LocalTime;
 import java.util.LinkedList;
-import java.util.List;
 
 public class ClientManager implements Manager<Task> {
     private Socket socket;

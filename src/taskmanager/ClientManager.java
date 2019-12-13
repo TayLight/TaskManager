@@ -61,21 +61,6 @@ public class ClientManager implements Manager<Task> {
         return journalTask.get(index);
     }
 
-//    @Override
-//    public void editTask(int index, LocalTime newTime) throws ItemNotFoundException {
-//
-//    }
-//
-//    @Override
-//    public void editTask(int index, String text) throws ItemNotFoundException {
-//
-//    }
-//
-//    @Override
-//    public void editTaskDescription(int index, String description) throws ItemNotFoundException {
-//
-//    }
-
     @Override
     public void updateItem(int index, Task item) {
 

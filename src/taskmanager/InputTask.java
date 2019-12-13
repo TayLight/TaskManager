@@ -25,7 +25,7 @@ public class InputTask extends JFrame {
     private JLabel descriptionLabel;
     private JLabel nameLabel;
 
-    public InputTask(Manager manager) throws HeadlessException {
+    public InputTask(Manager manager, GUI gui) throws HeadlessException {
         super("Создание задачи");
         pack();
         setSize((sizeScreen.width / 3)-100, sizeScreen.height / 3);
@@ -43,6 +43,7 @@ public class InputTask extends JFrame {
                     manager.checkUniqueName(name);
                     manager.addItem(new Task(name, description, time));
                     setVisible(false);
+                    gui.updateList();
                 } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(InputTask.this, "Неправильно введено имя!");
                 } catch (DateTimeException ex) {

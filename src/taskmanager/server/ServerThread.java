@@ -131,6 +131,7 @@ public class ServerThread implements Runnable, Manager<Task> {
                             case CLOSE_SESSION:
                                 clientSocket.close();
                                 System.out.println("Серверная нить закрыта.");
+                                journalTask.finalWork();
                                 exit = true;
                                 break;
                         }

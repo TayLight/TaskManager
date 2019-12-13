@@ -50,6 +50,7 @@ public class GUI extends JFrame {
      */
     private JButton addTaskButton;
     private JButton connectionButton;
+    private JButton buttonUpdate;
     /** Менеджер , для работы с сервером
      *
      */
@@ -95,8 +96,7 @@ public class GUI extends JFrame {
                                 JOptionPane.QUESTION_MESSAGE, null, options,
                                 options[0]);
                 if (n == 0) {
-                    event.getWindow().setVisible(false);
-                    if (isConnection) manager.finalWork();
+                    setVisible(false);
                     System.exit(0);
                 }
             }
@@ -123,15 +123,7 @@ public class GUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 if (!isConnection) JOptionPane.showMessageDialog(GUI.this, "Нет соединения с сервером!");
                 else {
-                    InputTask inputTask = new InputTask(manager);
-
-                    //костыль для проверки работоспособности
-                    try{
-                        updateList();
-                    } catch (IOException ex){
-                        ex.printStackTrace();
-                    }
-                    //
+                    InputTask inputTask = new InputTask(manager, GUI.this);
                 }
             }
         });
@@ -145,10 +137,12 @@ public class GUI extends JFrame {
                     try {
                         index--;
                         manager.deleteItem(index);
+                        updateList();
                     } catch (ItemNotFoundException ex) {
                         JOptionPane.showMessageDialog(GUI.this, "Неверный ввод");
                     } catch (IOException ex) {
                         JOptionPane.showMessageDialog(GUI.this, "Нет соединения с сервером");
+                        isConnection= false;
                     }
                 }
             }
@@ -187,9 +181,21 @@ public class GUI extends JFrame {
                                 options[0]);
                 if (n == 0) {
                     GUI.this.setVisible(false);
-                    if(isConnection) manager.finalWork();
-                    manager.finalWork();
                     System.exit(0);
+                }
+            }
+        });
+        buttonUpdate.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!isConnection) JOptionPane.showMessageDialog(GUI.this, "Сервер недоступен");
+                else {
+                    try {
+                        updateList();
+                    } catch (IOException ex) {
+                        JOptionPane.showMessageDialog(GUI.this, "Сервер недоступен");
+                        isConnection = false;
+                    }
                 }
             }
         });
@@ -202,7 +208,7 @@ public class GUI extends JFrame {
 
     /**Метод обновления графического вывода журнала задач
      */
-    private void updateList() throws IOException {
+    public void updateList() throws IOException {
         LinkedList<Task> journalTask = (LinkedList<Task>) manager.getItems();
         String tempName;
         int temp = 0;

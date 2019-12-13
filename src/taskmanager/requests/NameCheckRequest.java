@@ -10,10 +10,12 @@ public class NameCheckRequest implements RequestInterface<String> {
     String data;
 
 
-    public NameCheckRequest(String message, String data) {
+    public NameCheckRequest(String message, String name) {
         this.message = message;
-        this.data = data;
+        this.data = name;
     }
+
+    public NameCheckRequest(){}
 
     @Override
     public String getData() {

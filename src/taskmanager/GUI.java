@@ -122,7 +122,17 @@ public class GUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (!isConnection) JOptionPane.showMessageDialog(GUI.this, "Нет соединения с сервером!");
-                else {InputTask inputTask = new InputTask(manager);}
+                else {
+                    InputTask inputTask = new InputTask(manager);
+
+                    //костыль для проверки работоспособности
+                    try{
+                        updateList();
+                    } catch (IOException ex){
+                        ex.printStackTrace();
+                    }
+                    //
+                }
             }
         });
         deleteTaskButton.addActionListener(new ActionListener() {

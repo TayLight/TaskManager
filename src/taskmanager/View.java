@@ -153,14 +153,16 @@ public class View implements TaskChangedSubscriber {
                         System.out.println("[Редактирование задачи]\n");
                         showTaskList();
                         System.out.println("\nИндекс: ");
-                        Task task = null;
+                        Task tempTask = null;
                         int index = 0;
                         while (!key) {
                             input.nextLine();
                             try {
                                 index = input.nextInt();
                                 index--;
-                                task = (Task) journalTask.updateItem(index);
+                                tempTask = (Task) journalTask.getItem(index); //временная задача, с которой пользователь
+                                                                              //будет работать и которая в итоге заменит
+                                                                              //исходную в журнале задач
                                 key = true;
                             } catch (InputMismatchException | ItemNotFoundException ex) {
                                 System.out.println("Неверное значение индекса. Повторите ввод.");
@@ -169,9 +171,10 @@ public class View implements TaskChangedSubscriber {
                         key = false;
                         boolean isMenuClose = false;
                         while (!isMenuClose) {
+
                             consoleClear();
                             System.out.println("\nРедактируемая задача:");
-                            System.out.println(task.toString());
+                            System.out.println(tempTask.toString());
                             System.out.println("\nМеню редактирования:" +
                                     "\n[1] Название" +
                                     "\n[2] Описание" +
@@ -197,9 +200,10 @@ public class View implements TaskChangedSubscriber {
                                     editItem = editmenuItem;
                                 }
                             }
+                            boolean isTaskEdited = false;
                             switch (editItem) {
                                 case EDIT_NAME:
-                                    String name = null;
+                                    String newName = null;
                                     int nameInputCount = 0; //счетчик запусков ввода названия
                                     while (!key) { //появляется лишний энтер при повторном входе в блок трай
                                         try {
@@ -210,58 +214,63 @@ public class View implements TaskChangedSubscriber {
                                             } else {
                                                 System.out.println("\nНовое название: ");
                                             }
-                                            name = input.nextLine();
-                                            journalTask.checkUniqueName(name);
+                                            newName = input.nextLine();
+                                            journalTask.checkUniqueName(newName);
                                             key = true;
                                         } catch (NameTaskException | IOException ex) {
                                             System.out.println(ex.getMessage() + " Повторите ввод.");
                                         }
                                     }
                                     key = false;
-                                    try {
-                                        journalTask.editTask(index, name);
-                                    } catch (ItemNotFoundException ex) {
-                                        System.out.println(ex.getMessage() + ". Повторите ввод.");
-                                    }
+                                    tempTask.setName(newName);
+                                    isTaskEdited = true;
                                     break;
                                 case EDIT_DESCRIPTION:
                                     System.out.print("\nНовое описание: ");
                                     input.nextLine();
-                                    String description = input.nextLine();
-                                    try {
-                                        journalTask.editTaskDescription(index, description);
-                                    } catch (ItemNotFoundException ex) {
-                                        System.out.println(ex.getMessage() + ". Повторите ввод.");
-                                    }
+                                    String newDescription = input.nextLine();
+                                    tempTask.setDescription(newDescription);
+                                    isTaskEdited = true;
                                     break;
                                 case EDIT_TIME:
-                                    LocalTime time = LocalTime.of(0, 0, 0);
+                                    LocalTime newTime = LocalTime.of(0, 0, 0);
                                     while (!key) {
                                         System.out.print("\nНовое время (ЧЧ:ММ): ");
                                         input.nextLine();
                                         String strTime = input.nextLine();
                                         StringParser parser = new StringParser();
                                         try {
-                                            time = parser.timeParse(strTime);
+                                            newTime = parser.timeParse(strTime);
                                             key = true;
                                         } catch (NumberFormatException | DateTimeException ex) {
                                             System.out.println("Некорректное значение времени. Повторите ввод.");
                                         }
                                     }
+                                    tempTask.setTime(newTime);
                                     key = false;
-                                    try {
-                                        journalTask.editTask(index, time);
-                                    } catch (ItemNotFoundException ex) {
-                                        System.out.println(ex.getMessage() + ". Повторите ввод.");
-                                    }
+                                    isTaskEdited = true;
                                     break;
                                 case ANOTHER_TASK:
+                                    if(isTaskEdited){
+                                        try{
+                                            journalTask.updateItem(index, (Task) tempTask);
+                                        } catch(ItemNotFoundException ex){
+                                            //ItemNotFound никогда не возникнет, т.к. индекс уже проверялся на принадлежность
+                                            //диапазону в методе getItem
+                                        }
+                                    }
                                     isMenuClose = true;
                                     break;
                                 case EXIT:
+                                    if(isTaskEdited){
+                                        try{
+                                            journalTask.updateItem(index, (Task) tempTask);
+                                        } catch(ItemNotFoundException ex){
+                                            //ItemNotFound никогда не возникнет
+                                        }
+                                    }
                                     isMenuClose = true;
                                     isEditCorrect = true;
-
                                     break;
                             }
                         }

@@ -12,7 +12,7 @@ import java.util.List;
 public class Request {
     //@JsonProperty("task")
     private String request;
-    @JsonDeserialize(as = List.class)
+    @JsonDeserialize(as = LinkedList.class)
     private List<Task> journal;
 
     public Request() {

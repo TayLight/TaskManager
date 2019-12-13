@@ -10,25 +10,27 @@ public class NewTaskRequest implements RequestInterface<Task> {
      * Команда на выполнение
      */
     private String message;
-    /** Поле с пересылаемым журналом задач
+    /** Поле с пересылаемой задачей
      *
      */
     @JsonDeserialize(as = Task.class)
-    private Task task;
+    private Task data;
 
     /** Конструктор создания запроса-команды с журналом задачи
      * @param request
-     * @param task
+     * @param data
      */
-    public NewTaskRequest(String request, Task task) {
-        this.task = task;
+    public NewTaskRequest(String request, Task data) {
+        this.data = data;
     }
+
+    public NewTaskRequest(){}
 
     /** Получение задачи
      * @return возвращает задачу
      */
     public Task getData() {
-        return task;
+        return data;
     }
 
     @Override

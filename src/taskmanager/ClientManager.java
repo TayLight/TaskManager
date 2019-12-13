@@ -9,8 +9,8 @@ import taskmanager.task.Task;
 
 import java.io.*;
 import java.net.Socket;
-import java.time.LocalTime;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Properties;
 
 public class ClientManager implements Manager<Task> {
@@ -27,20 +27,33 @@ public class ClientManager implements Manager<Task> {
 
     @Override
     public void addItem(Task newItem) throws NameTaskException {
+        messageToServer("AddTask");
         objectMapper.registerModule(new JavaTimeModule());
-        Task newTask =  newItem;
+        Task newTask = newItem;
         NewTaskRequest request = new NewTaskRequest("AddTask", newTask);
         try {
             objectMapper.writeValue(outputStream, request);
         } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
 
+    public void messageToServer(String message){
+        CommandRequest commandRequest = new CommandRequest(message);
+        try{
+            objectMapper.writeValue(outputStream, commandRequest);
+        } catch(IOException ex){
+            ex.printStackTrace();
         }
     }
 
     @Override
-    public void deleteItem(int index) throws IOException {
+    public void deleteItem(int index) throws IOException, ItemNotFoundException {
+        messageToServer("DeleteTask");
         DeleteTaskRequest deleteTaskRequest = new DeleteTaskRequest(index, "DeleteTask");
         objectMapper.writeValue(outputStream, deleteTaskRequest);
+        CommandRequest commandRequest = objectMapper.readValue(inputStream, CommandRequest.class);
+        if (commandRequest.getMessage().equals("Error")) throw new ItemNotFoundException("Неверный индекс");
     }
 
     @Override
@@ -48,24 +61,24 @@ public class ClientManager implements Manager<Task> {
         return journalTask.get(index);
     }
 
+//    @Override
+//    public void editTask(int index, LocalTime newTime) throws ItemNotFoundException {
+//
+//    }
+//
+//    @Override
+//    public void editTask(int index, String text) throws ItemNotFoundException {
+//
+//    }
+//
+//    @Override
+//    public void editTaskDescription(int index, String description) throws ItemNotFoundException {
+//
+//    }
+
     @Override
-    public void editTask(int index, LocalTime newTime) throws ItemNotFoundException {
+    public void updateItem(int index, Task item) {
 
-    }
-
-    @Override
-    public void editTask(int index, String text) throws ItemNotFoundException {
-
-    }
-
-    @Override
-    public void editTaskDescription(int index, String description) throws ItemNotFoundException {
-
-    }
-
-    @Override
-    public Task updateItem(int index) {
-        return null;
     }
 
     @Override
@@ -98,20 +111,19 @@ public class ClientManager implements Manager<Task> {
     }
 
     @Override
-    public LinkedList<Task> getItems() throws IOException {
+    public List<Task> getItems() throws IOException {
+        messageToServer("LoadJournalTask");
         objectMapper.registerModule(new JavaTimeModule());
-        Request loadJournalRequest = new Request("LoadTaskJournal");
-            objectMapper.writeValue(outputStream, loadJournalRequest);
-            Request inputLoadJournalRequest = objectMapper.readValue(inputStream, Request.class);
-            System.out.println(inputLoadJournalRequest.getJournal().get(0).getName());
-            return inputLoadJournalRequest.getJournal();
+        LoadJournalRequest loadJournalRequest = objectMapper.readValue(inputStream, LoadJournalRequest.class);
+        return loadJournalRequest.getData();
     }
 
     @Override
     public void checkUniqueName(String name) throws NameTaskException, IOException {
+        messageToServer("CheckName");
         NameCheckRequest nameCheckRequest = new NameCheckRequest("CheckName", name);
         objectMapper.writeValue(outputStream, nameCheckRequest);
-        Request request = objectMapper.readValue(inputStream, Request.class);
-        if (request.getRequest().equals("Error")) throw new NameTaskException("Неверное имя");
+        CommandRequest commandRequest = objectMapper.readValue(inputStream, CommandRequest.class);
+        if (commandRequest.getMessage().equals("Error")) throw new NameTaskException("Неверное имя");
     }
 }

@@ -5,17 +5,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import taskmanager.task.Task;
 
-import java.awt.*;
 import java.util.LinkedList;
+import java.util.List;
 
 @JsonAutoDetect
 public class LoadJournalRequest implements RequestInterface<List> {
     @JsonProperty("task")
     String message;
-    @JsonDeserialize(as = java.util.List.class)
-    private List data;
+    @JsonDeserialize(as = LinkedList.class)
+    private List<Task> data;
 
-    public LoadJournalRequest(String message, List data) {
+    public LoadJournalRequest(List<Task> data, String message) {
         this.message = message;
         this.data = data;
     }
@@ -24,8 +24,10 @@ public class LoadJournalRequest implements RequestInterface<List> {
         this.message = message;
     }
 
+    public LoadJournalRequest(){}
+
     @Override
-    public List getData() {
+    public List<Task> getData() {
         return data;
     }
 

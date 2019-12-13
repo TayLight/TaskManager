@@ -38,7 +38,6 @@ public class InputTask extends JFrame {
                 try {
                     String name = nameField.getText();
                     if(name.isEmpty()) throw new NameTaskException("Пустое поле");
-                    manager.checkUniqueName(name);
                     String description = descriptionField.getText();
                     LocalTime time = StringParser.timeParse(timeField.getText());
                     manager.checkUniqueName(name);

@@ -97,28 +97,28 @@ public class JournalTask<T> implements Manager<Task>, Serializable {
         }
     }
 
-    public void editTask(int index, LocalTime newTime) throws ItemNotFoundException {
-        checkIndexOnBound(index);
-        tasks.get(index).setTime(newTime);
-        subscriber.taskEdited(tasks.get(index));
-    }
-
-    public void editTask(int index, String name) throws ItemNotFoundException {
-        checkIndexOnBound(index);
-        tasks.get(index).setName(name);
-        subscriber.taskEdited(tasks.get(index));
-    }
-
-    public void editTaskDescription(int index, String description) throws ItemNotFoundException {
-        checkIndexOnBound(index);
-        tasks.get(index).setDescription(description);
-        subscriber.taskEdited(tasks.get(index));
-    }
+//    public void editTask(int index, LocalTime newTime) throws ItemNotFoundException {
+//        checkIndexOnBound(index);
+//        tasks.get(index).setTime(newTime);
+//        //subscriber.taskEdited(tasks.get(index));
+//    }
+//
+//    public void editTask(int index, String name) throws ItemNotFoundException {
+//        checkIndexOnBound(index);
+//        tasks.get(index).setName(name);
+//        //subscriber.taskEdited(tasks.get(index));
+//    }
+//
+//    public void editTaskDescription(int index, String description) throws ItemNotFoundException {
+//        checkIndexOnBound(index);
+//        tasks.get(index).setDescription(description);
+//        //subscriber.taskEdited(tasks.get(index));
+//    }
 
     @Override
-    public Task updateItem(int index) throws ItemNotFoundException {
+    public void updateItem(int index, Task item) throws ItemNotFoundException {
         checkIndexOnBound(index);
-        return tasks.get(index);
+        tasks.set(index, item);
     }
 
 

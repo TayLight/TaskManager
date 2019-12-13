@@ -6,22 +6,24 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonAutoDetect
 public class DeleteTaskRequest implements RequestInterface<Integer> {
     @JsonDeserialize(as = Integer.class)
-    Integer index;
+    Integer data;
 
     String message;
 
     public DeleteTaskRequest(Integer index, String message) {
-        this.index = index;
+        this.data = index;
         this.message = message;
     }
 
+    public DeleteTaskRequest(){}
+
     @Override
     public Integer getData() {
-        return 0;
+        return data;
     }
 
     @Override
     public String getMessage() {
-        return null;
+        return message;
     }
 }

@@ -38,33 +38,33 @@ public interface Manager<T> {
     T getItem(int index) throws ItemNotFoundException;
 
 
-    /**
-     * Метод редактирования времени у задачи
-     *
-     * @param index   Индекс редактируемой задачи
-     * @param newTime Новое устанавливаемое время
-     * @throws ItemNotFoundException Задача не найдена
-     */
-    void editTask(int index, LocalTime newTime) throws ItemNotFoundException;
+//    /**
+//     * Метод редактирования времени у задачи
+//     *
+//     * @param index   Индекс редактируемой задачи
+//     * @param newTime Новое устанавливаемое время
+//     * @throws ItemNotFoundException Задача не найдена
+//     */
+//    void editTask(int index, LocalTime newTime) throws ItemNotFoundException;
+//
+//    /**
+//     * Метод редактирования имени у задачи
+//     *
+//     * @param index Индекс редактируемой задачи
+//     * @param text  Новое имя у редактируемой задачи
+//     * @throws ItemNotFoundException Задача не найдена
+//     */
+//    void editTask(int index, String text) throws ItemNotFoundException;
+//
+//    /**
+//     * Метод редактирования описания у задачи
+//     * @param index       Индекс редактируемой задачи
+//     * @param description Новое описание
+//     * @throws ItemNotFoundException Задача не найдена
+//     */
+//    void editTaskDescription(int index, String description) throws ItemNotFoundException;
 
-    /**
-     * Метод редактирования имени у задачи
-     *
-     * @param index Индекс редактируемой задачи
-     * @param text  Новое имя у редактируемой задачи
-     * @throws ItemNotFoundException Задача не найдена
-     */
-    void editTask(int index, String text) throws ItemNotFoundException;
-
-    /**
-     * Метод редактирования описания у задачи
-     * @param index       Индекс редактируемой задачи
-     * @param description Новое описание
-     * @throws ItemNotFoundException Задача не найдена
-     */
-    void editTaskDescription(int index, String description) throws ItemNotFoundException;
-
-    T updateItem(int index) throws ItemNotFoundException;
+    void updateItem(int index, T item) throws ItemNotFoundException;
 
     /**
      * Метод, возвращающий размер журнала задача

@@ -4,18 +4,18 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @JsonAutoDetect
-public class DeleteTaskRequest implements RequestInterface<Integer> {
+public class SizeRequest implements RequestInterface<Integer> {
     @JsonDeserialize(as = Integer.class)
     Integer data;
 
     String message;
 
-    public DeleteTaskRequest(Integer index, String message) {
-        this.data = index;
+    public SizeRequest(Integer size, String message) {
+        this.data = size;
         this.message = message;
     }
 
-    public DeleteTaskRequest() {
+    public SizeRequest() {
     }
 
     @Override

@@ -1,7 +1,7 @@
 package taskmanager;
 
-import taskmanager.exceptions.NameTaskException;
 import taskmanager.exceptions.ItemNotFoundException;
+import taskmanager.exceptions.NameTaskException;
 import taskmanager.task.Task;
 
 import java.io.IOException;
@@ -161,8 +161,8 @@ public class View implements TaskChangedSubscriber {
                                 index = input.nextInt();
                                 index--;
                                 tempTask = (Task) journalTask.getItem(index); //временная задача, с которой пользователь
-                                                                              //будет работать и которая в итоге заменит
-                                                                              //исходную в журнале задач
+                                //будет работать и которая в итоге заменит
+                                //исходную в журнале задач
                                 key = true;
                             } catch (InputMismatchException | ItemNotFoundException ex) {
                                 System.out.println("Неверное значение индекса. Повторите ввод.");
@@ -251,10 +251,10 @@ public class View implements TaskChangedSubscriber {
                                     isTaskEdited = true;
                                     break;
                                 case ANOTHER_TASK:
-                                    if(isTaskEdited){
-                                        try{
+                                    if (isTaskEdited) {
+                                        try {
                                             journalTask.updateItem(index, (Task) tempTask);
-                                        } catch(ItemNotFoundException ex){
+                                        } catch (ItemNotFoundException | IOException ex) {
                                             //ItemNotFound никогда не возникнет, т.к. индекс уже проверялся на принадлежность
                                             //диапазону в методе getItem
                                         }
@@ -262,10 +262,10 @@ public class View implements TaskChangedSubscriber {
                                     isMenuClose = true;
                                     break;
                                 case EXIT:
-                                    if(isTaskEdited){
-                                        try{
+                                    if (isTaskEdited) {
+                                        try {
                                             journalTask.updateItem(index, (Task) tempTask);
-                                        } catch(ItemNotFoundException ex){
+                                        } catch (ItemNotFoundException | IOException ex) {
                                             //ItemNotFound никогда не возникнет
                                         }
                                     }
@@ -351,7 +351,6 @@ public class View implements TaskChangedSubscriber {
             }
             case EXIT: //выход
                 exit = true;
-                journalTask.finalWork();
                 break;
         }
     }

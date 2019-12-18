@@ -2,35 +2,37 @@ package taskmanager;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import taskmanager.exceptions.NameTaskException;
 import taskmanager.exceptions.ItemNotFoundException;
+import taskmanager.exceptions.NameTaskException;
 import taskmanager.requests.*;
 import taskmanager.task.Task;
 
+import javax.swing.*;
 import java.io.*;
 import java.net.Socket;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
-public class ClientManager implements Manager<Task> {
+public class ClientManager extends AbstractListModel<Task> implements Manager<Task> {
     private Socket socket;
     private DataOutput outputStream;
     private DataInput inputStream;
-    private LinkedList<Task> journalTask;
-    ObjectMapper objectMapper;
-    public static final String PATH_TO_PROPERTIES ="./serverConnection.properties";
+    private boolean isConnection = false;
+    private int[] ports;
+    private String[] hosts;
+    private ObjectMapper objectMapper;
+    public static final String PATH_TO_PROPERTIES = "./serverConnection.properties";
 
     public ClientManager() {
         objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
     }
 
     @Override
-    public void addItem(Task newItem) throws NameTaskException {
+    public void addItem(Task newItem) {
         messageToServer("AddTask");
-        objectMapper.registerModule(new JavaTimeModule());
-        Task newTask = newItem;
-        NewTaskRequest request = new NewTaskRequest("AddTask", newTask);
+        NewTaskRequest request = new NewTaskRequest("AddTask", newItem);
         try {
             objectMapper.writeValue(outputStream, request);
         } catch (IOException ex) {
@@ -38,11 +40,11 @@ public class ClientManager implements Manager<Task> {
         }
     }
 
-    public void messageToServer(String message){
+    public void messageToServer(String message) {
         CommandRequest commandRequest = new CommandRequest(message);
-        try{
+        try {
             objectMapper.writeValue(outputStream, commandRequest);
-        } catch(IOException ex){
+        } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
@@ -57,13 +59,15 @@ public class ClientManager implements Manager<Task> {
     }
 
     @Override
-    public Task getItem(int index) throws ItemNotFoundException {
-        return journalTask.get(index);
+    public Task getItem(int index)  {
+        return null;
     }
 
     @Override
-    public void updateItem(int index, Task item) {
-
+    public void updateItem(int index, Task item) throws IOException {
+        messageToServer("AddTask");
+        EditTaskRequest editTaskRequest = new EditTaskRequest("EditTask"+index,item);
+        objectMapper.writeValue(outputStream,editTaskRequest);
     }
 
     @Override
@@ -77,11 +81,33 @@ public class ClientManager implements Manager<Task> {
         Properties prop = new Properties();
         fileInputStream = new FileInputStream(PATH_TO_PROPERTIES);
         prop.load(fileInputStream);
-        int port = Integer.parseInt(prop.getProperty("server1.port"));
-        String host = prop.getProperty("login");
-        socket = new Socket(host, port);
-        inputStream = new DataInputStream(socket.getInputStream());
-        outputStream = new DataOutputStream(socket.getOutputStream());
+        int port;
+        String host;
+        hosts = new String[prop.size()/2];
+        ports = new int[prop.size()/2];
+        for (int i =0; i<prop.size()/2;i++)
+        {
+            String linkHost = "server" +
+                    (i + 1) +
+                    ".host";
+            hosts[i] = prop.getProperty(linkHost);
+            String linkPort = "server" +
+                    (i + 1) +
+                    ".port";
+            ports[i] = Integer.parseInt(prop.getProperty(linkPort));
+        }
+        int tryConnection=0;
+        while (tryConnection!=hosts.length ) {
+            try {
+                host = hosts[tryConnection];
+                port = ports[tryConnection];
+                socket = new Socket(host, port);
+                inputStream = new DataInputStream(socket.getInputStream());
+                outputStream = new DataOutputStream(socket.getOutputStream());
+                break;
+            }catch (IOException e){ tryConnection++;}
+        }
+        if (tryConnection == hosts.length) throw new IOException();
     }
 
     @Override
@@ -110,5 +136,32 @@ public class ClientManager implements Manager<Task> {
         objectMapper.writeValue(outputStream, nameCheckRequest);
         CommandRequest commandRequest = objectMapper.readValue(inputStream, CommandRequest.class);
         if (commandRequest.getMessage().equals("Error")) throw new NameTaskException("Неверное имя");
+    }
+
+    @Override
+    public int getSize() {
+        try {
+            messageToServer("SizeJournalTask");
+            SizeRequest sizeRequest = objectMapper.readValue(inputStream, SizeRequest.class);
+            return sizeRequest.getData();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return 0;
+        }catch (IllegalArgumentException e)
+        {
+            return 0;
+        }
+    }
+
+    @Override
+    public Task getElementAt(int index) {
+        try {
+            messageToServer("GetTask");
+            GetTaskRequest getTaskRequest = objectMapper.readValue(inputStream, GetTaskRequest.class);
+            return getTaskRequest.getData();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

@@ -8,7 +8,8 @@ public class CommandRequest implements RequestInterface {
 
     String message;
 
-    public CommandRequest(){}
+    public CommandRequest() {
+    }
 
     public CommandRequest(String message) {
         this.message = message;

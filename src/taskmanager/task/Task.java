@@ -1,7 +1,5 @@
 package taskmanager.task;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-
 import java.io.Serializable;
 import java.time.LocalTime;
 
@@ -114,6 +112,12 @@ public class Task implements Serializable {
         task.append("\n");
         task.append(description);
         return task.toString();
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        Task task = (Task) super.clone();
+        return task;
     }
 
     /**

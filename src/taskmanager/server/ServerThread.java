@@ -11,35 +11,33 @@ import taskmanager.task.Task;
 
 import java.io.*;
 import java.net.Socket;
-import java.net.SocketException;
-import java.time.LocalTime;
 import java.util.LinkedList;
 
 public class ServerThread implements Runnable, Manager<Task> {
-    /**сокет для общения
-     *
+    /**
+     * сокет для общения
      */
     private Socket clientSocket;
-    /**поток чтения из сокета
-     *
+    /**
+     * поток чтения из сокета
      */
     private DataInput inputStream;
-    /**поток записи в сокет
-     *
+    /**
+     * поток записи в сокет
      */
     private DataOutput outputStream;
 
-    /**управление журналом задач
-     *
+    /**
+     * управление журналом задач
      */
     private Manager journalTask;
 
-    /**журнал задач
-     *
+    /**
+     * журнал задач
      */
     LinkedList<Task> listTask;
 
-    enum Message{
+    enum Message {
         LOAD_JOURNAL_TASK("LoadJournalTask"),
         ADD_TASK("AddTask"),
         DELETE_TASK("DeleteTask"),
@@ -47,15 +45,18 @@ public class ServerThread implements Runnable, Manager<Task> {
         CLOSE_SESSION("CloseSession");
 
         private String message;
-        Message(String message){
+
+        Message(String message) {
             this.message = message;
         }
     }
 
-    /** Конструктор, создающий поток
+    /**
+     * Конструктор, создающий поток
+     *
      * @throws IOException ошибка потоков
      */
-    public ServerThread(Socket clientSocket) throws IOException  {
+    public ServerThread(Socket clientSocket) throws IOException {
         this.clientSocket = clientSocket;
         inputStream = new DataInputStream(clientSocket.getInputStream());
         outputStream = new DataOutputStream(clientSocket.getOutputStream());
@@ -68,7 +69,7 @@ public class ServerThread implements Runnable, Manager<Task> {
         listTask = getItems();
         ObjectMapper objectMapper = new ObjectMapper();
         boolean exit = false;
-        try{
+        try {
             while (!exit) {
                 CommandRequest commandRequest = null;
                 try {
@@ -82,8 +83,8 @@ public class ServerThread implements Runnable, Manager<Task> {
                     System.out.println("Серверная нить закрыта.");
                     return;
                 }
-                for(Message msg : Message.values()){
-                    if(commandRequest.getMessage().equals(msg.message)){
+                for (Message msg : Message.values()) {
+                    if (commandRequest.getMessage().equals(msg.message)) {
                         switch (msg) {
                             case LOAD_JOURNAL_TASK:
                                 System.out.println("Запрос принят: отправить журнал задач.");
@@ -104,11 +105,11 @@ public class ServerThread implements Runnable, Manager<Task> {
                                 System.out.println("Запрос принят: проверить уникальность имени.");
                                 String message_cn = "Ok";
                                 NameCheckRequest nameCheckRequest = objectMapper.readValue(inputStream, NameCheckRequest.class);
-                                try{
+                                try {
                                     checkUniqueName(nameCheckRequest.getData());
-                                } catch (NameTaskException ex){
+                                } catch (NameTaskException ex) {
                                     message_cn = "Error";
-                                } catch(IOException ex){
+                                } catch (IOException ex) {
                                     ex.printStackTrace();
                                 }
                                 CommandRequest reply_cn = new CommandRequest(message_cn);
@@ -118,11 +119,11 @@ public class ServerThread implements Runnable, Manager<Task> {
                                 System.out.println("Запрос принят: удалить задачу.");
                                 String message_dt = "Ok";
                                 DeleteTaskRequest deleteTaskRequest = objectMapper.readValue(inputStream, DeleteTaskRequest.class);
-                                try{
+                                try {
                                     deleteItem(deleteTaskRequest.getData());
-                                } catch(ItemNotFoundException ex){
+                                } catch (ItemNotFoundException ex) {
                                     message_dt = "Error";
-                                } catch(IOException ex){
+                                } catch (IOException ex) {
                                     ex.printStackTrace();
                                 }
                                 CommandRequest reply_dt = new CommandRequest(message_dt);
@@ -138,12 +139,14 @@ public class ServerThread implements Runnable, Manager<Task> {
                     }
                 }
             }
-        } catch (IOException ex){
+        } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
 
-    /** Получение журнала задач
+    /**
+     * Получение журнала задач
+     *
      * @return возвращает журнал задач
      */
     public LinkedList<Task> getItems() {
@@ -171,7 +174,7 @@ public class ServerThread implements Runnable, Manager<Task> {
 //        }
 //    }
 
-    public void addItem (Task newItem){
+    public void addItem(Task newItem) {
         listTask.addLast(newItem);
     }
 
@@ -180,27 +183,29 @@ public class ServerThread implements Runnable, Manager<Task> {
         listTask.remove(index);
     }
 
-    public Task getItem(int index) throws ItemNotFoundException{
+    public Task getItem(int index) throws ItemNotFoundException {
         return listTask.get(index);
-    };
+    }
 
-    public void updateItem(int index, Task item) throws ItemNotFoundException{
+    ;
+
+    public void updateItem(int index, Task item) throws ItemNotFoundException {
 
     }
 
-    public int size(){
+    public int size() {
         return listTask.size();
     }
 
-    public void startWork() throws IOException{
+    public void startWork() throws IOException {
 
     }
 
-    public void finalWork(){
+    public void finalWork() {
 
     }
 
-    public void checkUniqueName(String name) throws NameTaskException, IOException{
+    public void checkUniqueName(String name) throws NameTaskException, IOException {
         for (Task task : listTask) {
             if (task.getName().equals(name)) throw new NameTaskException("Задача с таким именем уже существует.");
         }

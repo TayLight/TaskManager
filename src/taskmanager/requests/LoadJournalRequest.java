@@ -24,7 +24,8 @@ public class LoadJournalRequest implements RequestInterface<List> {
         this.message = message;
     }
 
-    public LoadJournalRequest(){}
+    public LoadJournalRequest() {
+    }
 
     @Override
     public List<Task> getData() {

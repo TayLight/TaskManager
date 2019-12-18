@@ -15,7 +15,8 @@ public class NameCheckRequest implements RequestInterface<String> {
         this.data = name;
     }
 
-    public NameCheckRequest(){}
+    public NameCheckRequest() {
+    }
 
     @Override
     public String getData() {

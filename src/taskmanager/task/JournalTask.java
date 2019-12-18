@@ -2,11 +2,10 @@ package taskmanager.task;
 
 import taskmanager.Manager;
 import taskmanager.TaskChangedSubscriber;
-import taskmanager.exceptions.NameTaskException;
 import taskmanager.exceptions.ItemNotFoundException;
+import taskmanager.exceptions.NameTaskException;
 
 import java.io.*;
-import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -41,7 +40,7 @@ public class JournalTask<T> implements Manager<Task>, Serializable {
 
     public Task getItem(int index) throws ItemNotFoundException {
         checkIndexOnBound(index);
-        return(Task) tasks.get(index);
+        return tasks.get(index);
     }
 
     /**
@@ -58,13 +57,18 @@ public class JournalTask<T> implements Manager<Task>, Serializable {
         File fileJournalTask = new File(pathToJournalTask);
         if (fileJournalTask.exists()) {
             if (fileJournalTask.length() != 0) {
+                FileInputStream fileInputStream = null;
+                ObjectInputStream objectInputStream=null;
                 try {
-                    FileInputStream fileInputStream = new FileInputStream(pathToJournalTask);
-                    ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+                    fileInputStream = new FileInputStream(pathToJournalTask);
+                    objectInputStream = new ObjectInputStream(fileInputStream);
                     tasks = (LinkedList<Task>) objectInputStream.readObject();
 
                 } catch (ClassNotFoundException | IOException e) {
                     e.printStackTrace();
+                }finally {
+                    fileInputStream.close();
+                    objectInputStream.close();
                 }
             } else tasks = new LinkedList<>();
         } else {
@@ -78,7 +82,7 @@ public class JournalTask<T> implements Manager<Task>, Serializable {
     }
 
     @Override
-    public void finalWork() {
+    public void finalWork() throws IOException {
         if (tasks.size() != 0) {
             try (ObjectOutputStream out2 = new ObjectOutputStream(new FileOutputStream(pathToJournalTask))) {
                 out2.writeObject(tasks);
@@ -86,13 +90,20 @@ public class JournalTask<T> implements Manager<Task>, Serializable {
                 e.printStackTrace();
             }
         } else {
+            FileWriter fstream1 = null;
+            BufferedWriter out1=null;
             try {
-                FileWriter fstream1 = new FileWriter(pathToJournalTask);
-                BufferedWriter out1 = new BufferedWriter(fstream1);
+                fstream1 = new FileWriter(pathToJournalTask);
+                out1 = new BufferedWriter(fstream1);
                 out1.write("");
                 out1.close();
+                fstream1.close();
             } catch (Exception e) {
                 e.printStackTrace();
+            }
+            finally {
+                out1.close();
+                fstream1.close();
             }
         }
     }
@@ -135,12 +146,13 @@ public class JournalTask<T> implements Manager<Task>, Serializable {
 
     @Override
     public List<Task> getItems() {
-        return tasks;
+        return (List<Task>) tasks.clone();
     }
 
 
     /**
      * Метод проверки на уникальность имени
+     *
      * @param name Имя задачи для проверки
      * @throws NameTaskException Задача с таким именем уже есть
      */
@@ -152,6 +164,7 @@ public class JournalTask<T> implements Manager<Task>, Serializable {
 
     /**
      * Метод проверки значения индекса
+     *
      * @param index Индекс проверяемой задачи
      * @throws ItemNotFoundException Задачи с таким индексом не существует
      */

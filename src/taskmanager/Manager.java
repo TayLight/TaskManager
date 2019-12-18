@@ -1,12 +1,9 @@
 package taskmanager;
 
-import taskmanager.exceptions.NameTaskException;
 import taskmanager.exceptions.ItemNotFoundException;
-import taskmanager.task.Task;
-
+import taskmanager.exceptions.NameTaskException;
 
 import java.io.IOException;
-import java.time.LocalTime;
 import java.util.List;
 
 /**
@@ -18,7 +15,7 @@ public interface Manager<T> {
      *
      * @param newItem Новая задача
      */
-     void addItem(T newItem) throws NameTaskException;
+    void addItem(T newItem) throws NameTaskException;
 
     /**
      * Метод удаления задачи, под индексом index
@@ -31,31 +28,48 @@ public interface Manager<T> {
 
     /**
      * Метод получения задачи по индексу
+     *
      * @param index индекс задачи в журнале задач
      * @return возвращает задачу с индексом index
      * @throws ItemNotFoundException Ошибка, задача не найден
      */
     T getItem(int index) throws ItemNotFoundException;
 
-    void updateItem(int index, T item) throws ItemNotFoundException;
+    /**
+     * Метод обновления свойств задачи
+     *
+     * @param index индек изменяемой задачи
+     * @param item  задача
+     * @throws ItemNotFoundException задача не найдена
+     */
+    void updateItem(int index, T item) throws ItemNotFoundException, IOException;
 
     /**
      * Метод, возвращающий размер журнала задача
+     *
      * @return Возвращает размером журнала задач
      */
     int size();
 
+    /**
+     * метод начала работы
+     *
+     * @throws IOException
+     */
     void startWork() throws IOException;
 
     /**
      * Метод завершения работы менеджера
      */
-    void finalWork();
+    void finalWork() throws IOException;
 
-    /** Метод загрузки журнала задач
+    /**
+     * Метод загрузки журнала задач
+     *
      * @return возвращает полученный журнал задач
      */
     List<T> getItems() throws IOException;
+
     /**
      * Метод проверки на уникальность имени
      *

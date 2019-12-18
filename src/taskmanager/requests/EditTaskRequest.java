@@ -1,11 +1,10 @@
 package taskmanager.requests;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import taskmanager.task.Task;
 
-@JsonAutoDetect
-public class NewTaskRequest implements RequestInterface<Task> {
+public class EditTaskRequest extends Request {
+
     //@JsonProperty("task")
     /**
      * Команда на выполнение
@@ -23,11 +22,11 @@ public class NewTaskRequest implements RequestInterface<Task> {
      * @param request
      * @param data
      */
-    public NewTaskRequest(String request, Task data) {
+    public EditTaskRequest(String request, Task data) {
         this.data = data;
     }
 
-    public NewTaskRequest() {
+    public EditTaskRequest() {
     }
 
     /**
@@ -39,7 +38,6 @@ public class NewTaskRequest implements RequestInterface<Task> {
         return data;
     }
 
-    @Override
     public String getMessage() {
         return message;
     }

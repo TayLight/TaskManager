@@ -77,6 +77,7 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
 
     @Override
     public void startWork() throws IOException {
+        ConnectionFrame connectionFrame = new ConnectionFrame();
         FileInputStream fileInputStream;
         Properties prop = new Properties();
         fileInputStream = new FileInputStream(PATH_TO_PROPERTIES);
@@ -99,14 +100,17 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
         int tryConnection=0;
         while (tryConnection!=hosts.length ) {
             try {
+                connectionFrame.tryConnectionTo(tryConnection+1);
                 host = hosts[tryConnection];
                 port = ports[tryConnection];
                 socket = new Socket(host, port);
                 inputStream = new DataInputStream(socket.getInputStream());
                 outputStream = new DataOutputStream(socket.getOutputStream());
+                connectionFrame.setVisible(false);
                 break;
             }catch (IOException e){ tryConnection++;}
         }
+        connectionFrame.setVisible(false);
         if (tryConnection == hosts.length) throw new IOException();
     }
 

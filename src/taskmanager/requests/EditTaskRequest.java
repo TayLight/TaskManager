@@ -3,7 +3,7 @@ package taskmanager.requests;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import taskmanager.task.Task;
 
-public class EditTaskRequest extends Request {
+public class EditTaskRequest extends RequestOld {
 
     //@JsonProperty("task")
     /**

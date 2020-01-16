@@ -15,7 +15,7 @@ public interface Manager<T> {
      *
      * @param newItem Новая задача
      */
-    void addItem(T newItem) throws NameTaskException;
+    void addItem(T newItem) throws NameTaskException, IOException;
 
     /**
      * Метод удаления задачи, под индексом index

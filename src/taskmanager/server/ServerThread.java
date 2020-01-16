@@ -42,7 +42,8 @@ public class ServerThread implements Runnable, Manager<Task> {
         ADD_TASK("AddTask"),
         DELETE_TASK("DeleteTask"),
         CHECK_NAME("CheckName"),
-        CLOSE_SESSION("CloseSession");
+        GET_SIZE("SizeJournalTask"),
+        GET_TASK("GetTask");
 
         private String message;
 
@@ -68,23 +69,25 @@ public class ServerThread implements Runnable, Manager<Task> {
         journalTask = new JournalTask<Task>();
         listTask = getItems();
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
         boolean exit = false;
         try {
             while (!exit) {
-                CommandRequest commandRequest = null;
+                Request inputRequest = null;
                 try {
                     System.out.println("Пытаюсь получить команду...");
-                    commandRequest = objectMapper.readValue(inputStream, CommandRequest.class);
-                    System.out.println(commandRequest.getMessage());
+                    inputRequest = objectMapper.readValue(inputStream, Request.class);
+                    System.out.println(inputRequest.getCommand());
                 } catch (IOException ex) {
                     //ex.printStackTrace();
                     clientSocket.close();
+                    journalTask.finalWork();
                     exit = true;
                     System.out.println("Серверная нить закрыта.");
                     return;
                 }
                 for (Message msg : Message.values()) {
-                    if (commandRequest.getMessage().equals(msg.message)) {
+                    if (inputRequest.getCommand().equals(msg.message)) {
                         switch (msg) {
                             case LOAD_JOURNAL_TASK:
                                 System.out.println("Запрос принят: отправить журнал задач.");
@@ -98,42 +101,67 @@ public class ServerThread implements Runnable, Manager<Task> {
                                 break;
                             case ADD_TASK:
                                 System.out.println("Запрос принят: добавить задачу.");
-                                NewTaskRequest newTaskRequest = objectMapper.readValue(inputStream, NewTaskRequest.class);
-                                addItem(newTaskRequest.getData());
-                                break;
-                            case CHECK_NAME:
-                                System.out.println("Запрос принят: проверить уникальность имени.");
-                                String message_cn = "Ok";
-                                NameCheckRequest nameCheckRequest = objectMapper.readValue(inputStream, NameCheckRequest.class);
+                                String message_at = "Ok";
+                                Task newTask = objectMapper.convertValue(inputRequest.getData(), Task.class);
                                 try {
-                                    checkUniqueName(nameCheckRequest.getData());
+                                    checkUniqueName(newTask.getName());
+                                    journalTask.addItem(newTask);
                                 } catch (NameTaskException ex) {
-                                    message_cn = "Error";
+                                    message_at = "Error";
                                 } catch (IOException ex) {
                                     ex.printStackTrace();
                                 }
-                                CommandRequest reply_cn = new CommandRequest(message_cn);
-                                objectMapper.writeValue(outputStream, reply_cn);
+                                Request reply_at = new Request(message_at, null);
+                                objectMapper.writeValue((DataOutput) outputStream, reply_at);
+                                listTask = getItems();
                                 break;
+//                            case CHECK_NAME:
+//                                System.out.println("Запрос принят: проверить уникальность имени.");
+//                                String message_cn = "Ok";
+//                                NameCheckRequest nameCheckRequest = objectMapper.readValue(inputStream, NameCheckRequest.class);
+//                                try {
+//                                    checkUniqueName(nameCheckRequest.getData());
+//                                } catch (NameTaskException ex) {
+//                                    message_cn = "Error";
+//                                } catch (IOException ex) {
+//                                    ex.printStackTrace();
+//                                }
+//                                CommandRequest reply_cn = new CommandRequest(message_cn);
+//                                objectMapper.writeValue(outputStream, reply_cn);
+//                                break;
                             case DELETE_TASK:
                                 System.out.println("Запрос принят: удалить задачу.");
                                 String message_dt = "Ok";
-                                DeleteTaskRequest deleteTaskRequest = objectMapper.readValue(inputStream, DeleteTaskRequest.class);
                                 try {
-                                    deleteItem(deleteTaskRequest.getData());
+                                    journalTask.deleteItem((int)inputRequest.getData());
                                 } catch (ItemNotFoundException ex) {
                                     message_dt = "Error";
                                 } catch (IOException ex) {
                                     ex.printStackTrace();
                                 }
-                                CommandRequest reply_dt = new CommandRequest(message_dt);
+                                Request reply_dt = new Request(message_dt, null);
                                 objectMapper.writeValue(outputStream, reply_dt);
+                                listTask = getItems();
                                 break;
-                            case CLOSE_SESSION:
-                                clientSocket.close();
-                                System.out.println("Серверная нить закрыта.");
-                                journalTask.finalWork();
-                                exit = true;
+                            case GET_SIZE:
+                                System.out.println("Запрос принят: размер журнала.");
+                                Request reply_gs = new Request("SizeJournalTask", journalTask.size());
+                                try {
+                                    objectMapper.writeValue((DataOutput) outputStream, reply_gs);
+                                } catch (IOException ex) {
+                                    ex.printStackTrace();
+                                }
+                                break;
+                            case GET_TASK:
+                                System.out.println("Запрос принят: получить задачу.");
+                                Task task = null;
+                                try{
+                                    task = getItem((int)inputRequest.getData());
+                                } catch (ItemNotFoundException ex) {
+                                    ex.printStackTrace();
+                                }
+                                Request reply_gt =  new Request("GetTask", task);
+                                objectMapper.writeValue((DataOutput) outputStream, reply_gt);
                                 break;
                         }
                     }
@@ -187,7 +215,6 @@ public class ServerThread implements Runnable, Manager<Task> {
         return listTask.get(index);
     }
 
-    ;
 
     public void updateItem(int index, Task item) throws ItemNotFoundException {
 

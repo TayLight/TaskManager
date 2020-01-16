@@ -137,7 +137,7 @@ public class GUI extends JFrame {
                 else {
                     try {
                         int index = selectedTaskIndex;
-                        index--;
+                        //index--;
                         manager.deleteItem(index);
                         listTask.updateUI();
                     } catch (ItemNotFoundException ex) {

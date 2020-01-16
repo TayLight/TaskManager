@@ -10,7 +10,6 @@ import taskmanager.task.Task;
 import javax.swing.*;
 import java.io.*;
 import java.net.Socket;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
@@ -30,17 +29,14 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
     }
 
     @Override
-    public void addItem(Task newItem) {
-        messageToServer("AddTask");
-        NewTaskRequest request = new NewTaskRequest("AddTask", newItem);
-        try {
-            objectMapper.writeValue(outputStream, request);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+    public void addItem(Task newItem) throws NameTaskException, IOException {
+        Request addTaskRequest = new Request("AddTask", newItem);
+        objectMapper.writeValue(outputStream, addTaskRequest);
+        addTaskRequest = objectMapper.readValue(inputStream, Request.class);
+        if (addTaskRequest.getCommand().equals("Error")) throw new NameTaskException("Неверное имя");
     }
 
-    public void messageToServer(String message) {
+    public void messageToServer(String message) { //нужно будет удалить
         CommandRequest commandRequest = new CommandRequest(message);
         try {
             objectMapper.writeValue(outputStream, commandRequest);
@@ -51,23 +47,22 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
 
     @Override
     public void deleteItem(int index) throws IOException, ItemNotFoundException {
-        messageToServer("DeleteTask");
-        DeleteTaskRequest deleteTaskRequest = new DeleteTaskRequest(index, "DeleteTask");
+        Request deleteTaskRequest = new Request("DeleteTask", index);
         objectMapper.writeValue(outputStream, deleteTaskRequest);
-        CommandRequest commandRequest = objectMapper.readValue(inputStream, CommandRequest.class);
-        if (commandRequest.getMessage().equals("Error")) throw new ItemNotFoundException("Неверный индекс");
+        deleteTaskRequest = objectMapper.readValue(inputStream, Request.class);
+        if (deleteTaskRequest.getCommand().equals("Error")) throw new ItemNotFoundException("Неверный индекс");
     }
 
     @Override
-    public Task getItem(int index)  {
+    public Task getItem(int index) {
         return null;
     }
 
     @Override
     public void updateItem(int index, Task item) throws IOException {
         messageToServer("AddTask");
-        EditTaskRequest editTaskRequest = new EditTaskRequest("EditTask"+index,item);
-        objectMapper.writeValue(outputStream,editTaskRequest);
+        EditTaskRequest editTaskRequest = new EditTaskRequest("EditTask" + index, item);
+        objectMapper.writeValue(outputStream, editTaskRequest);
     }
 
     @Override
@@ -84,10 +79,9 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
         prop.load(fileInputStream);
         int port;
         String host;
-        hosts = new String[prop.size()/2];
-        ports = new int[prop.size()/2];
-        for (int i =0; i<prop.size()/2;i++)
-        {
+        hosts = new String[prop.size() / 2];
+        ports = new int[prop.size() / 2];
+        for (int i = 0; i < prop.size() / 2; i++) {
             String linkHost = "server" +
                     (i + 1) +
                     ".host";
@@ -97,10 +91,10 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
                     ".port";
             ports[i] = Integer.parseInt(prop.getProperty(linkPort));
         }
-        int tryConnection=0;
-        while (tryConnection!=hosts.length ) {
+        int tryConnection = 0;
+        while (tryConnection != hosts.length) {
             try {
-                connectionFrame.tryConnectionTo(tryConnection+1);
+                connectionFrame.tryConnectionTo(tryConnection + 1);
                 host = hosts[tryConnection];
                 port = ports[tryConnection];
                 socket = new Socket(host, port);
@@ -108,7 +102,9 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
                 outputStream = new DataOutputStream(socket.getOutputStream());
                 connectionFrame.setVisible(false);
                 break;
-            }catch (IOException e){ tryConnection++;}
+            } catch (IOException e) {
+                tryConnection++;
+            }
         }
         connectionFrame.setVisible(false);
         if (tryConnection == hosts.length) throw new IOException();
@@ -116,13 +112,13 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
 
     @Override
     public void finalWork() {
-        Request loadJournalRequest = new Request("CloseSession");
-        try {
-            objectMapper.writeValue(outputStream, loadJournalRequest);
-            socket.close();
-        } catch (IOException ignored) {
-
-        }
+//        RequestOld loadJournalRequest = new RequestOld("CloseSession");
+//        try {
+//            objectMapper.writeValue(outputStream, loadJournalRequest);
+//            socket.close();
+//        } catch (IOException ignored) {
+//
+//        }
     }
 
     @Override
@@ -135,25 +131,25 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
 
     @Override
     public void checkUniqueName(String name) throws NameTaskException, IOException {
-        messageToServer("CheckName");
-        NameCheckRequest nameCheckRequest = new NameCheckRequest("CheckName", name);
-        objectMapper.writeValue(outputStream, nameCheckRequest);
-        CommandRequest commandRequest = objectMapper.readValue(inputStream, CommandRequest.class);
-        if (commandRequest.getMessage().equals("Error")) throw new NameTaskException("Неверное имя");
+//        messageToServer("CheckName");
+//        NameCheckRequest nameCheckRequest = new NameCheckRequest("CheckName", name);
+//        objectMapper.writeValue(outputStream, nameCheckRequest);
+//        CommandRequest commandRequest = objectMapper.readValue(inputStream, CommandRequest.class);
+//        if (commandRequest.getMessage().equals("Error")) throw new NameTaskException("Неверное имя");
     }
 
     @Override
     public int getSize() {
         try {
-            messageToServer("SizeJournalTask");
-            System.out.println("запрашиваю размер");
-            SizeRequest sizeRequest = objectMapper.readValue(inputStream, SizeRequest.class);
-            return sizeRequest.getData();
+            Request getSizeRequest = new Request("SizeJournalTask", null);
+            objectMapper.writeValue(outputStream, getSizeRequest);
+            System.out.println("Запрашиваю размер");
+            getSizeRequest = objectMapper.readValue(inputStream, Request.class);
+            return (int) getSizeRequest.getData();
         } catch (IOException e) {
             e.printStackTrace();
             return 0;
-        }catch (IllegalArgumentException e)
-        {
+        } catch (IllegalArgumentException e) {
             return 0;
         }
     }
@@ -161,11 +157,12 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
     @Override
     public Task getElementAt(int index) {
         try {
-            messageToServer("GetTask");
-            System.out.println("Запрашиваю элемент "+ index);
-            GetTaskRequest getTaskRequest = objectMapper.readValue(inputStream, GetTaskRequest.class);
-            System.out.println(getTaskRequest.getData());
-            return getTaskRequest.getData();
+            Request getTaskRequest = new Request("GetTask", index);
+            objectMapper.writeValue(outputStream, getTaskRequest);
+            System.out.println("Запрашиваю элемент " + index);
+            getTaskRequest = objectMapper.readValue(inputStream, Request.class);
+            Task task = objectMapper.convertValue(getTaskRequest.getData(), Task.class);
+            return task;
         } catch (IOException e) {
             e.printStackTrace();
         }

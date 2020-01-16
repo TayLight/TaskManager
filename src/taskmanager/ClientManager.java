@@ -30,10 +30,10 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
 
     @Override
     public void addItem(Task newItem) throws NameTaskException, IOException {
-        Request addTaskRequest = new Request("AddTask", newItem);
-        objectMapper.writeValue(outputStream, addTaskRequest);
-        addTaskRequest = objectMapper.readValue(inputStream, Request.class);
-        if (addTaskRequest.getCommand().equals("Error")) throw new NameTaskException("Неверное имя");
+        Request addItemRequest = new Request("AddItem", newItem);
+        objectMapper.writeValue(outputStream, addItemRequest);
+        addItemRequest = objectMapper.readValue(inputStream, Request.class);
+        if (addItemRequest.getCommand().equals("Error")) throw new NameTaskException("Неверное имя");
     }
 
     public void messageToServer(String message) { //нужно будет удалить
@@ -47,10 +47,10 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
 
     @Override
     public void deleteItem(int index) throws IOException, ItemNotFoundException {
-        Request deleteTaskRequest = new Request("DeleteTask", index);
-        objectMapper.writeValue(outputStream, deleteTaskRequest);
-        deleteTaskRequest = objectMapper.readValue(inputStream, Request.class);
-        if (deleteTaskRequest.getCommand().equals("Error")) throw new ItemNotFoundException("Неверный индекс");
+        Request deleteItemRequest = new Request("DeleteItem", index);
+        objectMapper.writeValue(outputStream, deleteItemRequest);
+        deleteItemRequest = objectMapper.readValue(inputStream, Request.class);
+        if (deleteItemRequest.getCommand().equals("Error")) throw new ItemNotFoundException("Неверный индекс");
     }
 
     @Override
@@ -59,10 +59,11 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
     }
 
     @Override
-    public void updateItem(int index, Task item) throws IOException {
-        messageToServer("AddTask");
-        EditTaskRequest editTaskRequest = new EditTaskRequest("EditTask" + index, item);
-        objectMapper.writeValue(outputStream, editTaskRequest);
+    public void updateItem(int index, Task item) throws IOException, ItemNotFoundException {
+        Request updateItemRequest = new Request("UpdateItem" + index, item);
+        objectMapper.writeValue(outputStream, updateItemRequest);
+        updateItemRequest = objectMapper.readValue(inputStream, Request.class);
+        if (updateItemRequest.getCommand().equals("Error")) throw new ItemNotFoundException("Неверный индекс");
     }
 
     @Override
@@ -157,12 +158,12 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
     @Override
     public Task getElementAt(int index) {
         try {
-            Request getTaskRequest = new Request("GetTask", index);
-            objectMapper.writeValue(outputStream, getTaskRequest);
+            Request getItemRequest = new Request("GetItem", index);
+            objectMapper.writeValue(outputStream, getItemRequest);
             System.out.println("Запрашиваю элемент " + index);
-            getTaskRequest = objectMapper.readValue(inputStream, Request.class);
-            Task task = objectMapper.convertValue(getTaskRequest.getData(), Task.class);
-            return task;
+            getItemRequest = objectMapper.readValue(inputStream, Request.class);
+            Task item = objectMapper.convertValue(getItemRequest.getData(), Task.class);
+            return item;
         } catch (IOException e) {
             e.printStackTrace();
         }

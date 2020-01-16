@@ -10,9 +10,10 @@ import taskmanager.task.Task;
 
 import java.io.*;
 import java.net.Socket;
+import java.time.LocalTime;
 import java.util.LinkedList;
 
-public class ServerThread implements Runnable{
+public class ServerThread implements Runnable {
     /**
      * сокет для общения
      */
@@ -42,7 +43,8 @@ public class ServerThread implements Runnable{
         DELETE_ITEM("DeleteItem"),
         UPDATE_ITEM("UpdateItem"),
         SIZE_JOURNAL("SizeJournalTask"),
-        GET_ITEM("GetItem");
+        GET_ITEM("GetItem"),
+        NOTIFY("Notify");
 
         private String message;
 
@@ -116,7 +118,7 @@ public class ServerThread implements Runnable{
                                 System.out.println("Запрос принят: удалить задачу.");
                                 String message_di = "Ok";
                                 try {
-                                    journalTask.deleteItem((int)inputRequest.getData());
+                                    journalTask.deleteItem((int) inputRequest.getData());
                                 } catch (ItemNotFoundException ex) {
                                     message_di = "Error";
                                 } catch (IOException ex) {
@@ -132,11 +134,11 @@ public class ServerThread implements Runnable{
                                 char chIndex = inputRequest.getCommand().toCharArray()[10];
                                 int index = Integer.parseInt(String.valueOf(chIndex));
                                 Task newItem = objectMapper.convertValue(inputRequest.getData(), Task.class);
-                                try{
+                                try {
                                     journalTask.updateItem(index, newItem);
-                                } catch (ItemNotFoundException ex){
+                                } catch (ItemNotFoundException ex) {
                                     message_ui = "Error";
-                                } catch (IOException ex){
+                                } catch (IOException ex) {
                                     ex.printStackTrace();
                                 }
                                 Request reply_ui = new Request(message_ui, null);
@@ -155,14 +157,44 @@ public class ServerThread implements Runnable{
                             case GET_ITEM:
                                 System.out.println("Запрос принят: получить задачу.");
                                 Task item = null;
-                                try{
-                                    item = getItem((int)inputRequest.getData());
+                                try {
+                                    item = getItem((int) inputRequest.getData());
                                 } catch (ItemNotFoundException ex) {
                                     ex.printStackTrace();
                                 }
-                                Request reply_gt =  new Request("GetItem", item);
+                                Request reply_gt = new Request("GetItem", item);
                                 objectMapper.writeValue((DataOutput) outputStream, reply_gt);
                                 break;
+                            case NOTIFY:
+                                System.out.println("Запущена система оповещений.");
+                                try {
+                                    while (true) {
+                                        LocalTime timeNow = LocalTime.of(LocalTime.now().getHour(), LocalTime.now().getMinute(), 0);
+                                        for (int i = 0; i < journalTask.size(); i++) {
+                                            Task task = null;
+                                            try {
+                                                task = (Task) journalTask.getItem(i);
+                                            } catch (ItemNotFoundException ex) {
+                                                System.out.println(ex.getMessage());
+                                            }
+                                            if (((task.getTime().isBefore(timeNow)) || (task.getTime().equals(timeNow))) && task.getRelevance()) {
+                                                Request notifyRequest = new Request("Notify", task);
+                                                objectMapper.writeValue((DataOutput) outputStream, notifyRequest);
+                                                task.setRelevance(false);
+                                                break;
+                                            }
+                                        }
+                                        try {
+                                            Thread.sleep(60000);
+                                        } catch (InterruptedException ex) {
+                                            ex.printStackTrace();
+                                        }
+                                    }
+                                } catch (IOException ex) {
+                                    finalWork();
+                                    System.out.println("Работа системы оповещений остановлена.");
+                                    return;
+                                }
                         }
                     }
                 }
@@ -172,7 +204,9 @@ public class ServerThread implements Runnable{
         }
     }
 
-    /** Получение журнала задач
+    /**
+     * Получение журнала задач
+     *
      * @return возвращает журнал задач
      */
     public LinkedList<Task> getItems() {
@@ -216,7 +250,9 @@ public class ServerThread implements Runnable{
 //        listItem.remove(index);
 //    }
 
-    /** Получение задачи из журнала по индексу
+    /**
+     * Получение задачи из журнала по индексу
+     *
      * @param index индекс задачи в журнале задач
      * @return задача, соответствующая введенному индексу
      * @throws ItemNotFoundException Неверное значение индекса
@@ -242,21 +278,23 @@ public class ServerThread implements Runnable{
      * Завершение работы серверной нити
      */
     public void finalWork() {
-        try{
+        try {
             clientSocket.close();
             journalTask.finalWork();
             inputStream.close();
             outputStream.close();
-        } catch (IOException ex){
+        } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
 
 
-    /** Проверка имени на уникальность
+    /**
+     * Проверка имени на уникальность
+     *
      * @param name Имя задачи для проверки
      * @throws NameTaskException Задача с таким именем уже существует
-     * @throws IOException Ошибка потоков
+     * @throws IOException       Ошибка потоков
      */
     public void checkUniqueName(String name) throws NameTaskException, IOException {
         for (Task task : listItem) {

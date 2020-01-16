@@ -135,7 +135,8 @@ public class View implements TaskChangedSubscriber {
                 Task task = new Task(name, description, time);
                 try {
                     journalTask.addItem(task);
-                } catch (NameTaskException ex) {
+                    journalTask.finalWork();
+                } catch (NameTaskException | IOException ex) {
                     System.out.println(ex.getMessage() + ". Повторите ввод.");
                 }
                 System.out.println("\nНажмите Enter, чтобы продолжить...");
@@ -254,6 +255,7 @@ public class View implements TaskChangedSubscriber {
                                     if (isTaskEdited) {
                                         try {
                                             journalTask.updateItem(index, (Task) tempTask);
+                                            journalTask.finalWork();
                                         } catch (ItemNotFoundException | IOException ex) {
                                             //ItemNotFound никогда не возникнет, т.к. индекс уже проверялся на принадлежность
                                             //диапазону в методе getItem
@@ -319,6 +321,7 @@ public class View implements TaskChangedSubscriber {
                         case 1:
                             try {
                                 journalTask.deleteItem(index);
+                                journalTask.finalWork();
                             } catch (ItemNotFoundException | IOException ex) {
                                 System.out.println(ex.getMessage() + " Повторите ввод.");
                             }

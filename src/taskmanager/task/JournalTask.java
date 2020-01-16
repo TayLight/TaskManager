@@ -17,7 +17,7 @@ public class JournalTask<T> implements Manager<Task>, Serializable {
     /**
      * Адрес журнала задач на компьютере пользователя
      */
-    private String pathToJournalTask = "./JournalTask.txt";
+    private String pathToJournalTask = "JournalTask.txt";
     /**
      * Список задач
      */
@@ -49,6 +49,7 @@ public class JournalTask<T> implements Manager<Task>, Serializable {
      * @return Возвращает размером журнала задач
      */
     public int size() {
+        if(tasks==null) return 0;
         return tasks.size();
     }
 
@@ -57,18 +58,11 @@ public class JournalTask<T> implements Manager<Task>, Serializable {
         File fileJournalTask = new File(pathToJournalTask);
         if (fileJournalTask.exists()) {
             if (fileJournalTask.length() != 0) {
-                FileInputStream fileInputStream = null;
-                ObjectInputStream objectInputStream=null;
-                try {
-                    fileInputStream = new FileInputStream(pathToJournalTask);
-                    objectInputStream = new ObjectInputStream(fileInputStream);
+                try (FileInputStream fileInputStream = new FileInputStream(pathToJournalTask); ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream)) {
                     tasks = (LinkedList<Task>) objectInputStream.readObject();
 
                 } catch (ClassNotFoundException | IOException e) {
                     e.printStackTrace();
-                }finally {
-                    fileInputStream.close();
-                    objectInputStream.close();
                 }
             } else tasks = new LinkedList<>();
         } else {
@@ -141,7 +135,6 @@ public class JournalTask<T> implements Manager<Task>, Serializable {
     public void deleteItem(int index) throws ItemNotFoundException {
         Task tempTask = tasks.get(index);
         tasks.remove(index);
-        subscriber.taskDeleted(tempTask);
     }
 
     @Override

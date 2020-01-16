@@ -146,6 +146,7 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
     public int getSize() {
         try {
             messageToServer("SizeJournalTask");
+            System.out.println("запрашиваю размер");
             SizeRequest sizeRequest = objectMapper.readValue(inputStream, SizeRequest.class);
             return sizeRequest.getData();
         } catch (IOException e) {
@@ -161,7 +162,9 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
     public Task getElementAt(int index) {
         try {
             messageToServer("GetTask");
+            System.out.println("Запрашиваю элемент "+ index);
             GetTaskRequest getTaskRequest = objectMapper.readValue(inputStream, GetTaskRequest.class);
+            System.out.println(getTaskRequest.getData());
             return getTaskRequest.getData();
         } catch (IOException e) {
             e.printStackTrace();

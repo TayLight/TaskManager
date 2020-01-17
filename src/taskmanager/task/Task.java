@@ -75,6 +75,13 @@ public class Task implements Serializable {
         relevance = true;
     }
 
+    public Task(String name, String description, LocalTime time, boolean relevance) {
+        this.name = name;
+        this.time = time;
+        this.description = description;
+        this.relevance=relevance;
+    }
+
     public Task() {
     }
 

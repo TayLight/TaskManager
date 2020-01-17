@@ -1,19 +1,15 @@
 package taskmanager;
+
 import taskmanager.exceptions.ItemNotFoundException;
 import taskmanager.exceptions.NameTaskException;
 import taskmanager.task.Task;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.time.DateTimeException;
 import java.time.LocalTime;
 
-public class EditTask  extends JFrame{
+public class EditTask extends JFrame {
     /**
      * Стандартное разрешение экрана
      */
@@ -24,12 +20,13 @@ public class EditTask  extends JFrame{
     private JSpinner spinnerMinute;
     private JSpinner spinnerHour;
     private JButton buttonEdit;
+    private JCheckBox actualCheckBox;
 
-    public EditTask(Manager manager, int index, Task task) throws HeadlessException {
+    public EditTask(Manager manager, int index, Task task, GUI gui) throws HeadlessException {
         super("Создание задачи");
         pack();
-        spinnerHour.setModel(new SpinnerNumberModel(0,0,24,1));
-        spinnerMinute.setModel(new SpinnerNumberModel(0,0,60,1));
+        spinnerHour.setModel(new SpinnerNumberModel(0, 0, 24, 1));
+        spinnerMinute.setModel(new SpinnerNumberModel(0, 0, 60, 1));
         setSize((sizeScreen.width / 3) - 100, sizeScreen.height / 3);
         setLocationRelativeTo(null);
         setContentPane(panel1);
@@ -37,14 +34,25 @@ public class EditTask  extends JFrame{
         textFieldDescription.setText(task.getDescription());
         spinnerHour.setValue(task.getTime().getHour());
         spinnerMinute.setValue(task.getTime().getMinute());
+        if (!task.getRelevance()) {
+            actualCheckBox.setText("Выполнено");
+            actualCheckBox.setSelected(false);
+        } else {
+            actualCheckBox.setText("Актуально");
+            actualCheckBox.setSelected(true);
+        }
         setVisible(true);
         buttonEdit.addActionListener(e -> {
             try {
                 String name = textFieldName.getText();
                 if (name.isEmpty()) throw new NameTaskException("Пустое поле");
                 String description = textFieldDescription.getText();
-                LocalTime time = LocalTime.of((int) spinnerHour.getValue(),(int) spinnerMinute.getValue());
-                manager.updateItem(index,new Task(name, description, time));
+                LocalTime time = LocalTime.of((int) spinnerHour.getValue(), (int) spinnerMinute.getValue());
+                if (actualCheckBox.isSelected())
+                    manager.updateItem(index, new Task(name, description, time));
+                else
+                    manager.updateItem(index, new Task(name, description, time, false));
+                gui.updateList();
                 setVisible(false);
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(EditTask.this, "Неправильно введено имя!");
@@ -52,7 +60,9 @@ public class EditTask  extends JFrame{
                 JOptionPane.showMessageDialog(EditTask.this, "Такое имя уже существует!");
             } catch (ItemNotFoundException ex) {
                 ex.printStackTrace();
-            } catch (IOException ex){JOptionPane.showMessageDialog(EditTask.this,"Нет ответа от сервера");}
+            } catch (IOException ex) {
+                gui.reconnectToServer();
+            }
         });
     }
 }

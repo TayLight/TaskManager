@@ -52,6 +52,7 @@ public class GUI extends JFrame {
      */
     private JButton addTaskButton;
     private JButton connectionButton;
+    private JLabel statusLabel;
     private JButton buttonUpdate;
     /**
      * Менеджер , для работы с сервером
@@ -76,7 +77,7 @@ public class GUI extends JFrame {
         try {
             manager.startWork();
             isConnection = true;
-            System.out.println("Загружено");
+            statusLabel.setText("Сервер онлайн");
             listTask.updateUI();
         } catch (IOException e) {
             connectionLost();
@@ -153,7 +154,7 @@ public class GUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 if (!isConnection) JOptionPane.showMessageDialog(GUI.this, "Нет соединения с сервером!");
                 else {
-                    EditTask editTask = new EditTask(manager,selectedTaskIndex, selectedTask);
+                    EditTask editTask = new EditTask(manager,selectedTaskIndex, selectedTask, GUI.this);
                 }
             }
         });
@@ -204,7 +205,7 @@ public class GUI extends JFrame {
         }
         }catch (IllegalArgumentException e)
         {
-            isConnection=false;
+            reconnectToServer();
         }
     }
 
@@ -228,6 +229,7 @@ public class GUI extends JFrame {
         lostConnectionList.addElement("Нет соединения с сервером");
         listTask.setModel(lostConnectionList);
         isConnection = false;
+        statusLabel.setText("Сервер недоступен");
     }
 
     public void reconnectToServer(){
@@ -236,6 +238,8 @@ public class GUI extends JFrame {
             manager.startWork();
             listTask.setModel((ListModel) manager);
             listTask.updateUI();
+            isConnection=true;
+            statusLabel.setText("Сервер онлайн");
         } catch (IOException e) {
             connectionLost();
         }

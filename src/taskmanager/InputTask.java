@@ -73,7 +73,7 @@ public class InputTask extends JFrame {
                 } catch (NameTaskException ex) {
                     JOptionPane.showMessageDialog(InputTask.this, "Такое имя уже существует!");
                 } catch (IOException ex) {
-                    JOptionPane.showMessageDialog(InputTask.this, "Сервер недоступен!");
+                    gui.reconnectToServer();
                 }
             }
         });

@@ -1,0 +1,13 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="TaskManager(Server):jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/TaskManager_Server__jar</output-path>
+    <root id="archive" name="Server.jar">
+      <element id="module-output" name="TaskManager" />
+      <element id="extracted-dir" path="$USER_HOME$/Downloads/quartz-jobs-2.3.0-SNAPSHOT.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/jackson-datatype-jsr310-2.10.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/jackson-databind-2.10.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/jackson-core-2.10.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/jackson-annotations-2.10.1.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

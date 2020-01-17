@@ -64,6 +64,7 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
         objectMapper.writeValue(outputStream, updateItemRequest);
         updateItemRequest = objectMapper.readValue(inputStream, Request.class);
         if (updateItemRequest.getCommand().equals("Error")) throw new ItemNotFoundException("Неверный индекс");
+
     }
 
     @Override
@@ -113,13 +114,7 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
 
     @Override
     public void finalWork() {
-//        RequestOld loadJournalRequest = new RequestOld("CloseSession");
-//        try {
-//            objectMapper.writeValue(outputStream, loadJournalRequest);
-//            socket.close();
-//        } catch (IOException ignored) {
-//
-//        }
+
     }
 
     @Override

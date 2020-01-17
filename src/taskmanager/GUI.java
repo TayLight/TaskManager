@@ -51,7 +51,13 @@ public class GUI extends JFrame {
      * Кнопка добавления задачи
      */
     private JButton addTaskButton;
+    /**
+     * Кнопка переподключения
+     */
     private JButton connectionButton;
+    /**
+     * Надпись статуса сервера
+     */
     private JLabel statusLabel;
     private JButton buttonUpdate;
     /**
@@ -138,7 +144,6 @@ public class GUI extends JFrame {
                 else {
                     try {
                         int index = selectedTaskIndex;
-                        //index--;
                         manager.deleteItem(index);
                         listTask.updateUI();
                     } catch (ItemNotFoundException ex) {
@@ -222,6 +227,9 @@ public class GUI extends JFrame {
                 BorderFactory.createEmptyBorder(30, 30, 30, 30)));
     }
 
+    /**
+     * Метод, оповещающий пользователя о потере соединения с сервером
+     */
     public void connectionLost() {
         JOptionPane.
                 showMessageDialog(GUI.this, "Соединение невозможно! \n Возможно сервер в неактивном состоянии");
@@ -232,6 +240,9 @@ public class GUI extends JFrame {
         statusLabel.setText("Сервер недоступен");
     }
 
+    /**
+     * Метод переподключения клиента к серверу
+     */
     public void reconnectToServer(){
         try
         {

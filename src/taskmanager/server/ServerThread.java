@@ -78,7 +78,6 @@ public class ServerThread implements Runnable {
             while (true) {
                 Request inputRequest = null;
                 try {
-                    System.out.println("Пытаюсь получить команду...");
                     inputRequest = objectMapper.readValue((DataInput) inputStream, Request.class);
                     System.out.println(inputRequest.getCommand());
                 } catch (IOException ex) {

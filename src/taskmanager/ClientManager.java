@@ -13,14 +13,41 @@ import java.net.Socket;
 import java.util.List;
 import java.util.Properties;
 
+/**
+ * Класс для взаимодействия клиента с сервером
+ */
 public class ClientManager extends AbstractListModel<Task> implements Manager<Task> {
+    /**
+     * Клиентский сокет
+     */
     private Socket socket;
+    /**
+     * Выходной поток клиента
+     */
     private DataOutput outputStream;
+    /**
+     * Входной поток клиента
+     */
     private DataInput inputStream;
+    /**
+     * Переменная обозначающее активность подключения к серверу
+     */
     private boolean isConnection = false;
+    /**
+     * Массив портов
+     */
     private int[] ports;
+    /**
+     * Массив хостов
+     */
     private String[] hosts;
+    /**
+     * Маппер для преобразования JSON
+     */
     private ObjectMapper objectMapper;
+    /**
+     * Путь до конфигурационного файла
+     */
     public static final String PATH_TO_PROPERTIES = "./serverConnection.properties";
 
     public ClientManager() {
@@ -34,15 +61,6 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
         objectMapper.writeValue(outputStream, addItemRequest);
         addItemRequest = objectMapper.readValue(inputStream, Request.class);
         if (addItemRequest.getCommand().equals("Error")) throw new NameTaskException("Неверное имя");
-    }
-
-    public void messageToServer(String message) { //нужно будет удалить
-        CommandRequest commandRequest = new CommandRequest(message);
-        try {
-            objectMapper.writeValue(outputStream, commandRequest);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
     }
 
     @Override
@@ -119,27 +137,23 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
 
     @Override
     public List<Task> getItems() throws IOException {
-        messageToServer("LoadJournalTask");
-        objectMapper.registerModule(new JavaTimeModule());
-        LoadJournalRequest loadJournalRequest = objectMapper.readValue(inputStream, LoadJournalRequest.class);
-        return loadJournalRequest.getData();
+        return null;
     }
+
 
     @Override
     public void checkUniqueName(String name) throws NameTaskException, IOException {
-//        messageToServer("CheckName");
-//        NameCheckRequest nameCheckRequest = new NameCheckRequest("CheckName", name);
-//        objectMapper.writeValue(outputStream, nameCheckRequest);
-//        CommandRequest commandRequest = objectMapper.readValue(inputStream, CommandRequest.class);
-//        if (commandRequest.getMessage().equals("Error")) throw new NameTaskException("Неверное имя");
+
     }
 
+    /**
+     * @return возвращает размер журнала задач
+     */
     @Override
     public int getSize() {
         try {
             Request getSizeRequest = new Request("SizeJournalTask", null);
             objectMapper.writeValue(outputStream, getSizeRequest);
-            System.out.println("Запрашиваю размер");
             getSizeRequest = objectMapper.readValue(inputStream, Request.class);
             return (int) getSizeRequest.getData();
         } catch (IOException e) {
@@ -150,12 +164,15 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
         }
     }
 
+    /**
+     * @param index индекс необходимого параметра
+     * @return возвращает задачу, с нужным индексом
+     */
     @Override
     public Task getElementAt(int index) {
         try {
             Request getItemRequest = new Request("GetItem", index);
             objectMapper.writeValue(outputStream, getItemRequest);
-            System.out.println("Запрашиваю элемент " + index);
             getItemRequest = objectMapper.readValue(inputStream, Request.class);
             Task item = objectMapper.convertValue(getItemRequest.getData(), Task.class);
             return item;

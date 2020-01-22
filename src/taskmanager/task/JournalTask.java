@@ -1,5 +1,9 @@
 package taskmanager.task;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import taskmanager.JournalForSave;
 import taskmanager.Manager;
 import taskmanager.TaskChangedSubscriber;
 import taskmanager.exceptions.ItemNotFoundException;
@@ -17,7 +21,8 @@ public class JournalTask<T> implements Manager<Task>, Serializable {
     /**
      * Адрес журнала задач на компьютере пользователя
      */
-    private String pathToJournalTask = "JournalTask.txt";
+    private String pathToJournalTask = "JournalTask.json";
+    ObjectMapper objectMapper;
     /**
      * Список задач
      */
@@ -32,6 +37,8 @@ public class JournalTask<T> implements Manager<Task>, Serializable {
      */
     public JournalTask() {
         try {
+            objectMapper = new ObjectMapper();
+            objectMapper.registerModule(new JavaTimeModule());
             startWork();
         } catch (IOException e) {
             e.printStackTrace();
@@ -55,50 +62,26 @@ public class JournalTask<T> implements Manager<Task>, Serializable {
 
     @Override
     public void startWork() throws IOException {
-        File fileJournalTask = new File(pathToJournalTask);
-        if (fileJournalTask.exists()) {
-            if (fileJournalTask.length() != 0) {
-                try (FileInputStream fileInputStream = new FileInputStream(pathToJournalTask); ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream)) {
-                    tasks = (LinkedList<Task>) objectInputStream.readObject();
-
-                } catch (ClassNotFoundException | IOException e) {
-                    e.printStackTrace();
-                }
-            } else tasks = new LinkedList<>();
-        } else {
+        try {
+            File fileJournalTask = new File(pathToJournalTask);
+            JournalForSave journal = objectMapper.readValue(fileJournalTask, JournalForSave.class);
+            tasks = (LinkedList<Task>) journal.getJournalTask();
+        } catch (FileNotFoundException e) {
+            File newFile = new File(pathToJournalTask);
+            newFile.createNewFile();
+        } catch (MismatchedInputException e){
             tasks = new LinkedList<>();
-            try {
-                fileJournalTask.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 
     @Override
     public void finalWork() throws IOException {
-        if (tasks.size() != 0) {
-            try (ObjectOutputStream out2 = new ObjectOutputStream(new FileOutputStream(pathToJournalTask))) {
-                out2.writeObject(tasks);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            FileWriter fstream1 = null;
-            BufferedWriter out1=null;
-            try {
-                fstream1 = new FileWriter(pathToJournalTask);
-                out1 = new BufferedWriter(fstream1);
-                out1.write("");
-                out1.close();
-                fstream1.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            finally {
-                out1.close();
-                fstream1.close();
-            }
+        try {
+            File file = new File(pathToJournalTask);
+            JournalForSave journal = new JournalForSave(tasks);
+            objectMapper.writeValue(new File(pathToJournalTask),journal);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

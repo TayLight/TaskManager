@@ -88,15 +88,6 @@ public class ServerThread implements Runnable {
                 for (Message msg : Message.values()) {
                     if (inputRequest.getCommand().contains(msg.message)) {
                         switch (msg) {
-                            case LOAD_JOURNAL_TASK: //TODO:нужен ли он вообще теперь? Нет,сжигай
-                                System.out.println("Запрос принят: отправить журнал задач.");
-                                LoadJournalRequest loadJournalRequest = new LoadJournalRequest(listItem, "LoadJournalTask");
-                                try {
-                                    objectMapper.writeValue((DataOutput) outputStream, loadJournalRequest);
-                                } catch (IOException ex) {
-                                    ex.printStackTrace();
-                                }
-                                break;
                             case ADD_ITEM:
                                 System.out.println("Запрос принят: добавить задачу.");
                                 String message_ai = "Ok";
@@ -130,8 +121,11 @@ public class ServerThread implements Runnable {
                             case UPDATE_ITEM:
                                 System.out.println("Запрос принят: редактировать задачу.");
                                 String message_ui = "Ok";
-                                char chIndex = inputRequest.getCommand().toCharArray()[10];
-                                int index = Integer.parseInt(String.valueOf(chIndex));
+                                StringBuilder sbIndex = new StringBuilder();
+                                for (int i = 10; i < inputRequest.getCommand().toCharArray().length; i++){
+                                    sbIndex.append(inputRequest.getCommand().toCharArray()[i]);
+                                }
+                                int index = Integer.parseInt(sbIndex.toString());
                                 Task newItem = objectMapper.convertValue(inputRequest.getData(), Task.class);
                                 try {
                                     journalTask.updateItem(index, newItem);

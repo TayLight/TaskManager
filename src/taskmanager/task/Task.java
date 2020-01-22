@@ -26,6 +26,11 @@ public class Task implements Serializable {
     private boolean relevance;
 
     /**
+     * идентификатор задачи
+     */
+    private int id;
+
+    /**
      * Метод получения имени задачи
      *
      * @return возвращает имя задачи
@@ -73,6 +78,7 @@ public class Task implements Serializable {
         this.time = time;
         this.description = description;
         relevance = true;
+        id = time.getHour()*31+time.getMinute()*(-31);
     }
 
     public Task(String name, String description, LocalTime time, boolean relevance) {
@@ -80,6 +86,7 @@ public class Task implements Serializable {
         this.time = time;
         this.description = description;
         this.relevance=relevance;
+        id = time.getHour()*31+time.getMinute()*(-31);
     }
 
     public Task() {
@@ -143,5 +150,12 @@ public class Task implements Serializable {
      */
     public boolean getRelevance() {
         return relevance;
+    }
+
+    /**
+     * @return озвращает ID задачи
+     */
+    public int getId() {
+        return id;
     }
 }

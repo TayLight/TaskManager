@@ -183,6 +183,7 @@ public class GUI extends JFrame {
                 if (!evt.getValueIsAdjusting()) {
                     selectedTaskIndex = listTask.getSelectedIndex();
                     selectedTask = (Task) listTask.getSelectedValue();
+                    System.out.println(selectedTask.getId());
                 }
             }
         });

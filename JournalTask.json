@@ -1,1 +1,1 @@
-{"journalTask":[{"name":"Test","description":"Task","time":[12,22],"relevance":false},{"name":"Try","description":"Ffd","time":[14,22],"relevance":true},{"name":"Это работает","description":"Охуеть","time":[23,30],"relevance":true}]}
+{"journalTask":[{"name":"Попробуем ID","description":"Оно должно работать!","time":[12,22],"relevance":true,"id":-310},{"name":"Не знаю","description":"Да","time":[19,22],"relevance":true,"id":-93}]}

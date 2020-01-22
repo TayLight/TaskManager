@@ -34,6 +34,7 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
      */
     public static final String PATH_TO_PROPERTIES = "./serverConnection.properties";
 
+
     public ClientManager() {
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());

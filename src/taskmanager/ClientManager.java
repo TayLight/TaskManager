@@ -18,10 +18,6 @@ import java.util.Properties;
  */
 public class ClientManager extends AbstractListModel<Task> implements Manager<Task> {
     /**
-     * Клиентский сокет
-     */
-    private Socket socket;
-    /**
      * Выходной поток клиента
      */
     private DataOutput outputStream;
@@ -29,18 +25,6 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
      * Входной поток клиента
      */
     private DataInput inputStream;
-    /**
-     * Переменная обозначающее активность подключения к серверу
-     */
-    private boolean isConnection = false;
-    /**
-     * Массив портов
-     */
-    private int[] ports;
-    /**
-     * Массив хостов
-     */
-    private String[] hosts;
     /**
      * Маппер для преобразования JSON
      */
@@ -92,15 +76,14 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
 
     @Override
     public void startWork() throws IOException {
-        ConnectionFrame connectionFrame = new ConnectionFrame();
         FileInputStream fileInputStream;
         Properties prop = new Properties();
         fileInputStream = new FileInputStream(PATH_TO_PROPERTIES);
         prop.load(fileInputStream);
         int port;
         String host;
-        hosts = new String[prop.size() / 2];
-        ports = new int[prop.size() / 2];
+        String[] hosts = new String[prop.size() / 2];
+        int[] ports = new int[prop.size() / 2];
         for (int i = 0; i < prop.size() / 2; i++) {
             String linkHost = "server" +
                     (i + 1) +
@@ -114,19 +97,16 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
         int tryConnection = 0;
         while (tryConnection != hosts.length) {
             try {
-                connectionFrame.tryConnectionTo(tryConnection + 1);
                 host = hosts[tryConnection];
                 port = ports[tryConnection];
-                socket = new Socket(host, port);
+                Socket socket = new Socket(host, port);
                 inputStream = new DataInputStream(socket.getInputStream());
                 outputStream = new DataOutputStream(socket.getOutputStream());
-                connectionFrame.setVisible(false);
                 break;
             } catch (IOException e) {
                 tryConnection++;
             }
         }
-        connectionFrame.setVisible(false);
         if (tryConnection == hosts.length) throw new IOException();
     }
 
@@ -136,13 +116,13 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
     }
 
     @Override
-    public List<Task> getItems() throws IOException {
+    public List<Task> getItems() {
         return null;
     }
 
 
     @Override
-    public void checkUniqueName(String name) throws NameTaskException, IOException {
+    public void checkUniqueName(String name) {
 
     }
 
@@ -174,8 +154,7 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
             Request getItemRequest = new Request("GetItem", index);
             objectMapper.writeValue(outputStream, getItemRequest);
             getItemRequest = objectMapper.readValue(inputStream, Request.class);
-            Task item = objectMapper.convertValue(getItemRequest.getData(), Task.class);
-            return item;
+            return objectMapper.convertValue(getItemRequest.getData(), Task.class);
         } catch (IOException e) {
             e.printStackTrace();
         }

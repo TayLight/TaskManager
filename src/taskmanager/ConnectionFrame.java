@@ -19,9 +19,4 @@ public class ConnectionFrame extends JFrame {
         setLocationRelativeTo(null);
         setVisible(true);
     }
-
-    public void tryConnectionTo(int n)
-    {
-        statusField.setText("Попытка подключения к серверу №"+n);
-    }
 }

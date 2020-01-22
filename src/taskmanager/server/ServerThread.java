@@ -88,7 +88,7 @@ public class ServerThread implements Runnable {
                 for (Message msg : Message.values()) {
                     if (inputRequest.getCommand().contains(msg.message)) {
                         switch (msg) {
-                            case LOAD_JOURNAL_TASK: //нужен ли он вообще теперь?
+                            case LOAD_JOURNAL_TASK: //TODO:нужен ли он вообще теперь? Нет,сжигай
                                 System.out.println("Запрос принят: отправить журнал задач.");
                                 LoadJournalRequest loadJournalRequest = new LoadJournalRequest(listItem, "LoadJournalTask");
                                 try {

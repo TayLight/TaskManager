@@ -34,13 +34,8 @@ public class EditTask extends JFrame {
         textFieldDescription.setText(task.getDescription());
         spinnerHour.setValue(task.getTime().getHour());
         spinnerMinute.setValue(task.getTime().getMinute());
-        if (!task.getRelevance()) {
-            actualCheckBox.setText("Выполнено");
-            actualCheckBox.setSelected(false);
-        } else {
-            actualCheckBox.setText("Актуально");
-            actualCheckBox.setSelected(true);
-        }
+        if (!task.getRelevance()) actualCheckBox.setSelected(false);
+        else actualCheckBox.setSelected(true);
         setVisible(true);
         buttonEdit.addActionListener(e -> {
             try {
@@ -61,7 +56,7 @@ public class EditTask extends JFrame {
             } catch (ItemNotFoundException ex) {
                 ex.printStackTrace();
             } catch (IOException ex) {
-                gui.reconnectToServer();
+                gui.connectToServer();
             }
         });
     }

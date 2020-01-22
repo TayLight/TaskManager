@@ -53,7 +53,6 @@ public interface Manager<T> {
 
     /**
      * метод начала работы
-     *
      * @throws IOException
      */
     void startWork() throws IOException;

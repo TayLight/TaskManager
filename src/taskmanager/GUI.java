@@ -13,7 +13,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.IOException;
-import java.util.LinkedList;
 
 public class GUI extends JFrame {
     Task selectedTask;
@@ -80,14 +79,7 @@ public class GUI extends JFrame {
         setLocationRelativeTo(null);
         setContentPane(panel1);
         setVisible(true);
-        try {
-            manager.startWork();
-            isConnection = true;
-            statusLabel.setText("Сервер онлайн");
-            listTask.updateUI();
-        } catch (IOException e) {
-            connectionLost();
-        }
+        connectToServer();
         this.addWindowListener(new WindowListener() {
 
             public void windowActivated(WindowEvent event) {
@@ -143,13 +135,13 @@ public class GUI extends JFrame {
                 if (!isConnection) JOptionPane.showMessageDialog(GUI.this, "Соединение с сервером еще не установлено!");
                 else {
                     try {
-                        int index = selectedTaskIndex;
+                        int index = listTask.getSelectedIndex();
                         manager.deleteItem(index);
                         listTask.updateUI();
                     } catch (ItemNotFoundException ex) {
                         JOptionPane.showMessageDialog(GUI.this, "Неверный ввод");
                     } catch (IOException ex) {
-                        reconnectToServer();
+                        connectToServer();
                     }
                 }
             }
@@ -159,13 +151,14 @@ public class GUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 if (!isConnection) JOptionPane.showMessageDialog(GUI.this, "Нет соединения с сервером!");
                 else {
-                    EditTask editTask = new EditTask(manager,selectedTaskIndex, selectedTask, GUI.this);
+                    selectedTask = (Task) listTask.getSelectedValue();
+                    EditTask editTask = new EditTask(manager,listTask.getSelectedIndex(), selectedTask, GUI.this);
                 }
             }
         });
         connectionButton.addActionListener(e -> {
             if (!isConnection) {
-                reconnectToServer();
+                connectToServer();
             } else JOptionPane.
                     showMessageDialog(GUI.this, "Соединение уже установлено!");
         });
@@ -210,7 +203,7 @@ public class GUI extends JFrame {
         }
         }catch (IllegalArgumentException e)
         {
-            reconnectToServer();
+            connectToServer();
         }
     }
 
@@ -243,16 +236,23 @@ public class GUI extends JFrame {
     /**
      * Метод переподключения клиента к серверу
      */
-    public void reconnectToServer(){
+    public void connectToServer(){
+        ConnectionFrame connectionFrame = new ConnectionFrame();
         try
         {
+            statusLabel.setText("Подключение");
             manager.startWork();
             listTask.setModel((ListModel) manager);
-            listTask.updateUI();
             isConnection=true;
             statusLabel.setText("Сервер онлайн");
+            connectionFrame.setVisible(false);
+            connectionFrame.dispose();
+            GUI.this.setFocusable(true);
+            listTask.updateUI();
         } catch (IOException e) {
             connectionLost();
+            connectionFrame.setVisible(false);
+            connectionFrame.dispose();
         }
     }
 }

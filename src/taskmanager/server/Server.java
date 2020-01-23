@@ -24,7 +24,13 @@ public class Server {
             FileInputStream fileInputStream = new FileInputStream(PATH_TO_PROPERTIES);
             Properties prop = new Properties();
             prop.load(fileInputStream);
-            int port = Integer.parseInt(prop.getProperty("server4.port"));
+            int numPort = 0;
+            while (true){
+                System.out.println("Номер сервера:");
+                numPort = in.nextInt();
+                if (numPort >= 1 && numPort <= 4) break;
+            }
+            int port = Integer.parseInt(prop.getProperty("server" + numPort + ".port"));
             ServerSocket server = new ServerSocket(port);
             System.out.println("Сервер запущен."); //оповещение сервером о том, что он запущен
             Runnable run = new ServerStarter(server, journalTask);

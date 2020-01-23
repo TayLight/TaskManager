@@ -2,7 +2,9 @@ package taskmanager.server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import taskmanager.ListChangedSubscriber;
 import taskmanager.Manager;
+import taskmanager.TaskChangedSubscriber;
 import taskmanager.exceptions.ItemNotFoundException;
 import taskmanager.exceptions.NameTaskException;
 import taskmanager.requests.*;
@@ -13,7 +15,7 @@ import java.net.Socket;
 import java.time.LocalTime;
 import java.util.LinkedList;
 
-public class ServerThread implements Runnable {
+public class ServerThread implements Runnable, ListChangedSubscriber {
     /**
      * сокет для общения
      */
@@ -36,6 +38,8 @@ public class ServerThread implements Runnable {
      * журнал задач
      */
     LinkedList<Task> listItem;
+
+    private Thread serverNotifyThread;
 
     enum Message {
         LOAD_JOURNAL_TASK("LoadJournalTask"),
@@ -63,6 +67,7 @@ public class ServerThread implements Runnable {
         this.journalTask = journalTask;
         inputStream = new DataInputStream(clientSocket.getInputStream());
         outputStream = new DataOutputStream(clientSocket.getOutputStream());
+
     }
 
     /**
@@ -74,7 +79,11 @@ public class ServerThread implements Runnable {
         listItem = getItems();
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
+        journalTask.subscribe(this);
         try {
+            Runnable run = new ServerNotifyThread(clientSocket, journalTask);
+            serverNotifyThread = new Thread(run);
+            serverNotifyThread.start();
             while (true) {
                 Request inputRequest = null;
                 try {
@@ -102,7 +111,6 @@ public class ServerThread implements Runnable {
                                 }
                                 Request reply_at = new Request(message_ai, null);
                                 objectMapper.writeValue((DataOutput) outputStream, reply_at);
-                                listItem = getItems(); //обновление представления списка задач
                                 break;
                             case DELETE_ITEM:
                                 System.out.println("Запрос принят: удалить задачу.");
@@ -116,13 +124,12 @@ public class ServerThread implements Runnable {
                                 }
                                 Request reply_dt = new Request(message_di, null);
                                 objectMapper.writeValue((DataOutput) outputStream, reply_dt);
-                                listItem = getItems(); //обновление представления списка задач
                                 break;
                             case UPDATE_ITEM:
                                 System.out.println("Запрос принят: редактировать задачу.");
                                 String message_ui = "Ok";
                                 StringBuilder sbIndex = new StringBuilder();
-                                for (int i = 10; i < inputRequest.getCommand().toCharArray().length; i++){
+                                for (int i = 10; i < inputRequest.getCommand().toCharArray().length; i++) {
                                     sbIndex.append(inputRequest.getCommand().toCharArray()[i]);
                                 }
                                 int index = Integer.parseInt(sbIndex.toString());
@@ -136,7 +143,6 @@ public class ServerThread implements Runnable {
                                 }
                                 Request reply_ui = new Request(message_ui, null);
                                 objectMapper.writeValue((DataOutput) outputStream, reply_ui);
-                                listItem = getItems(); //обновление представления списка задач
                                 break;
                             case SIZE_JOURNAL:
                                 System.out.println("Запрос принят: размер журнала.");
@@ -158,36 +164,6 @@ public class ServerThread implements Runnable {
                                 Request reply_gt = new Request("GetItem", item);
                                 objectMapper.writeValue((DataOutput) outputStream, reply_gt);
                                 break;
-                            case NOTIFY:
-                                System.out.println("Запущена система оповещений.");
-                                try {
-                                    while (true) {
-                                        LocalTime timeNow = LocalTime.of(LocalTime.now().getHour(), LocalTime.now().getMinute(), 0);
-                                        for (int i = 0; i < journalTask.size(); i++) {
-                                            Task task = null;
-                                            try {
-                                                task = (Task) journalTask.getItem(i);
-                                            } catch (ItemNotFoundException ex) {
-                                                System.out.println(ex.getMessage());
-                                            }
-                                            if (((task.getTime().isBefore(timeNow)) || (task.getTime().equals(timeNow))) && task.getRelevance()) {
-                                                Request notifyRequest = new Request("Notify", task);
-                                                objectMapper.writeValue((DataOutput) outputStream, notifyRequest);
-                                                task.setRelevance(false);
-                                                break;
-                                            }
-                                        }
-                                        try {
-                                            Thread.sleep(60000);
-                                        } catch (InterruptedException ex) {
-                                            ex.printStackTrace();
-                                        }
-                                    }
-                                } catch (IOException ex) {
-                                    finalWork();
-                                    System.out.println("Работа системы оповещений остановлена.");
-                                    return;
-                                }
                         }
                     }
                 }
@@ -214,35 +190,6 @@ public class ServerThread implements Runnable {
         return listTask;
     }
 
-//    /** Отправка журнала задач клиенту
-//     * @param loadJournalRequest запрос, отправляемый клиенту
-//     * @param objectMapper экземпляр objectMapper
-//     */
-//    public void sendJournalTask(Request loadJournalRequest, ObjectMapper objectMapper) {
-//        try {
-//            objectMapper.writeValue(outputStream, loadJournalRequest);
-//        } catch (IOException ex) {
-//            ex.printStackTrace();
-//        }
-//    }
-
-//    /** Добавление новой задачи в журнал
-//     * @param newItem Новая задача
-//     */
-//    public void addItem(Task newItem) {
-//        listItem.addLast(newItem);
-//    }
-//
-//    /** Удаление задачи из журнала
-//     * @param index Индекс удаляемой задачи
-//     * @throws ItemNotFoundException Неверное значение индекса
-//     * @throws IOException Ошибка потоков
-//     */
-//    public void deleteItem(int index) throws ItemNotFoundException, IOException {
-//        if (index < 0 || index > listItem.size() - 1) throw new ItemNotFoundException("Неверное значение индекса.");
-//        listItem.remove(index);
-//    }
-
     /**
      * Получение задачи из журнала по индексу
      *
@@ -253,15 +200,6 @@ public class ServerThread implements Runnable {
     public Task getItem(int index) throws ItemNotFoundException {
         return listItem.get(index);
     }
-
-
-//    public void updateItem(int index, Task item) throws ItemNotFoundException {
-//
-//    }
-
-//    public int size() {
-//        return listTask.size();
-//    }
 
     public void startWork() throws IOException {
 
@@ -295,9 +233,9 @@ public class ServerThread implements Runnable {
         }
     }
 
-//    public void editTask(int index, LocalTime newTime) throws ItemNotFoundException{}
-//
-//    public void editTask(int index, String text) throws ItemNotFoundException{}
-//
-//    public void editTaskDescription(int index, String description) throws ItemNotFoundException{}
+    @Override
+    public void listChanged() {
+        listItem = getItems(); //обновление представления списка задач
+        serverNotifyThread.interrupt();
+    }
 }

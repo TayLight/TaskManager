@@ -77,5 +77,14 @@ public interface Manager<T> {
      */
     void checkUniqueName(String name) throws NameTaskException, IOException;
 
+    /** Метод подписки на обновления
+     * @param subscriber Новый подписчик
+     */
+    void subscribe(ListChangedSubscriber subscriber);
+
+    /**Метод отписки от обновлений
+     */
+    void unsubscribe();
+
 
 }

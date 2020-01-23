@@ -135,7 +135,10 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
         try {
             Request getSizeRequest = new Request("SizeJournalTask", null);
             objectMapper.writeValue(outputStream, getSizeRequest);
-            getSizeRequest = objectMapper.readValue(inputStream, Request.class);
+            while (true){
+                getSizeRequest = objectMapper.readValue(inputStream, Request.class);
+                if (getSizeRequest.getCommand().equals("SizeJournalTask")) break;
+            }
             return (int) getSizeRequest.getData();
         } catch (IOException e) {
             e.printStackTrace();
@@ -160,5 +163,15 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
             e.printStackTrace();
         }
         return null;
+    }
+
+    @Override
+    public void subscribe(ListChangedSubscriber subscriber) {
+
+    }
+
+    @Override
+    public void unsubscribe() {
+
     }
 }

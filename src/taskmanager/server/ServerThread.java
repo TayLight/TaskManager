@@ -111,6 +111,7 @@ public class ServerThread implements Runnable, ListChangedSubscriber {
                                 }
                                 Request reply_at = new Request(message_ai, null);
                                 objectMapper.writeValue((DataOutput) outputStream, reply_at);
+                                listItem = getItems();
                                 break;
                             case DELETE_ITEM:
                                 System.out.println("Запрос принят: удалить задачу.");
@@ -124,6 +125,7 @@ public class ServerThread implements Runnable, ListChangedSubscriber {
                                 }
                                 Request reply_dt = new Request(message_di, null);
                                 objectMapper.writeValue((DataOutput) outputStream, reply_dt);
+                                listItem = getItems();
                                 break;
                             case UPDATE_ITEM:
                                 System.out.println("Запрос принят: редактировать задачу.");
@@ -143,6 +145,7 @@ public class ServerThread implements Runnable, ListChangedSubscriber {
                                 }
                                 Request reply_ui = new Request(message_ui, null);
                                 objectMapper.writeValue((DataOutput) outputStream, reply_ui);
+                                listItem = getItems();
                                 break;
                             case SIZE_JOURNAL:
                                 System.out.println("Запрос принят: размер журнала.");
@@ -235,7 +238,6 @@ public class ServerThread implements Runnable, ListChangedSubscriber {
 
     @Override
     public void listChanged() {
-        listItem = getItems(); //обновление представления списка задач
         serverNotifyThread.interrupt();
     }
 }

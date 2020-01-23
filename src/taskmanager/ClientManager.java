@@ -18,6 +18,9 @@ import java.util.Properties;
  */
 public class ClientManager extends AbstractListModel<Task> implements Manager<Task> {
 
+    /**
+     * Клиентский сокет
+     */
     private Socket socket;
     /**
      * Выходной поток клиента

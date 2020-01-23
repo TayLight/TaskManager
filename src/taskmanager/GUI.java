@@ -15,8 +15,17 @@ import java.awt.event.WindowListener;
 import java.io.IOException;
 
 public class GUI extends JFrame {
-    Task selectedTask;
-    int selectedTaskIndex;
+    /**
+     * Выбранная задача
+     */
+    private Task selectedTask;
+    /**
+     * Индекс выбранной задачи
+     */
+    private int selectedTaskIndex;
+    /**
+     * Переменная, обозначающиая подключение клиента к серверу
+     */
     boolean isConnection = false;
     /**
      * Стандартное разрешение экрана

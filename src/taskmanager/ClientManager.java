@@ -17,6 +17,8 @@ import java.util.Properties;
  * Класс для взаимодействия клиента с сервером
  */
 public class ClientManager extends AbstractListModel<Task> implements Manager<Task> {
+
+    private Socket socket;
     /**
      * Выходной поток клиента
      */
@@ -71,11 +73,6 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
     }
 
     @Override
-    public int size() {
-        return 0;
-    }
-
-    @Override
     public void startWork() throws IOException {
         FileInputStream fileInputStream;
         Properties prop = new Properties();
@@ -100,7 +97,7 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
             try {
                 host = hosts[tryConnection];
                 port = ports[tryConnection];
-                Socket socket = new Socket(host, port);
+                socket = new Socket(host, port);
                 inputStream = new DataInputStream(socket.getInputStream());
                 outputStream = new DataOutputStream(socket.getOutputStream());
                 break;
@@ -112,8 +109,8 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
     }
 
     @Override
-    public void finalWork() {
-
+    public void finalWork() throws IOException {
+        socket.close();
     }
 
     @Override

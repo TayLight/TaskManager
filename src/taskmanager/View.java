@@ -145,7 +145,7 @@ public class View implements TaskChangedSubscriber {
             }
 
             case EDIT_TASK: {//редактировать задачу
-                if (journalTask.size() == 0) {
+                if (journalTask.getSize() == 0) {
                     showMessage("emptyList");
                 } else {
                     boolean isEditCorrect = false;
@@ -281,7 +281,7 @@ public class View implements TaskChangedSubscriber {
                 break;
             }
             case DELETE_TASK: {//удалить задачу
-                if (journalTask.size() == 0) {
+                if (journalTask.getSize() == 0) {
                     showMessage("emptyList");
                 } else {
                     consoleClear();
@@ -340,7 +340,7 @@ public class View implements TaskChangedSubscriber {
                 break;
             }
             case VIEW_JOURNAL: {//вывести список задач
-                if (journalTask.size() == 0) {
+                if (journalTask.getSize() == 0) {
                     showMessage("emptyList");
                 } else {
                     consoleClear();
@@ -362,12 +362,12 @@ public class View implements TaskChangedSubscriber {
      * Вывод на экран списка задач
      */
     private void showTaskList() {
-        if (journalTask.size() == 0) {
+        if (journalTask.getSize() == 0) {
             System.out.println("Журнал задач пуст.\n");
             return;
         }
         try {
-            for (int i = 0; i < journalTask.size(); i++) {
+            for (int i = 0; i < journalTask.getSize(); i++) {
                 if (i < 9) {
                     System.out.println(i + 1 + ".  " + journalTask.getItem(i).toString());
                 } else {

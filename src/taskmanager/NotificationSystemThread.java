@@ -32,7 +32,7 @@ public class NotificationSystemThread implements Runnable {
     public void run() {
         while (true) {
             LocalTime timeNow = LocalTime.of(LocalTime.now().getHour(), LocalTime.now().getMinute(), 0);
-            for (int i = 0; i < journalTask.size(); i++) {
+            for (int i = 0; i < journalTask.getSize(); i++) {
                 Task task = null;
                 try {
                     task = (Task) journalTask.getItem(i);

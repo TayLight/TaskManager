@@ -58,7 +58,6 @@ public class GUI extends JFrame {
      * Надпись статуса сервера
      */
     private JLabel statusLabel;
-    private JButton buttonUpdate;
     /**
      * Менеджер , для работы с сервером
      */
@@ -124,7 +123,7 @@ public class GUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (!isConnection) JOptionPane.showMessageDialog(GUI.this, "Нет соединения с сервером!");
-                 else{
+                else {
                     InputTask inputTask = new InputTask(manager, GUI.this);
                 }
             }
@@ -137,7 +136,7 @@ public class GUI extends JFrame {
                     try {
                         int index = listTask.getSelectedIndex();
                         manager.deleteItem(index);
-                        listTask.updateUI();
+                        updateList();
                     } catch (ItemNotFoundException ex) {
                         JOptionPane.showMessageDialog(GUI.this, "Неверный ввод");
                     } catch (IOException ex) {
@@ -152,15 +151,17 @@ public class GUI extends JFrame {
                 if (!isConnection) JOptionPane.showMessageDialog(GUI.this, "Нет соединения с сервером!");
                 else {
                     selectedTask = (Task) listTask.getSelectedValue();
-                    EditTask editTask = new EditTask(manager,listTask.getSelectedIndex(), selectedTask, GUI.this);
+                    EditTask editTask = new EditTask(manager, listTask.getSelectedIndex(), selectedTask, GUI.this);
                 }
             }
         });
         connectionButton.addActionListener(e -> {
-            if (!isConnection) {
+            try {
+                manager.finalWork();
                 connectToServer();
-            } else JOptionPane.
-                    showMessageDialog(GUI.this, "Соединение уже установлено!");
+            } catch (IOException ex) {
+                connectionLost();
+            }
         });
         exitButton.addActionListener(new ActionListener() {
             @Override
@@ -183,7 +184,6 @@ public class GUI extends JFrame {
                 if (!evt.getValueIsAdjusting()) {
                     selectedTaskIndex = listTask.getSelectedIndex();
                     selectedTask = (Task) listTask.getSelectedValue();
-                    System.out.println(selectedTask.getId());
                 }
             }
         });
@@ -197,13 +197,10 @@ public class GUI extends JFrame {
     /**
      * Метод обновления графического вывода журнала задач
      */
-    public void updateList() throws IOException {
-        try{
-        if (isConnection) {
-            listTask.updateUI();
-        }
-        }catch (IllegalArgumentException e)
-        {
+    public void updateList() {
+        try {
+           listTask.updateUI();
+        } catch (IllegalArgumentException e) {
             connectToServer();
         }
     }
@@ -237,23 +234,23 @@ public class GUI extends JFrame {
     /**
      * Метод переподключения клиента к серверу
      */
-    public void connectToServer(){
+    public void connectToServer() {
         ConnectionFrame connectionFrame = new ConnectionFrame();
-        try
-        {
+        try {
             statusLabel.setText("Подключение");
             manager.startWork();
             listTask.setModel((ListModel) manager);
-            isConnection=true;
+            isConnection = true;
             statusLabel.setText("Сервер онлайн");
             connectionFrame.setVisible(false);
             connectionFrame.dispose();
+            updateList();
             GUI.this.setFocusable(true);
-            listTask.updateUI();
         } catch (IOException e) {
             connectionLost();
             connectionFrame.setVisible(false);
             connectionFrame.dispose();
+            GUI.this.setFocusable(true);
         }
     }
 }

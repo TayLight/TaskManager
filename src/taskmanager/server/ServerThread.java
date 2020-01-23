@@ -140,7 +140,7 @@ public class ServerThread implements Runnable {
                                 break;
                             case SIZE_JOURNAL:
                                 System.out.println("Запрос принят: размер журнала.");
-                                Request reply_sj = new Request("SizeJournalTask", journalTask.size());
+                                Request reply_sj = new Request("SizeJournalTask", journalTask.getSize());
                                 try {
                                     objectMapper.writeValue((DataOutput) outputStream, reply_sj);
                                 } catch (IOException ex) {
@@ -163,7 +163,7 @@ public class ServerThread implements Runnable {
                                 try {
                                     while (true) {
                                         LocalTime timeNow = LocalTime.of(LocalTime.now().getHour(), LocalTime.now().getMinute(), 0);
-                                        for (int i = 0; i < journalTask.size(); i++) {
+                                        for (int i = 0; i < journalTask.getSize(); i++) {
                                             Task task = null;
                                             try {
                                                 task = (Task) journalTask.getItem(i);
@@ -204,7 +204,7 @@ public class ServerThread implements Runnable {
      */
     public LinkedList<Task> getItems() {
         LinkedList<Task> listTask = new LinkedList<Task>();
-        for (int i = 0; i < journalTask.size(); i++) {
+        for (int i = 0; i < journalTask.getSize(); i++) {
             try {
                 listTask.addLast((Task) journalTask.getItem(i));
             } catch (ItemNotFoundException ex) {

@@ -49,7 +49,7 @@ public interface Manager<T> {
      *
      * @return Возвращает размером журнала задач
      */
-    int size();
+    int getSize();
 
     /**
      * метод начала работы

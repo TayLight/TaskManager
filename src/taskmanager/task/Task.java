@@ -78,7 +78,7 @@ public class Task implements Serializable {
         this.time = time;
         this.description = description;
         relevance = true;
-        id = time.getHour()*31+time.getMinute()*(-31);
+        id = (int) ((time.getHour()*31+time.getMinute()*(-31))*Math.random());
     }
 
     public Task(String name, String description, LocalTime time, boolean relevance) {
@@ -86,7 +86,7 @@ public class Task implements Serializable {
         this.time = time;
         this.description = description;
         this.relevance=relevance;
-        id = time.getHour()*31+time.getMinute()*(-31);
+        id = (int) ((time.getHour()*32+time.getMinute()*(-31))*Math.random());
     }
 
     public Task() {

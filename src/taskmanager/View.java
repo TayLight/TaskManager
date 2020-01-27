@@ -256,7 +256,7 @@ public class View implements TaskChangedSubscriber {
                                         try {
                                             journalTask.updateItem(index, (Task) tempTask);
                                             journalTask.finalWork();
-                                        } catch (ItemNotFoundException | IOException ex) {
+                                        } catch (ItemNotFoundException | IOException | NameTaskException ex) {
                                             //ItemNotFound никогда не возникнет, т.к. индекс уже проверялся на принадлежность
                                             //диапазону в методе getItem
                                         }
@@ -267,7 +267,7 @@ public class View implements TaskChangedSubscriber {
                                     if (isTaskEdited) {
                                         try {
                                             journalTask.updateItem(index, (Task) tempTask);
-                                        } catch (ItemNotFoundException | IOException ex) {
+                                        } catch (ItemNotFoundException | IOException | NameTaskException ex) {
                                             //ItemNotFound никогда не возникнет
                                         }
                                     }
@@ -429,13 +429,8 @@ public class View implements TaskChangedSubscriber {
         System.out.println("\nЗадача " + task.getName() + " успешно добавлена.");
     }
 
-    /**
-     * Метод оповещающий пользователя об изменении задачи
-     *
-     * @param task Измененная задача
-     */
     @Override
-    public void taskEdited(Task task) {
+    public void taskUpdated(Task task) {
         System.out.println("\nЗадача " + task.getName() + " успешно изменена.");
     }
 }

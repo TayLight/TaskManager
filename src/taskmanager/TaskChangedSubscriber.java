@@ -26,5 +26,5 @@ public interface TaskChangedSubscriber {
      *
      * @param task Измененная задача
      */
-    void taskEdited(Task task);
+    void taskUpdated(Task task);
 }

@@ -42,7 +42,7 @@ public interface Manager<T> {
      * @param item  задача
      * @throws ItemNotFoundException задача не найдена
      */
-    void updateItem(int index, T item) throws ItemNotFoundException, IOException;
+    void updateItem(int index, T item) throws ItemNotFoundException, IOException, NameTaskException;
 
     /**
      * Метод, возвращающий размер журнала задача

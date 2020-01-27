@@ -15,7 +15,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.IOException;
 
-public class GUI extends JFrame implements NotificationSubscriber{
+public class GUI extends JFrame implements ListChangedSubscriber{
     /**
      * Выбранная задача
      */
@@ -267,7 +267,7 @@ public class GUI extends JFrame implements NotificationSubscriber{
     }
 
     @Override
-    public void processNotification(Request notification) {
-
+    public void listChanged() {
+        listTask.updateUI();
     }
 }

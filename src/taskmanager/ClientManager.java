@@ -16,8 +16,9 @@ import java.util.Properties;
 /**
  * Класс для взаимодействия клиента с сервером
  */
-public class ClientManager extends AbstractListModel<Task> implements Manager<Task>, NotificationSubscription {
-
+public class ClientManager extends AbstractListModel<Task> implements Manager<Task>, NotificationSubscriber, ListChangedSubscription {
+    private ListChangedSubscriber subscriber;
+    private List<Task> tasks;
     /**
      * Клиентский сокет
      */
@@ -47,10 +48,9 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
 
     @Override
     public void addItem(Task newItem) throws NameTaskException, IOException {
+        checkUniqueName(newItem.getName());
         Request addItemRequest = new Request("AddItem", newItem);
         objectMapper.writeValue(outputStream, addItemRequest);
-        addItemRequest = objectMapper.readValue(inputStream, Request.class);
-        if (addItemRequest.getCommand().equals("Error")) throw new NameTaskException("Неверное имя");
     }
 
     @Override
@@ -67,12 +67,10 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
     }
 
     @Override
-    public void updateItem(int index, Task item) throws IOException, ItemNotFoundException {
+    public void updateItem(int index, Task item) throws IOException, NameTaskException {
+        checkUniqueName(item.getName());
         Request updateItemRequest = new Request("UpdateItem" + index, item);
         objectMapper.writeValue(outputStream, updateItemRequest);
-        updateItemRequest = objectMapper.readValue(inputStream, Request.class);
-        if (updateItemRequest.getCommand().equals("Error")) throw new ItemNotFoundException("Неверный индекс");
-
     }
 
     @Override
@@ -103,6 +101,8 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
                 socket = new Socket(host, port);
                 inputStream = new DataInputStream(socket.getInputStream());
                 outputStream = new DataOutputStream(socket.getOutputStream());
+                ClientThread clientThread = new ClientThread((InputStream) inputStream);
+                clientThread.start();
                 break;
             } catch (IOException e) {
                 tryConnection++;
@@ -123,46 +123,8 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
 
 
     @Override
-    public void checkUniqueName(String name) {
-
-    }
-
-    /**
-     * @return возвращает размер журнала задач
-     */
-    @Override
-    public int getSize() {
-        try {
-            Request getSizeRequest = new Request("SizeJournalTask", null);
-            objectMapper.writeValue(outputStream, getSizeRequest);
-            while (true){
-                getSizeRequest = objectMapper.readValue(inputStream, Request.class);
-                if (getSizeRequest.getCommand().equals("SizeJournalTask")) break;
-            }
-            return (int) getSizeRequest.getData();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return 0;
-        } catch (IllegalArgumentException e) {
-            return 0;
-        }
-    }
-
-    /**
-     * @param index индекс необходимого параметра
-     * @return возвращает задачу, с нужным индексом
-     */
-    @Override
-    public Task getElementAt(int index) {
-        try {
-            Request getItemRequest = new Request("GetItem", index);
-            objectMapper.writeValue(outputStream, getItemRequest);
-            getItemRequest = objectMapper.readValue(inputStream, Request.class);
-            return objectMapper.convertValue(getItemRequest.getData(), Task.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+    public void checkUniqueName(String name) throws NameTaskException {
+        for (Task task : tasks) if (task.getName().equals(name)) throw new NameTaskException("Такое имя уже есть");
     }
 
     @Override
@@ -171,12 +133,60 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
     }
 
     @Override
-    public void unsubscribe() {
-
+    public void subscribeGUI(ListChangedSubscriber subscriber) {
+        this.subscriber=subscriber;
     }
 
     @Override
-    public void subscribe(NotificationSubscriber subscriber) {
+    public void unsubscribe() {
+        subscriber = null;
+    }
 
+    /**
+     * @return возвращает размер журнала задач
+     */
+    @Override
+    public int getSize() {
+       return tasks.size();
+    }
+
+    /**
+     * @param index индекс необходимого параметра
+     * @return возвращает задачу, с нужным индексом
+     */
+    @Override
+    public Task getElementAt(int index) {
+        return tasks.get(index);
+    }
+
+
+    @Override
+    public void taskDeleted(int index) {
+        tasks.remove(index);
+        subscriber.listChanged();
+    }
+
+    @Override
+    public void taskAdded(Task task) {
+        tasks.add(task);
+        subscriber.listChanged();
+    }
+
+    @Override
+    public void taskUpdated(int index, Task task) {
+        tasks.set(index,task);
+        subscriber.listChanged();
+    }
+
+    @Override
+    public void newJournalTask(List<Task> taskList) {
+        tasks=taskList;
+        subscriber.listChanged();
+    }
+
+    @Override
+    public void notifyTask(int index) {
+        tasks.get(index).setRelevance(false);
+        subscriber.listChanged();
     }
 }

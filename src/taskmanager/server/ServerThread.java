@@ -142,6 +142,8 @@ public class ServerThread implements Runnable, ListChangedSubscriber {
                                     message_ui = "Error";
                                 } catch (IOException ex) {
                                     ex.printStackTrace();
+                                } catch (NameTaskException e) {
+                                    e.printStackTrace();
                                 }
                                 Request reply_ui = new Request(message_ui, null);
                                 objectMapper.writeValue((DataOutput) outputStream, reply_ui);

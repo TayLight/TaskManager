@@ -1,6 +1,7 @@
 package taskmanager;
 
 import taskmanager.exceptions.ItemNotFoundException;
+import taskmanager.requests.Request;
 import taskmanager.task.Task;
 
 import javax.swing.*;
@@ -14,7 +15,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.IOException;
 
-public class GUI extends JFrame {
+public class GUI extends JFrame implements NotificationSubscriber{
     /**
      * Выбранная задача
      */
@@ -196,11 +197,13 @@ public class GUI extends JFrame {
                 }
             }
         });
+        listTask.updateUI();
     }
 
     public static void main(String[] argv) {
-        Manager manager = new ClientManager();
+        ClientManager manager = new ClientManager();
         GUI gui = new GUI(manager);
+        manager.subscribe(gui);
     }
 
     /**
@@ -261,5 +264,10 @@ public class GUI extends JFrame {
             connectionFrame.dispose();
             GUI.this.setFocusable(true);
         }
+    }
+
+    @Override
+    public void processNotification(Request notification) {
+
     }
 }

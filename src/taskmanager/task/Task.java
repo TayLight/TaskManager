@@ -128,12 +128,6 @@ public class Task implements Serializable {
         return task.toString();
     }
 
-    @Override
-    protected Object clone() throws CloneNotSupportedException {
-        Task task = (Task) super.clone();
-        return task;
-    }
-
     /**
      * Установка актуальности задачи
      *

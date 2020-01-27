@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import taskmanager.ListChangedSubscriber;
 import taskmanager.Manager;
+import taskmanager.TaskChangedSubscriber;
 import taskmanager.exceptions.ItemNotFoundException;
 import taskmanager.exceptions.NameTaskException;
 import taskmanager.requests.*;
@@ -11,6 +12,7 @@ import taskmanager.task.Task;
 
 import java.io.*;
 import java.net.Socket;
+import java.time.LocalTime;
 import java.util.LinkedList;
 
 public class ServerThread implements Runnable, ListChangedSubscriber {
@@ -83,11 +85,10 @@ public class ServerThread implements Runnable, ListChangedSubscriber {
             serverNotifyThread = new Thread(run);
             serverNotifyThread.start();
             while (true) {
-                listItem = getItems();
                 Request inputRequest = null;
                 try {
                     inputRequest = objectMapper.readValue((DataInput) inputStream, Request.class);
-                    //System.out.println(inputRequest.getCommand());
+                    System.out.println(inputRequest.getCommand());
                 } catch (IOException ex) {
                     finalWork();
                     System.out.println("Серверная нить закрыта.");
@@ -110,6 +111,7 @@ public class ServerThread implements Runnable, ListChangedSubscriber {
                                 }
                                 Request reply_at = new Request(message_ai, null);
                                 objectMapper.writeValue((DataOutput) outputStream, reply_at);
+                                listItem = getItems();
                                 break;
                             case DELETE_ITEM:
                                 System.out.println("Запрос принят: удалить задачу.");
@@ -123,6 +125,7 @@ public class ServerThread implements Runnable, ListChangedSubscriber {
                                 }
                                 Request reply_dt = new Request(message_di, null);
                                 objectMapper.writeValue((DataOutput) outputStream, reply_dt);
+                                listItem = getItems();
                                 break;
                             case UPDATE_ITEM:
                                 System.out.println("Запрос принят: редактировать задачу.");
@@ -142,10 +145,11 @@ public class ServerThread implements Runnable, ListChangedSubscriber {
                                 }
                                 Request reply_ui = new Request(message_ui, null);
                                 objectMapper.writeValue((DataOutput) outputStream, reply_ui);
+                                listItem = getItems();
                                 break;
                             case SIZE_JOURNAL:
-                                //System.out.println("Запрос принят: размер журнала.");
-                                Request reply_sj = new Request("SizeJournalTask", journalTask.size());
+                                System.out.println("Запрос принят: размер журнала.");
+                                Request reply_sj = new Request("SizeJournalTask", journalTask.getSize());
                                 try {
                                     objectMapper.writeValue((DataOutput) outputStream, reply_sj);
                                 } catch (IOException ex) {
@@ -153,7 +157,7 @@ public class ServerThread implements Runnable, ListChangedSubscriber {
                                 }
                                 break;
                             case GET_ITEM:
-                                //System.out.println("Запрос принят: получить задачу.");
+                                System.out.println("Запрос принят: получить задачу.");
                                 Task item = null;
                                 try {
                                     item = getItem((int) inputRequest.getData());
@@ -179,7 +183,7 @@ public class ServerThread implements Runnable, ListChangedSubscriber {
      */
     public LinkedList<Task> getItems() {
         LinkedList<Task> listTask = new LinkedList<Task>();
-        for (int i = 0; i < journalTask.size(); i++) {
+        for (int i = 0; i < journalTask.getSize(); i++) {
             try {
                 listTask.addLast((Task) journalTask.getItem(i));
             } catch (ItemNotFoundException ex) {
@@ -200,6 +204,10 @@ public class ServerThread implements Runnable, ListChangedSubscriber {
         return listItem.get(index);
     }
 
+    public void startWork() throws IOException {
+
+    }
+
     /**
      * Завершение работы серверной нити
      */
@@ -214,6 +222,7 @@ public class ServerThread implements Runnable, ListChangedSubscriber {
         }
     }
 
+
     /**
      * Проверка имени на уникальность
      *
@@ -227,9 +236,6 @@ public class ServerThread implements Runnable, ListChangedSubscriber {
         }
     }
 
-    /**
-     * Метод, оповещающий об изменении списка задач
-     */
     @Override
     public void listChanged() {
         serverNotifyThread.interrupt();

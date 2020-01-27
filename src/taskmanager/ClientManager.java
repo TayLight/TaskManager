@@ -16,7 +16,7 @@ import java.util.Properties;
 /**
  * Класс для взаимодействия клиента с сервером
  */
-public class ClientManager extends AbstractListModel<Task> implements Manager<Task> {
+public class ClientManager extends AbstractListModel<Task> implements Manager<Task>, NotificationSubscription {
 
     /**
      * Клиентский сокет
@@ -172,6 +172,11 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
 
     @Override
     public void unsubscribe() {
+
+    }
+
+    @Override
+    public void subscribe(NotificationSubscriber subscriber) {
 
     }
 }

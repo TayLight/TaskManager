@@ -5,20 +5,20 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import taskmanager.task.Task;
 
 import java.util.LinkedList;
+import java.util.List;
 
-@JsonAutoDetect
+
 public class JournalForSave {
-    @JsonDeserialize(as = LinkedList.class)
-    private LinkedList<Task> journalTask;
+    private List<Task> journalTask;
 
     public JournalForSave() {
     }
 
-    public JournalForSave(LinkedList<Task> journalTask) {
+    public JournalForSave(List<Task> journalTask) {
         this.journalTask = journalTask;
     }
 
-    public LinkedList getJournalTask() {
+    public List<Task> getJournalTask() {
         return journalTask;
     }
 }

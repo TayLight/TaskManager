@@ -11,6 +11,7 @@ import taskmanager.exceptions.ItemNotFoundException;
 import taskmanager.exceptions.NameTaskException;
 
 import java.io.*;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -27,7 +28,7 @@ public class JournalTask<T> implements Manager<Task>, Serializable {
     /**
      * Список задач
      */
-    private LinkedList<Task> tasks;
+    private List<Task> tasks;
     /**
      * Подписчик на обновления
      */
@@ -66,7 +67,7 @@ public class JournalTask<T> implements Manager<Task>, Serializable {
         try {
             File fileJournalTask = new File(pathToJournalTask);
             JournalForSave journal = objectMapper.readValue(fileJournalTask, JournalForSave.class);
-            tasks = (LinkedList<Task>) journal.getJournalTask();
+            tasks = journal.getJournalTask();
         } catch (FileNotFoundException e) {
             File newFile = new File(pathToJournalTask);
             newFile.createNewFile();
@@ -96,7 +97,7 @@ public class JournalTask<T> implements Manager<Task>, Serializable {
 
     @Override
     public void addItem(Task newItem) throws NameTaskException {
-        tasks.addLast(newItem);
+        tasks.add(newItem);
         subscriber.listChanged();
     }
 
@@ -108,7 +109,7 @@ public class JournalTask<T> implements Manager<Task>, Serializable {
 
     @Override
     public List<Task> getItems() {
-        return (List<Task>) tasks.clone();
+        return Collections.unmodifiableList(tasks);
     }
 
 

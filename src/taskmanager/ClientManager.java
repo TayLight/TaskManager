@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import taskmanager.exceptions.ItemNotFoundException;
 import taskmanager.exceptions.NameTaskException;
-import taskmanager.requests.*;
+import taskmanager.requests.Request;
 import taskmanager.task.Task;
 
 import javax.swing.*;
@@ -134,7 +134,7 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
 
     @Override
     public void subscribeGUI(ListChangedSubscriber subscriber) {
-        this.subscriber=subscriber;
+        this.subscriber = subscriber;
     }
 
     @Override
@@ -147,7 +147,9 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
      */
     @Override
     public int getSize() {
-       return tasks.size();
+        if (tasks != null)
+            return tasks.size();
+        else return 0;
     }
 
     /**
@@ -174,13 +176,13 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
 
     @Override
     public void taskUpdated(int index, Task task) {
-        tasks.set(index,task);
+        tasks.set(index, task);
         subscriber.listChanged();
     }
 
     @Override
     public void newJournalTask(List<Task> taskList) {
-        tasks=taskList;
+        tasks = taskList;
         subscriber.listChanged();
     }
 

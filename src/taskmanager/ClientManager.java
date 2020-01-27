@@ -28,10 +28,6 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
      */
     private DataOutput outputStream;
     /**
-     * Входной поток клиента
-     */
-    private DataInput inputStream;
-    /**
      * Маппер для преобразования JSON
      */
     private ObjectMapper objectMapper;
@@ -57,8 +53,6 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
     public void deleteItem(int index) throws IOException, ItemNotFoundException {
         Request deleteItemRequest = new Request("DeleteItem", index);
         objectMapper.writeValue(outputStream, deleteItemRequest);
-        deleteItemRequest = objectMapper.readValue(inputStream, Request.class);
-        if (deleteItemRequest.getCommand().equals("Error")) throw new ItemNotFoundException("Неверный индекс");
     }
 
     @Override
@@ -99,7 +93,7 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
                 host = hosts[tryConnection];
                 port = ports[tryConnection];
                 socket = new Socket(host, port);
-                inputStream = new DataInputStream(socket.getInputStream());
+                DataInput inputStream = new DataInputStream(socket.getInputStream());
                 outputStream = new DataOutputStream(socket.getOutputStream());
                 ClientThread clientThread = new ClientThread((InputStream) inputStream);
                 clientThread.start();

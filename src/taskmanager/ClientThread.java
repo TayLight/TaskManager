@@ -8,6 +8,8 @@ import taskmanager.requests.Request;
 import taskmanager.task.Task;
 
 import java.io.*;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 public class ClientThread extends Thread implements NotificationSubscription {
@@ -44,15 +46,17 @@ public class ClientThread extends Thread implements NotificationSubscription {
         Request request;
         try {
             while (true) {
-                request = objectMapper.readValue((DataInput)inputStream, Request.class);
-                for (Message msg: Message.values()){
-                    if(request.getCommand().equals(msg)){
-                        switch (msg){
+                request = objectMapper.readValue((DataInput) inputStream, Request.class);
+                System.out.println(request.getCommand()); //чисто проверка работоспособности
+                for (Message msg : Message.values()) {
+                    if (request.getCommand().contains(msg.message)) { //а не contains ли вместо equals? TODO
+                        switch (msg) {
                             case ADD_ITEM:
-                                subscriber.taskAdded((Task) request.getData());
+                                Task addedTask = objectMapper.convertValue(request.getData(), Task.class);
+                                subscriber.taskAdded(addedTask);
                                 break;
                             case DELETE_ITEM:
-                                subscriber.taskDeleted((Integer) request.getData());
+                                subscriber.taskDeleted((int) request.getData());
                                 break;
                             case UPDATE_ITEM:
                                 StringBuilder sbIndex = new StringBuilder();
@@ -60,13 +64,21 @@ public class ClientThread extends Thread implements NotificationSubscription {
                                     sbIndex.append(request.getCommand().toCharArray()[i]);
                                 }
                                 int index = Integer.parseInt(sbIndex.toString());
-                                subscriber.taskUpdated(index, (Task) request.getData());
+                                subscriber.taskUpdated(index, objectMapper.convertValue(request.getData(), Task.class));
                                 break;
                             case JOURNAL_TASK:
-                                subscriber.newJournalTask((List<Task>) request.getData());
+                                //возможно можно придумать что-то поумнее, но по крайней мере это рабочий вариант TODO
+                                Task[] tasks = objectMapper.convertValue(request.getData(), Task[].class);
+                                List<Task> taskList = new LinkedList<>(Arrays.asList(tasks));
+                                subscriber.newJournalTask(taskList);
                                 break;
                             case NOTIFY:
-                                subscriber.notifyTask((Integer) request.getData());
+                                StringBuilder sbNotifyIndex = new StringBuilder();
+                                for (int i = 6; i < request.getCommand().toCharArray().length; i++) {
+                                    sbNotifyIndex.append(request.getCommand().toCharArray()[i]);
+                                }
+                                int notifyIndex = Integer.parseInt(sbNotifyIndex.toString());
+                                subscriber.notifyTask(notifyIndex);
                                 break;
                         }
                     }
@@ -88,6 +100,6 @@ public class ClientThread extends Thread implements NotificationSubscription {
 
     @Override
     public void unsubscribe() {
-        this.subscriber=null;
+        this.subscriber = null;
     }
 }

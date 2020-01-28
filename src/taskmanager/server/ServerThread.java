@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import taskmanager.ListChangedSubscriber;
 import taskmanager.Manager;
-import taskmanager.TaskChangedSubscriber;
+import taskmanager.NotificationSubscriber;
 import taskmanager.exceptions.ItemNotFoundException;
 import taskmanager.exceptions.NameTaskException;
 import taskmanager.requests.*;
@@ -12,10 +12,10 @@ import taskmanager.task.Task;
 
 import java.io.*;
 import java.net.Socket;
-import java.time.LocalTime;
 import java.util.LinkedList;
+import java.util.List;
 
-public class ServerThread implements Runnable, ListChangedSubscriber {
+public class ServerThread extends Thread implements ListChangedSubscriber, NotificationSubscriber {
     /**
      * сокет для общения
      */
@@ -29,6 +29,8 @@ public class ServerThread implements Runnable, ListChangedSubscriber {
      */
     private DataOutputStream outputStream;
 
+    private ObjectMapper objectMapper;
+
     /**
      * управление журналом задач
      */
@@ -37,12 +39,52 @@ public class ServerThread implements Runnable, ListChangedSubscriber {
     /**
      * журнал задач
      */
-    LinkedList<Task> listItem;
+    private LinkedList<Task> listItem;
 
     private Thread serverNotifyThread;
 
+    @Override
+    public void taskDeleted(int index) {
+        for (ServerThread st : ServerStarter.clientList) {
+            st.send("DeleteItem", index);
+        }
+    }
+
+    @Override
+    public void taskAdded(Task task) {
+        for (ServerThread st : ServerStarter.clientList) {
+            st.send("AddItem", task);
+        }
+    }
+
+    @Override
+    public void taskUpdated(int index, Task task) {
+        for (ServerThread st : ServerStarter.clientList) {
+            st.send("UpdateItem" + index, task);
+        }
+    }
+
+    @Override
+    public void newJournalTask(List<Task> taskList) {
+
+    }
+
+    @Override
+    public void notifyTask(int index) {
+
+    }
+
+    public void send(String command, Object data) {
+        Request request = new Request(command, data);
+        try {
+            objectMapper.writeValue((DataOutput) outputStream, request);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
     enum Message {
-        LOAD_JOURNAL_TASK("LoadJournalTask"),
+        JOURNAL_TASK("JournalTask"),
         ADD_ITEM("AddItem"),
         DELETE_ITEM("DeleteItem"),
         UPDATE_ITEM("UpdateItem"),
@@ -67,7 +109,7 @@ public class ServerThread implements Runnable, ListChangedSubscriber {
         this.journalTask = journalTask;
         inputStream = new DataInputStream(clientSocket.getInputStream());
         outputStream = new DataOutputStream(clientSocket.getOutputStream());
-
+        start();
     }
 
     /**
@@ -77,13 +119,20 @@ public class ServerThread implements Runnable, ListChangedSubscriber {
     public void run() {
         System.out.println("Серверная нить запущена.");
         listItem = getItems();
-        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
-        journalTask.subscribe(this);
+
+        //TODO оба этих варианта подписки скорее всего нужно будет объединить в один (тот, в котором идет подписка на конкретные изменения журнала)
+        journalTask.subscribe(this); //подписка ПРОСТО на изменение списка задач для дальнейшего перерасчета времени засыпания
+                                                //потока оповещений
+        journalTask.notificationSubscribe(this); //подписка на конкретные изменения списка задач (добавление/удаление/
+                                                                    //редактирование) для рассылки реквестов для всех клиентов
         try {
-            Runnable run = new ServerNotifyThread(clientSocket, journalTask);
+            Runnable run = new ServerNotifyThread(journalTask);
             serverNotifyThread = new Thread(run);
             serverNotifyThread.start();
+            Request journalTaskRequest = new Request("JournalTask", listItem);
+            objectMapper.writeValue((DataOutput) outputStream, journalTaskRequest);
             while (true) {
                 Request inputRequest = null;
                 try {
@@ -99,37 +148,25 @@ public class ServerThread implements Runnable, ListChangedSubscriber {
                         switch (msg) {
                             case ADD_ITEM:
                                 System.out.println("Запрос принят: добавить задачу.");
-                                String message_ai = "Ok";
                                 Task newTask = objectMapper.convertValue(inputRequest.getData(), Task.class);
                                 try {
-                                    checkUniqueName(newTask.getName());
                                     journalTask.addItem(newTask);
-                                } catch (NameTaskException ex) {
-                                    message_ai = "Error";
-                                } catch (IOException ex) {
+                                } catch (NameTaskException | IOException ex) {
                                     ex.printStackTrace();
                                 }
-                                Request reply_at = new Request(message_ai, null);
-                                objectMapper.writeValue((DataOutput) outputStream, reply_at);
                                 listItem = getItems();
                                 break;
                             case DELETE_ITEM:
                                 System.out.println("Запрос принят: удалить задачу.");
-                                String message_di = "Ok";
                                 try {
                                     journalTask.deleteItem((int) inputRequest.getData());
-                                } catch (ItemNotFoundException ex) {
-                                    message_di = "Error";
-                                } catch (IOException ex) {
+                                } catch (ItemNotFoundException | IOException ex) {
                                     ex.printStackTrace();
                                 }
-                                Request reply_dt = new Request(message_di, null);
-                                objectMapper.writeValue((DataOutput) outputStream, reply_dt);
                                 listItem = getItems();
                                 break;
                             case UPDATE_ITEM:
                                 System.out.println("Запрос принят: редактировать задачу.");
-                                String message_ui = "Ok";
                                 StringBuilder sbIndex = new StringBuilder();
                                 for (int i = 10; i < inputRequest.getCommand().toCharArray().length; i++) {
                                     sbIndex.append(inputRequest.getCommand().toCharArray()[i]);
@@ -138,37 +175,31 @@ public class ServerThread implements Runnable, ListChangedSubscriber {
                                 Task newItem = objectMapper.convertValue(inputRequest.getData(), Task.class);
                                 try {
                                     journalTask.updateItem(index, newItem);
-                                } catch (ItemNotFoundException ex) {
-                                    message_ui = "Error";
-                                } catch (IOException ex) {
+                                } catch (ItemNotFoundException | NameTaskException | IOException ex) {
                                     ex.printStackTrace();
-                                } catch (NameTaskException e) {
-                                    e.printStackTrace();
                                 }
-                                Request reply_ui = new Request(message_ui, null);
-                                objectMapper.writeValue((DataOutput) outputStream, reply_ui);
                                 listItem = getItems();
                                 break;
-                            case SIZE_JOURNAL:
-                                System.out.println("Запрос принят: размер журнала.");
-                                Request reply_sj = new Request("SizeJournalTask", journalTask.getSize());
-                                try {
-                                    objectMapper.writeValue((DataOutput) outputStream, reply_sj);
-                                } catch (IOException ex) {
-                                    ex.printStackTrace();
-                                }
-                                break;
-                            case GET_ITEM:
-                                System.out.println("Запрос принят: получить задачу.");
-                                Task item = null;
-                                try {
-                                    item = getItem((int) inputRequest.getData());
-                                } catch (ItemNotFoundException ex) {
-                                    ex.printStackTrace();
-                                }
-                                Request reply_gt = new Request("GetItem", item);
-                                objectMapper.writeValue((DataOutput) outputStream, reply_gt);
-                                break;
+//                            case SIZE_JOURNAL:
+//                                System.out.println("Запрос принят: размер журнала.");
+//                                Request reply_sj = new Request("SizeJournalTask", journalTask.getSize());
+//                                try {
+//                                    objectMapper.writeValue((DataOutput) outputStream, reply_sj);
+//                                } catch (IOException ex) {
+//                                    ex.printStackTrace();
+//                                }
+//                                break;
+//                            case GET_ITEM:
+//                                System.out.println("Запрос принят: получить задачу.");
+//                                Task item = null;
+//                                try {
+//                                    item = getItem((int) inputRequest.getData());
+//                                } catch (ItemNotFoundException ex) {
+//                                    ex.printStackTrace();
+//                                }
+//                                Request reply_gt = new Request("GetItem", item);
+//                                objectMapper.writeValue((DataOutput) outputStream, reply_gt);
+//                                break;
                         }
                     }
                 }
@@ -195,26 +226,27 @@ public class ServerThread implements Runnable, ListChangedSubscriber {
         return listTask;
     }
 
-    /**
-     * Получение задачи из журнала по индексу
-     *
-     * @param index индекс задачи в журнале задач
-     * @return задача, соответствующая введенному индексу
-     * @throws ItemNotFoundException Неверное значение индекса
-     */
-    public Task getItem(int index) throws ItemNotFoundException {
-        return listItem.get(index);
-    }
+//    /**
+//     * Получение задачи из журнала по индексу
+//     *
+//     * @param index индекс задачи в журнале задач
+//     * @return задача, соответствующая введенному индексу
+//     * @throws ItemNotFoundException Неверное значение индекса
+//     */
+//    public Task getItem(int index) throws ItemNotFoundException {
+//        return listItem.get(index);
+//    }
 
-    public void startWork() throws IOException {
-
-    }
+//    public void startWork() throws IOException {
+//
+//    }
 
     /**
      * Завершение работы серверной нити
      */
     public void finalWork() {
         try {
+            ServerStarter.clientList.remove(this);
             clientSocket.close();
             journalTask.finalWork();
             inputStream.close();
@@ -225,18 +257,18 @@ public class ServerThread implements Runnable, ListChangedSubscriber {
     }
 
 
-    /**
-     * Проверка имени на уникальность
-     *
-     * @param name Имя задачи для проверки
-     * @throws NameTaskException Задача с таким именем уже существует
-     * @throws IOException       Ошибка потоков
-     */
-    public void checkUniqueName(String name) throws NameTaskException, IOException {
-        for (Task task : listItem) {
-            if (task.getName().equals(name)) throw new NameTaskException("Задача с таким именем уже существует.");
-        }
-    }
+//    /**
+//     * Проверка имени на уникальность
+//     *
+//     * @param name Имя задачи для проверки
+//     * @throws NameTaskException Задача с таким именем уже существует
+//     * @throws IOException       Ошибка потоков
+//     */
+//    public void checkUniqueName(String name) throws NameTaskException, IOException {
+//        for (Task task : listItem) {
+//            if (task.getName().equals(name)) throw new NameTaskException("Задача с таким именем уже существует.");
+//        }
+//    }
 
     @Override
     public void listChanged() {

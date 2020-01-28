@@ -3,10 +3,7 @@ package taskmanager.task;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import taskmanager.JournalForSave;
-import taskmanager.ListChangedSubscriber;
-import taskmanager.Manager;
-import taskmanager.TaskChangedSubscriber;
+import taskmanager.*;
 import taskmanager.exceptions.ItemNotFoundException;
 import taskmanager.exceptions.NameTaskException;
 
@@ -33,6 +30,8 @@ public class JournalTask<T> implements Manager<Task>, Serializable {
      * Подписчик на обновления
      */
     private ListChangedSubscriber subscriber = null;
+
+    private NotificationSubscriber notificationSubscriber = null;
 
     /**
      * Конструктор, создающий журнал задач
@@ -92,6 +91,7 @@ public class JournalTask<T> implements Manager<Task>, Serializable {
         checkIndexOnBound(index);
         tasks.set(index, item);
         subscriber.listChanged();
+        notificationSubscriber.taskUpdated(index, item);
     }
 
 
@@ -99,12 +99,14 @@ public class JournalTask<T> implements Manager<Task>, Serializable {
     public void addItem(Task newItem) throws NameTaskException {
         tasks.add(newItem);
         subscriber.listChanged();
+        notificationSubscriber.taskAdded(newItem);
     }
 
     public void deleteItem(int index) throws ItemNotFoundException {
         Task tempTask = tasks.get(index);
         tasks.remove(index);
         subscriber.listChanged();
+        notificationSubscriber.taskDeleted(index);
     }
 
     @Override
@@ -140,6 +142,11 @@ public class JournalTask<T> implements Manager<Task>, Serializable {
      */
     public void subscribe(ListChangedSubscriber subscriber)  {
         this.subscriber = subscriber;
+    }
+
+    @Override
+    public void notificationSubscribe(NotificationSubscriber notificationSubscriber) {
+        this.notificationSubscriber = notificationSubscriber;
     }
 
     /**Метод отписки от обновлений

@@ -61,8 +61,7 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
     }
 
     @Override
-    public void updateItem(int index, Task item) throws IOException, NameTaskException {
-        checkUniqueName(item.getName());
+    public void updateItem(int index, Task item) throws IOException {
         Request updateItemRequest = new Request("UpdateItem" + index, item);
         objectMapper.writeValue(outputStream, updateItemRequest);
     }
@@ -96,6 +95,7 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
                 DataInput inputStream = new DataInputStream(socket.getInputStream());
                 outputStream = new DataOutputStream(socket.getOutputStream());
                 ClientThread clientThread = new ClientThread((InputStream) inputStream);
+                clientThread.subscribe(this); //ClientManager - подписчик ClientThread
                 clientThread.start();
                 break;
             } catch (IOException e) {
@@ -123,6 +123,11 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
 
     @Override
     public void subscribe(ListChangedSubscriber subscriber) {
+        this.subscriber = subscriber;
+    }
+
+    @Override
+    public void notificationSubscribe(NotificationSubscriber notificationSubscriber) {
 
     }
 

@@ -71,14 +71,15 @@ public class GUI extends JFrame implements ListChangedSubscriber{
     /**
      * Менеджер , для работы с сервером
      */
-    Manager manager;
+    //Manager manager;
+    static ClientManager manager;
 
     /**
      * Конструктор графического интерфейса
      *
      * @param manager менеджер для работы с сервером
      */
-    public GUI(Manager manager) {
+    public GUI(ClientManager manager) {
         super("TASK MANAGER");
         this.pack();
         this.manager = manager;
@@ -201,7 +202,7 @@ public class GUI extends JFrame implements ListChangedSubscriber{
     }
 
     public static void main(String[] argv) {
-        ClientManager manager = new ClientManager();
+        manager = new ClientManager();
         GUI gui = new GUI(manager);
         manager.subscribe(gui);
     }

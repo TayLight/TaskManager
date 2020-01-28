@@ -82,6 +82,11 @@ public interface Manager<T> {
      */
     void subscribe(ListChangedSubscriber subscriber);
 
+    /** Метод подписки на обновления
+     * @param notificationSubscriber Новый подписчик
+     */
+    void notificationSubscribe(NotificationSubscriber notificationSubscriber);
+
     /**Метод отписки от обновлений
      */
     void unsubscribe();

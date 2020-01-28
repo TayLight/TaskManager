@@ -83,6 +83,7 @@ public class GUI extends JFrame implements ListChangedSubscriber{
         super("TASK MANAGER");
         this.pack();
         this.manager = manager;
+        manager.subscribe(GUI.this);
         listTask.setModel((ListModel) manager);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize((sizeScreen.width / 2) - 100, sizeScreen.height / 2);
@@ -90,6 +91,7 @@ public class GUI extends JFrame implements ListChangedSubscriber{
         setContentPane(panel1);
         setVisible(true);
         connectToServer();
+        listTask.setModel(manager);
         this.addWindowListener(new WindowListener() {
 
             public void windowActivated(WindowEvent event) {
@@ -130,40 +132,31 @@ public class GUI extends JFrame implements ListChangedSubscriber{
             }
 
         });
-        addTaskButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (!isConnection) JOptionPane.showMessageDialog(GUI.this, "Нет соединения с сервером!");
-                else {
-                    InputTask inputTask = new InputTask(manager, GUI.this);
+        addTaskButton.addActionListener(e -> {
+            if (!isConnection) JOptionPane.showMessageDialog(GUI.this, "Нет соединения с сервером!");
+            else {
+                InputTask inputTask = new InputTask(manager, GUI.this);
+            }
+        });
+        deleteTaskButton.addActionListener(e -> {
+            if (!isConnection) JOptionPane.showMessageDialog(GUI.this, "Соединение с сервером еще не установлено!");
+            else {
+                try {
+                    int index = listTask.getSelectedIndex();
+                    manager.deleteItem(index);
+                    updateList();
+                } catch (ItemNotFoundException ex) {
+                    JOptionPane.showMessageDialog(GUI.this, "Неверный ввод");
+                } catch (IOException ex) {
+                    connectToServer();
                 }
             }
         });
-        deleteTaskButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (!isConnection) JOptionPane.showMessageDialog(GUI.this, "Соединение с сервером еще не установлено!");
-                else {
-                    try {
-                        int index = listTask.getSelectedIndex();
-                        manager.deleteItem(index);
-                        updateList();
-                    } catch (ItemNotFoundException ex) {
-                        JOptionPane.showMessageDialog(GUI.this, "Неверный ввод");
-                    } catch (IOException ex) {
-                        connectToServer();
-                    }
-                }
-            }
-        });
-        editTaskButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (!isConnection) JOptionPane.showMessageDialog(GUI.this, "Нет соединения с сервером!");
-                else {
-                    selectedTask = (Task) listTask.getSelectedValue();
-                    EditTask editTask = new EditTask(manager, listTask.getSelectedIndex(), selectedTask, GUI.this);
-                }
+        editTaskButton.addActionListener(e -> {
+            if (!isConnection) JOptionPane.showMessageDialog(GUI.this, "Нет соединения с сервером!");
+            else {
+                selectedTask = (Task) listTask.getSelectedValue();
+                EditTask editTask = new EditTask(manager, listTask.getSelectedIndex(), selectedTask, GUI.this);
             }
         });
         connectionButton.addActionListener(e -> {
@@ -174,31 +167,25 @@ public class GUI extends JFrame implements ListChangedSubscriber{
                 connectionLost();
             }
         });
-        exitButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Object[] options = {"Да", "Нет!"};
-                int n = JOptionPane
-                        .showOptionDialog(GUI.this, "Закрыть окно?",
-                                "Подтверждение", JOptionPane.YES_NO_OPTION,
-                                JOptionPane.QUESTION_MESSAGE, null, options,
-                                options[0]);
-                if (n == 0) {
-                    GUI.this.setVisible(false);
-                    System.exit(0);
-                }
+        exitButton.addActionListener(e -> {
+            Object[] options = {"Да", "Нет!"};
+            int n = JOptionPane
+                    .showOptionDialog(GUI.this, "Закрыть окно?",
+                            "Подтверждение", JOptionPane.YES_NO_OPTION,
+                            JOptionPane.QUESTION_MESSAGE, null, options,
+                            options[0]);
+            if (n == 0) {
+                GUI.this.setVisible(false);
+                manager.unsubscribe();
+                System.exit(0);
             }
         });
-        listTask.addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent evt) {
-                if (!evt.getValueIsAdjusting()) {
-                    selectedTaskIndex = listTask.getSelectedIndex();
-                    selectedTask = (Task) listTask.getSelectedValue();
-                }
+        listTask.addListSelectionListener(evt -> {
+            if (!evt.getValueIsAdjusting()) {
+                selectedTaskIndex = listTask.getSelectedIndex();
+                selectedTask = (Task) listTask.getSelectedValue();
             }
         });
-        listTask.updateUI();
     }
 
     public static void main(String[] argv) {
@@ -252,12 +239,12 @@ public class GUI extends JFrame implements ListChangedSubscriber{
         try {
             statusLabel.setText("Подключение");
             manager.startWork();
-            listTask.setModel((ListModel) manager);
+            listTask.setModel(manager);
             isConnection = true;
             statusLabel.setText("Сервер онлайн");
             connectionFrame.setVisible(false);
             connectionFrame.dispose();
-            updateList();
+            listTask.updateUI();
             GUI.this.setFocusable(true);
         } catch (IOException e) {
             connectionLost();
@@ -269,6 +256,7 @@ public class GUI extends JFrame implements ListChangedSubscriber{
 
     @Override
     public void listChanged() {
+        System.out.println("Обновляем список");
         listTask.updateUI();
     }
 }

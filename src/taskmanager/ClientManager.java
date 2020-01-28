@@ -146,9 +146,7 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
      */
     @Override
     public int getSize() {
-        if (tasks != null)
-            return tasks.size();
-        else return 0;
+        return tasks.size();
     }
 
     /**
@@ -181,6 +179,7 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
 
     @Override
     public void newJournalTask(List<Task> taskList) {
+        System.out.println("Пришел журнал задач");
         tasks = taskList;
         subscriber.listChanged();
     }

@@ -8,6 +8,7 @@ import taskmanager.requests.Request;
 import taskmanager.task.Task;
 
 import java.io.*;
+import java.net.SocketException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -91,7 +92,8 @@ public class ClientThread extends Thread implements NotificationSubscription {
                     }
                 }
             }
-        } catch (JsonParseException e) {
+        }catch (SocketException ignored){}
+         catch (JsonParseException e) {
             e.printStackTrace();
         } catch (JsonMappingException e) {
             e.printStackTrace();

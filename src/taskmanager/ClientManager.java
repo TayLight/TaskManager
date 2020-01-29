@@ -2,25 +2,21 @@ package taskmanager;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import taskmanager.exceptions.ItemNotFoundException;
 import taskmanager.exceptions.NameTaskException;
 import taskmanager.requests.Request;
 import taskmanager.task.Task;
 
-import javax.swing.*;
 import java.io.*;
 import java.net.Socket;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
 /**
  * Класс для взаимодействия клиента с сервером
  */
-public class ClientManager extends DefaultListModel<Task> implements Manager<Task>, NotificationSubscriber, ListChangedSubscription {
+public class ClientManager implements Manager<Task>, NotificationSubscriber, ListChangedSubscription {
     private ListChangedSubscriber subscriber;
-    DefaultListModel<Task> listModel;
-    private LinkedList<Task> tasks = new LinkedList<>();
+    private List<Task> tasks;
     /**
      * Клиентский сокет
      */
@@ -52,14 +48,14 @@ public class ClientManager extends DefaultListModel<Task> implements Manager<Tas
     }
 
     @Override
-    public void deleteItem(int index) throws IOException, ItemNotFoundException {
+    public void deleteItem(int index) throws IOException {
         Request deleteItemRequest = new Request("DeleteItem", index);
         objectMapper.writeValue(outputStream, deleteItemRequest);
     }
 
     @Override
     public Task getItem(int index) {
-        return null;
+        return tasks.get(index);
     }
 
     @Override
@@ -149,54 +145,37 @@ public class ClientManager extends DefaultListModel<Task> implements Manager<Tas
      */
     @Override
     public int getSize() {
-        if(listModel==null){
-            System.out.println(0);
-            return 0;}
-        System.out.println(listModel.size());
-        return listModel.getSize();
+        if(tasks==null) return 0;
+        return tasks.size();
     }
-
-    /**
-     * @param index индекс необходимого параметра
-     * @return возвращает задачу, с нужным индексом
-     */
-    @Override
-    public Task getElementAt(int index) {
-        System.out.println(index);
-        return listModel.get(index);
-    }
-
 
     @Override
     public void taskDeleted(int index) {
-        listModel.remove(index);
+        tasks.remove(index);
         subscriber.listChanged();
     }
 
     @Override
     public void taskAdded(Task task) {
-        listModel.addElement(task);
+        tasks.add(task);
         subscriber.listChanged();
     }
 
     @Override
     public void taskUpdated(int index, Task task) {
-        listModel.set(index, task);
+        tasks.set(index, task);
         subscriber.listChanged();
     }
 
     @Override
     public void newJournalTask(List<Task> taskList) {
-        System.out.println("Пришел журнал задач");
-        listModel = new DefaultListModel<>();
-        listModel.addAll(taskList);
-        System.out.println(taskList.size());
+        tasks = taskList;
         subscriber.listChanged();
     }
 
     @Override
     public void notifyTask(int index) {
-        listModel.get(index).setRelevance(false);
+        tasks.get(index).setRelevance(false);
         subscriber.listChanged();
     }
 }

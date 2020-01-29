@@ -1,16 +1,8 @@
 package taskmanager;
 
-import taskmanager.exceptions.ItemNotFoundException;
-import taskmanager.requests.Request;
 import taskmanager.task.Task;
-
 import javax.swing.*;
-import javax.swing.border.EtchedBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.IOException;
@@ -89,7 +81,7 @@ public class GUI extends JFrame implements ListChangedSubscriber{
 
             @Override
             public Object getElementAt(int index) {
-                return manager.getElementAt(index);
+                return manager.getItem(index);
             }
         });
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -151,8 +143,6 @@ public class GUI extends JFrame implements ListChangedSubscriber{
                     int index = listTask.getSelectedIndex();
                     manager.deleteItem(index);
                     updateList();
-                } catch (ItemNotFoundException ex) {
-                    JOptionPane.showMessageDialog(GUI.this, "Неверный ввод");
                 } catch (IOException ex) {
                     connectToServer();
                 }
@@ -256,7 +246,7 @@ public class GUI extends JFrame implements ListChangedSubscriber{
 
             @Override
             public Object getElementAt(int index) {
-                return manager.getElementAt(index);
+                return manager.getItem(index);
             }
         });
         listTask.getSelectedIndex();

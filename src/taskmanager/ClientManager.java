@@ -10,15 +10,17 @@ import taskmanager.task.Task;
 import javax.swing.*;
 import java.io.*;
 import java.net.Socket;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
 /**
  * Класс для взаимодействия клиента с сервером
  */
-public class ClientManager extends AbstractListModel<Task> implements Manager<Task>, NotificationSubscriber, ListChangedSubscription {
+public class ClientManager extends DefaultListModel<Task> implements Manager<Task>, NotificationSubscriber, ListChangedSubscription {
     private ListChangedSubscriber subscriber;
-    private List<Task> tasks;
+    DefaultListModel<Task> listModel;
+    private LinkedList<Task> tasks = new LinkedList<>();
     /**
      * Клиентский сокет
      */
@@ -97,6 +99,7 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
                 ClientThread clientThread = new ClientThread((InputStream) inputStream);
                 clientThread.subscribe(this); //ClientManager - подписчик ClientThread
                 clientThread.start();
+                subscriber.listChanged();
                 break;
             } catch (IOException e) {
                 tryConnection++;
@@ -107,12 +110,12 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
 
     @Override
     public void finalWork() throws IOException {
-        socket.close();
+        if(socket!= null)socket.close();
     }
 
     @Override
     public List<Task> getItems() {
-        return null;
+        return tasks;
     }
 
 
@@ -146,7 +149,11 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
      */
     @Override
     public int getSize() {
-        return tasks.size();
+        if(listModel==null){
+            System.out.println(0);
+            return 0;}
+        System.out.println(listModel.size());
+        return listModel.getSize();
     }
 
     /**
@@ -155,38 +162,41 @@ public class ClientManager extends AbstractListModel<Task> implements Manager<Ta
      */
     @Override
     public Task getElementAt(int index) {
-        return tasks.get(index);
+        System.out.println(index);
+        return listModel.get(index);
     }
 
 
     @Override
     public void taskDeleted(int index) {
-        tasks.remove(index);
+        listModel.remove(index);
         subscriber.listChanged();
     }
 
     @Override
     public void taskAdded(Task task) {
-        tasks.add(task);
+        listModel.addElement(task);
         subscriber.listChanged();
     }
 
     @Override
     public void taskUpdated(int index, Task task) {
-        tasks.set(index, task);
+        listModel.set(index, task);
         subscriber.listChanged();
     }
 
     @Override
     public void newJournalTask(List<Task> taskList) {
         System.out.println("Пришел журнал задач");
-        tasks = taskList;
+        listModel = new DefaultListModel<>();
+        listModel.addAll(taskList);
+        System.out.println(taskList.size());
         subscriber.listChanged();
     }
 
     @Override
     public void notifyTask(int index) {
-        tasks.get(index).setRelevance(false);
+        listModel.get(index).setRelevance(false);
         subscriber.listChanged();
     }
 }

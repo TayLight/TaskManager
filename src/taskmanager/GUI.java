@@ -33,10 +33,6 @@ public class GUI extends JFrame implements ListChangedSubscriber{
      */
     private static Dimension sizeScreen = Toolkit.getDefaultToolkit().getScreenSize();
     /**
-     * Список моделей, для работы с выводом на экран
-     */
-    private AbstractListModel model;
-    /**
      * Вывод списка на экран
      */
     private JList listTask;
@@ -68,6 +64,7 @@ public class GUI extends JFrame implements ListChangedSubscriber{
      * Надпись статуса сервера
      */
     private JLabel statusLabel;
+    private JScrollPane scrollPane;
     /**
      * Менеджер , для работы с сервером
      */
@@ -82,16 +79,25 @@ public class GUI extends JFrame implements ListChangedSubscriber{
     public GUI(ClientManager manager) {
         super("TASK MANAGER");
         this.pack();
-        this.manager = manager;
+        GUI.manager = manager;
         manager.subscribe(GUI.this);
-        listTask.setModel((ListModel) manager);
+        listTask.setModel(new AbstractListModel() {
+            @Override
+            public int getSize() {
+                return manager.getSize();
+            }
+
+            @Override
+            public Object getElementAt(int index) {
+                return manager.getElementAt(index);
+            }
+        });
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize((sizeScreen.width / 2) - 100, sizeScreen.height / 2);
         setLocationRelativeTo(null);
         setContentPane(panel1);
         setVisible(true);
         connectToServer();
-        listTask.setModel(manager);
         this.addWindowListener(new WindowListener() {
 
             public void windowActivated(WindowEvent event) {
@@ -186,6 +192,7 @@ public class GUI extends JFrame implements ListChangedSubscriber{
                 selectedTask = (Task) listTask.getSelectedValue();
             }
         });
+        updateList();
     }
 
     public static void main(String[] argv) {
@@ -205,28 +212,12 @@ public class GUI extends JFrame implements ListChangedSubscriber{
         }
     }
 
-
-    /**
-     * Метод инициализации журнала задач на экране
-     */
-    private void createUIComponents() {
-        listTask = new JList();
-        listTask.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createTitledBorder(
-                        BorderFactory.createEtchedBorder(EtchedBorder.LOWERED),
-                        "Список задач"),
-                BorderFactory.createEmptyBorder(30, 30, 30, 30)));
-    }
-
     /**
      * Метод, оповещающий пользователя о потере соединения с сервером
      */
     public void connectionLost() {
         JOptionPane.
                 showMessageDialog(GUI.this, "Соединение невозможно! \n Возможно сервер в неактивном состоянии");
-        DefaultListModel<String> lostConnectionList = new DefaultListModel<>();
-        lostConnectionList.addElement("Нет соединения с сервером");
-        listTask.setModel(lostConnectionList);
         isConnection = false;
         statusLabel.setText("Сервер недоступен");
     }
@@ -239,13 +230,13 @@ public class GUI extends JFrame implements ListChangedSubscriber{
         try {
             statusLabel.setText("Подключение");
             manager.startWork();
-            listTask.setModel(manager);
             isConnection = true;
             statusLabel.setText("Сервер онлайн");
             connectionFrame.setVisible(false);
             connectionFrame.dispose();
             listTask.updateUI();
             GUI.this.setFocusable(true);
+            listChanged();
         } catch (IOException e) {
             connectionLost();
             connectionFrame.setVisible(false);
@@ -257,6 +248,20 @@ public class GUI extends JFrame implements ListChangedSubscriber{
     @Override
     public void listChanged() {
         System.out.println("Обновляем список");
-        listTask.updateUI();
+        listTask.setModel(new AbstractListModel() {
+            @Override
+            public int getSize() {
+                return manager.getSize();
+            }
+
+            @Override
+            public Object getElementAt(int index) {
+                return manager.getElementAt(index);
+            }
+        });
+        listTask.getSelectedIndex();
+    }
+
+    private void createUIComponents() {
     }
 }

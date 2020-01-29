@@ -28,6 +28,7 @@ public class ServerThread extends Thread implements ListChangedSubscriber, Notif
      * поток записи в сокет
      */
     private DataOutputStream outputStream;
+    private boolean isProcessed=false;
 
     private ObjectMapper objectMapper;
 

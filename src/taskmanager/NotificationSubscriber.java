@@ -6,7 +6,6 @@ import taskmanager.task.Task;
 import java.util.List;
 
 public interface NotificationSubscriber {
-
     /**
      * Метод, оповещающий подписчиков об удалении задачи из журнала задач
      *

@@ -16,6 +16,7 @@ public class ClientThread extends Thread implements NotificationSubscription {
     private InputStream inputStream;
     private ObjectMapper objectMapper;
     private NotificationSubscriber subscriber;
+    private boolean journalTaskIsLoaded=false;
 
 
     enum Message {
@@ -52,13 +53,16 @@ public class ClientThread extends Thread implements NotificationSubscription {
                     if (request.getCommand().contains(msg.message)) { //а не contains ли вместо equals? TODO
                         switch (msg) {
                             case ADD_ITEM:
+                                if(!journalTaskIsLoaded) break;
                                 Task addedTask = objectMapper.convertValue(request.getData(), Task.class);
                                 subscriber.taskAdded(addedTask);
                                 break;
                             case DELETE_ITEM:
+                                if(!journalTaskIsLoaded) break;
                                 subscriber.taskDeleted((int) request.getData());
                                 break;
                             case UPDATE_ITEM:
+                                if(!journalTaskIsLoaded) break;
                                 StringBuilder sbIndex = new StringBuilder();
                                 for (int i = 10; i < request.getCommand().toCharArray().length; i++) {
                                     sbIndex.append(request.getCommand().toCharArray()[i]);
@@ -67,12 +71,15 @@ public class ClientThread extends Thread implements NotificationSubscription {
                                 subscriber.taskUpdated(index, objectMapper.convertValue(request.getData(), Task.class));
                                 break;
                             case JOURNAL_TASK:
+                                if(journalTaskIsLoaded) break;
                                 //возможно можно придумать что-то поумнее, но по крайней мере это рабочий вариант TODO
                                 Task[] tasks = objectMapper.convertValue(request.getData(), Task[].class);
                                 List<Task> taskList = new LinkedList<>(Arrays.asList(tasks));
                                 subscriber.newJournalTask(taskList);
+                                journalTaskIsLoaded=true;
                                 break;
                             case NOTIFY:
+                                if(!journalTaskIsLoaded) break;
                                 StringBuilder sbNotifyIndex = new StringBuilder();
                                 for (int i = 6; i < request.getCommand().toCharArray().length; i++) {
                                     sbNotifyIndex.append(request.getCommand().toCharArray()[i]);
